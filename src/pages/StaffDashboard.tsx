@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,9 +12,21 @@ import { DashboardNav } from '@/components/DashboardNav';
 
 export default function StaffDashboard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { profile, signOut } = useAuth();
   const [selectedView, setSelectedView] = useState<'dashboard' | 'all' | 'assigned' | 'detail'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
+
+  // Check for complaint query parameter
+  useEffect(() => {
+    const complaintId = searchParams.get('complaint');
+    if (complaintId) {
+      setSelectedComplaintId(complaintId);
+      setSelectedView('detail');
+      // Clear the query parameter
+      navigate('/staff/dashboard', { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   const { data: stats } = useQuery({
     queryKey: ['staff-stats', profile?.branch, profile?.id],
