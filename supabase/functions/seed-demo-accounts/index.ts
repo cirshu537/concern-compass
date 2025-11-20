@@ -203,6 +203,53 @@ Deno.serve(async (req) => {
         student_type: 'none',
         branch: 'Online',
         program: null
+      },
+      // Brocamp Students
+      {
+        email: 'student1@gmail.com',
+        password: 'student123',
+        full_name: 'student1',
+        role: 'student',
+        student_type: 'brocamp',
+        branch: 'Kochi',
+        program: 'MERN Stack'
+      },
+      {
+        email: 'student3@gmail.com',
+        password: 'student123',
+        full_name: 'student3',
+        role: 'student',
+        student_type: 'brocamp',
+        branch: 'Kochi',
+        program: 'MERN Stack'
+      },
+      {
+        email: 'student4@gmail.com',
+        password: 'student123',
+        full_name: 'Student4',
+        role: 'student',
+        student_type: 'brocamp',
+        branch: 'Calicut - Kakkanchery',
+        program: 'Python Django'
+      },
+      {
+        email: 'student5@gmail.com',
+        password: 'student123',
+        full_name: 'Student5',
+        role: 'student',
+        student_type: 'brocamp',
+        branch: 'Trivandrum',
+        program: 'MERN Stack'
+      },
+      // Exclusive Students
+      {
+        email: 'student2@gmail.com',
+        password: 'student123',
+        full_name: 'student2',
+        role: 'student',
+        student_type: 'exclusive',
+        branch: 'Online',
+        program: 'Full Stack Development'
       }
     ]
 
