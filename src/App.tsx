@@ -15,6 +15,7 @@ import TrainerDashboard from "./pages/TrainerDashboard";
 import StaffDashboard from "./pages/StaffDashboard";
 import BranchAdminDashboard from "./pages/BranchAdminDashboard";
 import MainAdminDashboard from "./pages/MainAdminDashboard";
+import ChatPage from "./pages/ChatPage";
 
 const queryClient = new QueryClient();
 
@@ -34,8 +35,9 @@ const App = () => (
             <Route path="/student/docs" element={<StudentDocs />} />
             <Route path="/trainer/dashboard" element={<TrainerDashboard />} />
             <Route path="/staff/dashboard" element={<StaffDashboard />} />
-            <Route path="/branch-admin/dashboard" element={<BranchAdminDashboard />} />
-            <Route path="/main-admin/dashboard" element={<MainAdminDashboard />} />
+            <Route path="/admin/branch" element={<BranchAdminDashboard />} />
+            <Route path="/admin/main" element={<MainAdminDashboard />} />
+            <Route path="/chat" element={<ChatPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

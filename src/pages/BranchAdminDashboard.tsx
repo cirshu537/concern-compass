@@ -183,7 +183,7 @@ export default function BranchAdminDashboard() {
           <h1 className="text-2xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
             Branch Admin Dashboard
           </h1>
-          <DashboardNav showChat showProfile />
+          <DashboardNav showNotifications showChat showProfile />
         </div>
       </header>
 

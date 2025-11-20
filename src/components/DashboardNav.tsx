@@ -1,7 +1,8 @@
-import { Bell, MessageSquare, User, LogOut } from 'lucide-react';
+import { MessageSquare, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { NotificationBell } from '@/components/NotificationBell';
 
 interface DashboardNavProps {
   showNotifications?: boolean;
@@ -22,21 +23,22 @@ export const DashboardNav = ({
     navigate('/');
   };
 
+  const getChatPath = () => {
+    return '/chat';
+  };
+
   return (
     <div className="flex items-center gap-2">
-      {showNotifications && (
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          {/* Uncomment when notifications are implemented */}
-          {/* <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full"></span> */}
-        </Button>
-      )}
+      {showNotifications && <NotificationBell />}
       
       {showChat && (
-        <Button variant="ghost" size="icon" className="relative">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="relative"
+          onClick={() => navigate(getChatPath())}
+        >
           <MessageSquare className="h-5 w-5" />
-          {/* Red dot for unread messages */}
-          {/* <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full"></span> */}
         </Button>
       )}
       

@@ -8,8 +8,10 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { ArrowLeft, User, MapPin, Calendar, Tag } from 'lucide-react';
+import { ArrowLeft, User, MapPin, Calendar, Tag, Eye } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { ReviewForm } from '@/components/ReviewForm';
+import { ReviewsList } from '@/components/complaints/ReviewsList';
 
 interface ComplaintDetailsProps {
   complaintId: string;
@@ -92,6 +94,27 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
     },
     onError: () => {
       toast.error('Failed to assign staff');
+    },
+  });
+
+  const revealIdentityMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from('complaints')
+        .update({ 
+          identity_revealed: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', complaintId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
+      toast.success('Identity revealed successfully');
+    },
+    onError: () => {
+      toast.error('Failed to reveal identity');
     },
   });
 
@@ -215,11 +238,40 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                     </div>
                   </div>
                 )}
+
+                {profile?.role === 'main_admin' && complaint.anonymous && !complaint.identity_revealed && (
+                  <div>
+                    <Button 
+                      variant="destructive"
+                      onClick={() => revealIdentityMutation.mutate()}
+                      disabled={revealIdentityMutation.isPending}
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      Reveal Student Identity
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      This action will make the student's identity visible to all staff handling this concern
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Reviews Section */}
+      <ReviewsList complaintId={complaintId} />
+
+      {/* Review Form for Students */}
+      {profile?.role === 'student' && 
+       complaint.student_id === profile.id && 
+       (complaint.status === 'fixed' || complaint.status === 'rejected') && (
+        <ReviewForm 
+          complaintId={complaintId}
+          onReviewSubmitted={() => queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] })}
+        />
+      )}
     </div>
   );
 }
