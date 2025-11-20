@@ -16,7 +16,7 @@ export default function MainAdminDashboard() {
   const { profile, signOut } = useAuth();
   const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
-  const [timeRange, setTimeRange] = useState<'weekly' | 'monthly' | 'yearly' | 'lifetime'>('weekly');
+  const [timeRange, setTimeRange] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime'>('today');
 
   // Redirect if not main admin
   useEffect(() => {
@@ -36,6 +36,8 @@ export default function MainAdminDashboard() {
   const getTimeRangeDate = () => {
     const now = new Date();
     switch (timeRange) {
+      case 'today':
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
       case 'weekly':
         return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
       case 'monthly':
@@ -219,7 +221,8 @@ export default function MainAdminDashboard() {
           <Card className="bg-card border-border">
             <CardHeader>
               <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as any)}>
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-5">
+                  <TabsTrigger value="today">Today</TabsTrigger>
                   <TabsTrigger value="weekly">Weekly</TabsTrigger>
                   <TabsTrigger value="monthly">Monthly</TabsTrigger>
                   <TabsTrigger value="yearly">Yearly</TabsTrigger>
