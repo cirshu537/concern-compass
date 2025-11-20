@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Bell, BookOpen, MessageSquarePlus, ArrowLeft, User } from 'lucide-react';
+import { FileText, Bell, BookOpen, MessageSquarePlus, ArrowLeft } from 'lucide-react';
 import { DashboardNav } from '@/components/DashboardNav';
 
 export default function StudentDashboard() {
@@ -18,15 +18,26 @@ export default function StudentDashboard() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
-            Student Portal
-          </h1>
+          <div className="flex items-center gap-6">
+            <h1 className="text-2xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
+              Student Portal
+            </h1>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate('/student/docs')}
+              className="flex items-center gap-2"
+            >
+              <BookOpen className="w-4 h-4" />
+              Documentation
+            </Button>
+          </div>
           <DashboardNav showProfile />
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group" onClick={() => navigate('/student/raise')}>
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
@@ -53,36 +64,6 @@ export default function StudentDashboard() {
             <CardContent>
               <p className="text-sm text-muted-foreground">
                 View the status and updates on all your submitted concerns
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border hover:border-accent/50 transition-all cursor-pointer group" onClick={() => navigate('/student/docs')}>
-            <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                <BookOpen className="w-6 h-6 text-accent" />
-              </div>
-              <CardTitle className="text-xl">App Documentation</CardTitle>
-              <CardDescription>Learn how it works</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Understand the system, rules, credits, and how to use the app
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group" onClick={() => navigate('/student/profile')}>
-            <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <User className="w-6 h-6 text-primary" />
-              </div>
-              <CardTitle className="text-xl">Profile</CardTitle>
-              <CardDescription>Your account details</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                View your credits, stats, and personal information
               </p>
             </CardContent>
           </Card>

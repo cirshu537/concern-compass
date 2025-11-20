@@ -40,11 +40,15 @@ export const DashboardNav = ({
         </Button>
       )}
       
-      {showProfile && (
-        <Button variant="ghost" size="icon">
-          <User className="h-5 w-5" />
-        </Button>
-      )}
+  {showProfile && (
+    <Button 
+      variant="ghost" 
+      size="icon"
+      onClick={() => navigate('/student/profile')}
+    >
+      <User className="h-5 w-5" />
+    </Button>
+  )}
       
       <Button 
         variant="ghost" 
