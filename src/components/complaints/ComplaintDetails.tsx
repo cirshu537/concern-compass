@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Complaint, ComplaintStatus, Profile } from '@/types/database';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +9,7 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { ArrowLeft, User, MapPin, Calendar, Tag, Eye } from 'lucide-react';
+import { ArrowLeft, User, MapPin, Calendar, Tag, Eye, MessageSquare, Users } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { ReviewForm } from '@/components/ReviewForm';
 import { ReviewsList } from '@/components/complaints/ReviewsList';
@@ -19,6 +20,7 @@ interface ComplaintDetailsProps {
 }
 
 export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps) {
+  const navigate = useNavigate();
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [newStatus, setNewStatus] = useState<ComplaintStatus | null>(null);
@@ -63,6 +65,81 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
       
       if (error) throw error;
       return data;
+    },
+  });
+
+  // Check for existing conversations
+  const { data: existingConversations } = useQuery({
+    queryKey: ['conversations', complaintId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('conversations')
+        .select('*')
+        .eq('complaint_id', complaintId)
+        .eq('is_closed', false);
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const startMainToBranchConversation = useMutation({
+    mutationFn: async () => {
+      // Check if conversation already exists
+      const existing = existingConversations?.find(c => c.type === 'main_to_branch');
+      if (existing) {
+        navigate(`/chat?conversation=${existing.id}`);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('conversations')
+        .insert({
+          complaint_id: complaintId,
+          type: 'main_to_branch',
+          branch: complaint!.branch,
+          started_by_id: profile!.id
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      navigate(`/chat?conversation=${data.id}`);
+    },
+    onError: () => {
+      toast.error('Failed to start conversation');
+    },
+  });
+
+  const startBranchToStaffConversation = useMutation({
+    mutationFn: async (type: 'group' | 'direct') => {
+      const conversationType = type === 'group' ? 'branch_to_staff_group' : 'branch_to_staff_direct';
+      
+      // Check if group conversation already exists
+      if (type === 'group') {
+        const existing = existingConversations?.find(c => c.type === 'branch_to_staff_group');
+        if (existing) {
+          navigate(`/chat?conversation=${existing.id}`);
+          return;
+        }
+      }
+
+      const { data, error } = await supabase
+        .from('conversations')
+        .insert({
+          complaint_id: complaintId,
+          type: conversationType,
+          branch: complaint!.branch,
+          started_by_id: profile!.id
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      navigate(`/chat?conversation=${data.id}`);
+    },
+    onError: () => {
+      toast.error('Failed to start conversation');
     },
   });
 
@@ -282,6 +359,33 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                   <p className="text-xs text-muted-foreground mt-1">
                     This action will make the student's identity visible to all staff handling this concern
                   </p>
+                </div>
+              )}
+
+              {/* Conversation Buttons */}
+              {profile?.role === 'main_admin' && (
+                <div>
+                  <Button 
+                    className="w-full"
+                    onClick={() => startMainToBranchConversation.mutate()}
+                    disabled={startMainToBranchConversation.isPending}
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Start Conversation with Branch Admin
+                  </Button>
+                </div>
+              )}
+
+              {profile?.role === 'branch_admin' && (
+                <div className="space-y-2">
+                  <Button 
+                    className="w-full"
+                    onClick={() => startBranchToStaffConversation.mutate('group')}
+                    disabled={startBranchToStaffConversation.isPending}
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    Start Group Conversation with Staff
+                  </Button>
                 </div>
               )}
             </div>

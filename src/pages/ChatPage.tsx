@@ -73,7 +73,6 @@ export default function ChatPage() {
           *,
           complaints!inner(title)
         `)
-        .eq('is_closed', false)
         .order('created_at', { ascending: false });
 
       // Filter based on role
@@ -240,7 +239,7 @@ export default function ChatPage() {
                   <div className="p-4 text-center text-muted-foreground">Loading...</div>
                 ) : conversations.length === 0 ? (
                   <div className="p-4 text-center text-muted-foreground">
-                    No active conversations
+                    No conversations yet
                   </div>
                 ) : (
                   <div className="space-y-1 p-2">
@@ -255,8 +254,11 @@ export default function ChatPage() {
                         }`}
                       >
                         <div className="font-medium truncate">{conv.complaint_title}</div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {format(new Date(conv.created_at), 'MMM d, yyyy')}
+                        <div className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
+                          <span>{format(new Date(conv.created_at), 'MMM d, yyyy')}</span>
+                          {conv.is_closed && (
+                            <span className="text-red-500 font-medium">Closed</span>
+                          )}
                         </div>
                       </button>
                     ))}
