@@ -32,7 +32,7 @@ export default function StudentDashboard() {
               Documentation
             </Button>
           </div>
-          <DashboardNav showProfile />
+          <DashboardNav showNotifications showProfile />
         </div>
       </header>
 
