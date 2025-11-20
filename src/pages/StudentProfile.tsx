@@ -20,9 +20,20 @@ export default function StudentProfile() {
         .select('id, status')
         .eq('assigned_staff_id', profile!.id);
 
+      // Get negative events from the past week
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+      const { data: weeklyNegatives } = await supabase
+        .from('negative_events')
+        .select('id, created_at')
+        .eq('user_id', profile!.id)
+        .gte('created_at', oneWeekAgo.toISOString());
+
       return {
         assigned: assignedComplaints?.length || 0,
         open: assignedComplaints?.filter(c => c.status === 'logged' || c.status === 'in_process').length || 0,
+        weeklyNegatives: weeklyNegatives?.length || 0,
       };
     },
   });
@@ -96,52 +107,92 @@ export default function StudentProfile() {
 
           {/* Statistics */}
           {profile?.role === 'staff' ? (
-            // Staff Statistics
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
-                <CardHeader>
-                  <CardTitle className="text-lg text-muted-foreground">Total Credits</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-4xl font-bold text-primary">{profile?.credits || 0}</div>
-                </CardContent>
-              </Card>
+            <>
+              {/* Staff Statistics */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-muted-foreground">Total Credits</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-4xl font-bold text-primary">{profile?.credits || 0}</div>
+                  </CardContent>
+                </Card>
 
-              <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/30">
-                <CardHeader>
-                  <CardTitle className="text-lg text-muted-foreground">Branch</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-secondary">{profile?.branch || 'N/A'}</div>
-                </CardContent>
-              </Card>
+                <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/30">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-muted-foreground">Branch</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-secondary">{profile?.branch || 'N/A'}</div>
+                  </CardContent>
+                </Card>
 
-              <Card className={`bg-gradient-to-br ${profile?.high_alert ? 'from-destructive/10 to-destructive/5 border-destructive/30' : 'from-card to-card/50 border-border'}`}>
+                <Card className={`bg-gradient-to-br ${profile?.high_alert ? 'from-destructive/10 to-destructive/5 border-destructive/30' : 'from-card to-card/50 border-border'}`}>
+                  <CardHeader>
+                    <CardTitle className="text-lg text-muted-foreground">Status</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {profile?.high_alert ? (
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-6 h-6 text-destructive" />
+                        <span className="text-xl font-bold text-destructive">High Alert</span>
+                      </div>
+                    ) : (
+                      <div className="text-2xl font-bold text-status-fixed">Active</div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/30">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-muted-foreground">Performance</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-4xl font-bold text-accent">{staffStats?.open || 0}</div>
+                    <p className="text-sm text-muted-foreground mt-2">Open assignments</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Weekly Negative Events for Staff */}
+              <Card className={`bg-gradient-to-br ${(staffStats?.weeklyNegatives || 0) >= 3 ? 'from-destructive/10 to-destructive/5 border-destructive' : 'from-destructive/5 to-background border-destructive/30'}`}>
                 <CardHeader>
-                  <CardTitle className="text-lg text-muted-foreground">Status</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 text-destructive" />
+                    Weekly Negative Events
+                  </CardTitle>
+                  <CardDescription>Last 7 days</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {profile?.high_alert ? (
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="w-6 h-6 text-destructive" />
-                      <span className="text-xl font-bold text-destructive">High Alert</span>
+                  <div className="text-5xl font-bold text-destructive mb-4">{staffStats?.weeklyNegatives || 0} / 3</div>
+                  {(staffStats?.weeklyNegatives || 0) >= 3 ? (
+                    <div className="bg-destructive/20 border border-destructive rounded-lg p-4">
+                      <p className="text-destructive font-semibold mb-2 flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5" />
+                        URGENT: Report Required
+                      </p>
+                      <p className="text-destructive/90 text-sm">
+                        You have received 3 or more negative reviews this week. You are required to report to your Branch Admin physically immediately.
+                      </p>
                     </div>
+                  ) : (staffStats?.weeklyNegatives || 0) >= 2 ? (
+                    <p className="text-destructive/80 text-sm">
+                      Warning: You are close to the threshold. One more negative review this week will require you to report to Branch Admin.
+                    </p>
                   ) : (
-                    <div className="text-2xl font-bold text-status-fixed">Active</div>
+                    <p className="text-muted-foreground text-sm">
+                      Maintain professional service to keep this count low.
+                    </p>
                   )}
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <div className="text-sm text-muted-foreground">
+                      Lifetime Negatives: <span className="font-semibold text-foreground">{profile?.negative_count_lifetime || 0}</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-
-              <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/30">
-                <CardHeader>
-                  <CardTitle className="text-lg text-muted-foreground">Performance</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-4xl font-bold text-accent">{staffStats?.open || 0}</div>
-                  <p className="text-sm text-muted-foreground mt-2">Open assignments</p>
-                </CardContent>
-              </Card>
-            </div>
+            </>
           ) : (
             // Student Statistics
             <div className="grid md:grid-cols-2 gap-6">
