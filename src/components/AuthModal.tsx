@@ -86,9 +86,9 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
-      <DialogContent className="max-w-md my-8 bg-card border-border">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto my-4 bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center bg-gradient-cyber bg-clip-text text-transparent">
+          <DialogTitle className="text-xl font-bold text-center bg-gradient-cyber bg-clip-text text-transparent">
             {isLogin ? 'Login' : 'Register'}
           </DialogTitle>
         </DialogHeader>
@@ -275,43 +275,43 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
             </TabsContent>
           </Tabs>
         ) : (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="register-name">Full Name *</Label>
+          <div className="space-y-2">
+            <div className="space-y-1">
+              <Label htmlFor="register-name" className="text-sm">Full Name *</Label>
               <Input
                 id="register-name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="bg-input border-border"
+                className="bg-input border-border h-9"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="register-email">Email *</Label>
+            <div className="space-y-1">
+              <Label htmlFor="register-email" className="text-sm">Email *</Label>
               <Input
                 id="register-email"
                 type="email"
                 value={registerEmail}
                 onChange={(e) => setRegisterEmail(e.target.value)}
-                className="bg-input border-border"
+                className="bg-input border-border h-9"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="register-password">Password *</Label>
+            <div className="space-y-1">
+              <Label htmlFor="register-password" className="text-sm">Password *</Label>
               <Input
                 id="register-password"
                 type="password"
                 value={registerPassword}
                 onChange={(e) => setRegisterPassword(e.target.value)}
-                className="bg-input border-border"
+                className="bg-input border-border h-9"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="student-type">Student Type *</Label>
+            <div className="space-y-1">
+              <Label htmlFor="student-type" className="text-sm">Student Type *</Label>
               <Select value={studentType} onValueChange={(value) => setStudentType(value as StudentType)}>
-                <SelectTrigger className="bg-input border-border">
+                <SelectTrigger className="bg-input border-border h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -321,10 +321,10 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="branch">Branch *</Label>
+            <div className="space-y-1">
+              <Label htmlFor="branch" className="text-sm">Branch *</Label>
               <Select value={branch} onValueChange={setBranch}>
-                <SelectTrigger className="bg-input border-border">
+                <SelectTrigger className="bg-input border-border h-9">
                   <SelectValue placeholder="Select branch" />
                 </SelectTrigger>
                 <SelectContent>
@@ -337,30 +337,30 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
             </div>
 
             {studentType === 'brocamp' && (
-              <div className="space-y-2">
-                <Label htmlFor="program">Program</Label>
+              <div className="space-y-1">
+                <Label htmlFor="program" className="text-sm">Program</Label>
                 <Input
                   id="program"
                   value={program}
                   onChange={(e) => setProgram(e.target.value)}
                   placeholder="e.g., Full Stack Development"
-                  className="bg-input border-border"
+                  className="bg-input border-border h-9"
                 />
               </div>
             )}
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 pt-2">
               <Button
                 variant="outline"
                 onClick={() => setIsLogin(true)}
-                className="flex-1"
+                className="flex-1 h-9"
               >
                 Back to Login
               </Button>
               <Button
                 onClick={handleRegister}
                 disabled={loading}
-                className="flex-1 bg-gradient-cyber text-primary-foreground hover:opacity-90"
+                className="flex-1 h-9 bg-gradient-cyber text-primary-foreground hover:opacity-90"
               >
                 {loading ? 'Creating...' : 'Register'}
               </Button>
