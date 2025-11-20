@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ComplaintsList } from '@/components/complaints/ComplaintsList';
 import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
-import { FileText, Award, LogOut, AlertTriangle } from 'lucide-react';
+import { FileText, Award, LogOut, AlertTriangle, ChevronLeft } from 'lucide-react';
+import { DashboardNav } from '@/components/DashboardNav';
 
 export default function StaffDashboard() {
   const navigate = useNavigate();
@@ -56,10 +57,11 @@ export default function StaffDashboard() {
       return (
         <div>
           <Button 
-            variant="ghost" 
+            variant="default" 
             onClick={() => setSelectedView('dashboard')}
             className="mb-4"
           >
+            <ChevronLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
           <ComplaintsList
@@ -77,10 +79,11 @@ export default function StaffDashboard() {
       return (
         <div>
           <Button 
-            variant="ghost" 
+            variant="default" 
             onClick={() => setSelectedView('dashboard')}
             className="mb-4"
           >
+            <ChevronLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
           <ComplaintsList
@@ -198,17 +201,9 @@ export default function StaffDashboard() {
       <header className="border-b border-border bg-card/50 backdrop-blur">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
-            Staff Portal
+            Staff Dashboard
           </h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              Hello, <span className="text-primary font-semibold">{profile?.full_name}</span>
-            </span>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </div>
+          <DashboardNav showNotifications showChat showProfile />
         </div>
       </header>
 

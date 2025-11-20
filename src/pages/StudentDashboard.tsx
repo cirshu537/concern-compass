@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Bell, BookOpen, User, LogOut, MessageSquarePlus } from 'lucide-react';
+import { FileText, Bell, BookOpen, MessageSquarePlus, ArrowLeft, User } from 'lucide-react';
+import { DashboardNav } from '@/components/DashboardNav';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
@@ -20,15 +21,7 @@ export default function StudentDashboard() {
           <h1 className="text-2xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
             Student Portal
           </h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              Hello, <span className="text-primary font-semibold">{profile?.full_name}</span>
-            </span>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </div>
+          <DashboardNav showProfile />
         </div>
       </header>
 
