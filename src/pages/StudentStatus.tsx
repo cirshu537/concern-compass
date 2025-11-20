@@ -65,6 +65,12 @@ export default function StudentStatus() {
         newSet.delete(id);
       } else {
         newSet.add(id);
+        // Close review form when opening reviews
+        setExpandedReviewForms(prevForms => {
+          const newForms = new Set(prevForms);
+          newForms.delete(id);
+          return newForms;
+        });
       }
       return newSet;
     });
@@ -77,6 +83,12 @@ export default function StudentStatus() {
         newSet.delete(id);
       } else {
         newSet.add(id);
+        // Close reviews when opening review form
+        setExpandedComplaints(prevComplaints => {
+          const newComplaints = new Set(prevComplaints);
+          newComplaints.delete(id);
+          return newComplaints;
+        });
       }
       return newSet;
     });
@@ -165,22 +177,43 @@ export default function StudentStatus() {
                       </div>
                     )}
                     
-                    {canReview && (
+                    {(canReview || showReviews) && (
                       <div className="mt-4 pt-4 border-t border-border">
-                        <Button
-                          variant="ghost"
-                          onClick={() => toggleReviewForm(complaint.id)}
-                          className="w-full justify-between"
-                        >
-                          <span className="font-medium">
-                            {isReviewFormExpanded ? 'Hide Review Form' : 'Write a Review'}
-                          </span>
-                          {isReviewFormExpanded ? (
-                            <ChevronUp className="w-4 h-4" />
-                          ) : (
-                            <ChevronDown className="w-4 h-4" />
+                        <div className="flex gap-2">
+                          {canReview && (
+                            <Button
+                              variant="ghost"
+                              onClick={() => toggleReviewForm(complaint.id)}
+                              className="flex-1 justify-between"
+                            >
+                              <span className="font-medium">
+                                {isReviewFormExpanded ? 'Hide Review Form' : 'Write a Review'}
+                              </span>
+                              {isReviewFormExpanded ? (
+                                <ChevronUp className="w-4 h-4" />
+                              ) : (
+                                <ChevronDown className="w-4 h-4" />
+                              )}
+                            </Button>
                           )}
-                        </Button>
+                          
+                          {showReviews && (
+                            <Button
+                              variant="ghost"
+                              onClick={() => toggleExpanded(complaint.id)}
+                              className="flex-1 justify-between"
+                            >
+                              <span className="font-medium">
+                                {isExpanded ? 'Hide Reviews' : 'View Reviews'}
+                              </span>
+                              {isExpanded ? (
+                                <ChevronUp className="w-4 h-4" />
+                              ) : (
+                                <ChevronDown className="w-4 h-4" />
+                              )}
+                            </Button>
+                          )}
+                        </div>
                         
                         {isReviewFormExpanded && (
                           <div className="mt-4">
@@ -193,25 +226,6 @@ export default function StudentStatus() {
                             />
                           </div>
                         )}
-                      </div>
-                    )}
-                    
-                    {showReviews && (
-                      <div className="mt-4 pt-4 border-t border-border">
-                        <Button
-                          variant="ghost"
-                          onClick={() => toggleExpanded(complaint.id)}
-                          className="w-full justify-between"
-                        >
-                          <span className="font-medium">
-                            {isExpanded ? 'Hide Reviews' : 'View Reviews'}
-                          </span>
-                          {isExpanded ? (
-                            <ChevronUp className="w-4 h-4" />
-                          ) : (
-                            <ChevronDown className="w-4 h-4" />
-                          )}
-                        </Button>
                         
                         {isExpanded && (
                           <div className="mt-4 space-y-4">
