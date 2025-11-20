@@ -55,9 +55,19 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
 
   const updateStatusMutation = useMutation({
     mutationFn: async (status: ComplaintStatus) => {
+      const updateData: any = { 
+        status, 
+        updated_at: new Date().toISOString() 
+      };
+      
+      // If moving to in_process, assign to current staff
+      if (status === 'in_process' && profile?.role === 'staff') {
+        updateData.assigned_staff_id = profile.id;
+      }
+      
       const { error } = await supabase
         .from('complaints')
-        .update({ status, updated_at: new Date().toISOString() })
+        .update(updateData)
         .eq('id', complaintId);
       
       if (error) throw error;
@@ -182,79 +192,85 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
             </div>
           </div>
 
-          {canManage && (
+          {/* Staff Actions - Process Button when Logged */}
+          {(profile?.role === 'staff' || profile?.role === 'branch_admin') && complaint.status === 'logged' && (
             <div className="space-y-4 pt-4 border-t">
-              <h3 className="font-semibold">Management Actions</h3>
+              <h3 className="font-semibold">Take Action</h3>
+              <Button 
+                onClick={() => updateStatusMutation.mutate('in_process')}
+                disabled={updateStatusMutation.isPending}
+                className="w-full"
+              >
+                Process Concern
+              </Button>
+            </div>
+          )}
+
+          {/* Staff Actions - Review & Complete when In Process */}
+          {(profile?.role === 'staff' || profile?.role === 'branch_admin') && 
+           complaint.status === 'in_process' && 
+           (complaint.assigned_staff_id === profile.id || profile.role === 'branch_admin') && (
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="font-semibold">Review & Complete</h3>
+              <p className="text-sm text-muted-foreground">Please provide your rating and review before marking as fixed or cancelled</p>
+              <ReviewForm 
+                complaintId={complaintId} 
+                onReviewSubmitted={() => {
+                  queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
+                  queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
+                }}
+                allowStatusChange={true}
+                currentStatus={complaint.status}
+              />
+            </div>
+          )}
+
+          {/* Admin Actions */}
+          {(profile?.role === 'branch_admin' || profile?.role === 'main_admin') && (
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="font-semibold">Admin Actions</h3>
               
-              <div className="grid gap-4">
+              {staff && complaint.status === 'logged' && (
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Update Status</label>
+                  <label className="text-sm font-medium mb-2 block">Assign to Staff</label>
                   <div className="flex gap-2">
-                    <Select value={newStatus || complaint.status} onValueChange={(value) => setNewStatus(value as ComplaintStatus)}>
+                    <Select value={assignedStaffId || complaint.assigned_staff_id || ''} onValueChange={setAssignedStaffId}>
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Select staff member" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="logged">Logged</SelectItem>
-                        <SelectItem value="in_process">In Process</SelectItem>
-                        <SelectItem value="fixed">Fixed</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
-                        <SelectItem value="rejected">Rejected</SelectItem>
+                        {staff.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>{s.full_name}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
-                    {newStatus && newStatus !== complaint.status && (
+                    {assignedStaffId && assignedStaffId !== complaint.assigned_staff_id && (
                       <Button 
-                        onClick={() => updateStatusMutation.mutate(newStatus)}
-                        disabled={updateStatusMutation.isPending}
+                        onClick={() => assignStaffMutation.mutate(assignedStaffId)}
+                        disabled={assignStaffMutation.isPending}
                       >
-                        Update
+                        Assign
                       </Button>
                     )}
                   </div>
                 </div>
+              )}
 
-                {(profile?.role === 'branch_admin' || profile?.role === 'main_admin') && staff && (
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Assign to Staff</label>
-                    <div className="flex gap-2">
-                      <Select value={assignedStaffId || complaint.assigned_staff_id || ''} onValueChange={setAssignedStaffId}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select staff member" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {staff.map((s) => (
-                            <SelectItem key={s.id} value={s.id}>{s.full_name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {assignedStaffId && assignedStaffId !== complaint.assigned_staff_id && (
-                        <Button 
-                          onClick={() => assignStaffMutation.mutate(assignedStaffId)}
-                          disabled={assignStaffMutation.isPending}
-                        >
-                          Assign
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {profile?.role === 'main_admin' && complaint.anonymous && !complaint.identity_revealed && (
-                  <div>
-                    <Button 
-                      variant="destructive"
-                      onClick={() => revealIdentityMutation.mutate()}
-                      disabled={revealIdentityMutation.isPending}
-                    >
-                      <Eye className="w-4 h-4 mr-2" />
-                      Reveal Student Identity
-                    </Button>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      This action will make the student's identity visible to all staff handling this concern
-                    </p>
-                  </div>
-                )}
-              </div>
+              {profile?.role === 'main_admin' && complaint.anonymous && !complaint.identity_revealed && (
+                <div>
+                  <Button 
+                    variant="destructive"
+                    onClick={() => revealIdentityMutation.mutate()}
+                    disabled={revealIdentityMutation.isPending}
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    Reveal Student Identity
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    This action will make the student's identity visible to all staff handling this concern
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
@@ -263,13 +279,31 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
       {/* Reviews Section */}
       <ReviewsList complaintId={complaintId} />
 
-      {/* Review Form for Students */}
+      {/* Student Review - After Fixed */}
       {profile?.role === 'student' && 
        complaint.student_id === profile.id && 
-       (complaint.status === 'fixed' || complaint.status === 'rejected') && (
+       complaint.status === 'fixed' && (
         <ReviewForm 
           complaintId={complaintId}
-          onReviewSubmitted={() => queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] })}
+          onReviewSubmitted={() => {
+            queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
+            queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
+          }}
+          allowStatusChange={false}
+        />
+      )}
+
+      {/* Trainer Reply - For trainer_related concerns */}
+      {profile?.role === 'trainer' && 
+       complaint.category === 'trainer_related' && (
+        <ReviewForm 
+          complaintId={complaintId}
+          onReviewSubmitted={() => {
+            queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
+            queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
+          }}
+          allowStatusChange={false}
+          isTrainerReply={true}
         />
       )}
     </div>
