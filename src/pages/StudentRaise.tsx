@@ -78,8 +78,8 @@ export default function StudentRaise() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 backdrop-blur">
+    <div className="min-h-screen bg-background overflow-y-auto">
+      <header className="border-b border-border bg-card/50 backdrop-blur sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <Button variant="default" onClick={() => navigate('/student/dashboard')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -88,7 +88,7 @@ export default function StudentRaise() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-3xl">
+      <main className="container mx-auto px-4 py-8 max-w-3xl overflow-y-auto">
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="text-3xl bg-gradient-cyber bg-clip-text text-transparent">

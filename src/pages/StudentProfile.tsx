@@ -12,7 +12,11 @@ export default function StudentProfile() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur">
         <div className="container mx-auto px-4 py-4">
-          <Button variant="default" onClick={() => navigate('/student/dashboard')}>
+          <Button variant="default" onClick={() => {
+            if (profile?.role === 'staff') navigate('/staff/dashboard');
+            else if (profile?.role === 'trainer') navigate('/trainer/dashboard');
+            else navigate('/student/dashboard');
+          }}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
@@ -51,10 +55,13 @@ export default function StudentProfile() {
                   {profile?.student_type === 'brocamp' ? 'BroCamp Student' : 'Exclusive Member'}
                 </div>
               </div>
-              {profile?.branch && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-lg">{profile.branch}</span>
+              {profile?.student_type === 'brocamp' && profile?.branch && (
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Branch</div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-primary" />
+                    <span className="text-lg font-semibold">{profile.branch}</span>
+                  </div>
                 </div>
               )}
               {profile?.program && (
