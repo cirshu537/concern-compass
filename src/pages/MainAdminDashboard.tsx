@@ -225,7 +225,7 @@ export default function MainAdminDashboard() {
           <h1 className="text-2xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
             Main Admin Dashboard
           </h1>
-          <DashboardNav showChat showProfile />
+          <DashboardNav showNotifications showChat showProfile />
         </div>
       </header>
 
