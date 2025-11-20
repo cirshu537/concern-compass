@@ -208,6 +208,72 @@ export default function MainAdminDashboard() {
           </Card>
         </div>
 
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold mb-4">Branch Overview</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {branchStats?.map((branch) => (
+              <Card key={branch.name} className="bg-card border-border">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Building className="w-5 h-5 text-primary" />
+                    <CardTitle className="text-lg">{branch.name}</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-primary">{branch.count}</div>
+                  <p className="text-sm text-muted-foreground">Total complaints</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card 
+            className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group"
+            onClick={() => setSelectedView('complaints')}
+          >
+            <CardHeader>
+              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <FileText className="w-6 h-6 text-primary" />
+              </div>
+              <CardTitle className="text-xl">All Complaints</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                View and manage all concerns across branches
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group">
+            <CardHeader>
+              <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
+                <MessageSquare className="w-6 h-6 text-secondary" />
+              </div>
+              <CardTitle className="text-xl">Branch Communications</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Chat with branch administrators
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-border hover:border-accent/50 transition-all cursor-pointer group">
+            <CardHeader>
+              <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
+                <Building className="w-6 h-6 text-accent" />
+              </div>
+              <CardTitle className="text-xl">System Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Configure system settings and policies
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* All Concerns Tracking Section */}
         <div className="mb-8">
@@ -287,73 +353,6 @@ export default function MainAdminDashboard() {
                   </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-4">Branch Overview</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {branchStats?.map((branch) => (
-              <Card key={branch.name} className="bg-card border-border">
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <Building className="w-5 h-5 text-primary" />
-                    <CardTitle className="text-lg">{branch.name}</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-primary">{branch.count}</div>
-                  <p className="text-sm text-muted-foreground">Total complaints</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card 
-            className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group"
-            onClick={() => setSelectedView('complaints')}
-          >
-            <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <FileText className="w-6 h-6 text-primary" />
-              </div>
-              <CardTitle className="text-xl">All Complaints</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                View and manage all concerns across branches
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
-                <MessageSquare className="w-6 h-6 text-secondary" />
-              </div>
-              <CardTitle className="text-xl">Branch Communications</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Chat with branch administrators
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border hover:border-accent/50 transition-all cursor-pointer group">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                <Building className="w-6 h-6 text-accent" />
-              </div>
-              <CardTitle className="text-xl">System Management</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Configure system settings and policies
-              </p>
             </CardContent>
           </Card>
         </div>
