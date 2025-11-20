@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,6 +15,13 @@ export default function MainAdminDashboard() {
   const { profile, signOut } = useAuth();
   const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
+
+  // Redirect if not main admin
+  useEffect(() => {
+    if (profile && profile.role !== 'main_admin') {
+      navigate('/');
+    }
+  }, [profile, navigate]);
 
   const { data: stats } = useQuery({
     queryKey: ['main-admin-stats'],
