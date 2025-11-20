@@ -85,7 +85,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
       <DialogContent className="max-w-md my-8 bg-card border-border">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center bg-gradient-cyber bg-clip-text text-transparent">
