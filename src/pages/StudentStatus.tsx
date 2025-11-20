@@ -9,6 +9,7 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { ArrowLeft, Calendar, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { ReviewsList } from '@/components/complaints/ReviewsList';
+import { ReviewForm } from '@/components/ReviewForm';
 
 export default function StudentStatus() {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ export default function StudentStatus() {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedComplaints, setExpandedComplaints] = useState<Set<string>>(new Set());
+  const [studentReviews, setStudentReviews] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchComplaints();
@@ -33,6 +35,17 @@ export default function StudentStatus() {
 
       if (error) throw error;
       setComplaints(data || []);
+
+      // Fetch student's reviews to check which complaints they've already reviewed
+      const { data: reviews } = await supabase
+        .from('complaint_reviews')
+        .select('complaint_id')
+        .eq('reviewer_id', profile.id)
+        .eq('reviewer_role', 'student');
+
+      if (reviews) {
+        setStudentReviews(new Set(reviews.map(r => r.complaint_id)));
+      }
     } catch (error) {
       console.error('Error fetching complaints:', error);
     } finally {
@@ -97,6 +110,8 @@ export default function StudentStatus() {
             {complaints.map((complaint) => {
               const isExpanded = expandedComplaints.has(complaint.id);
               const showReviews = complaint.status === 'fixed' || complaint.status === 'cancelled' || complaint.status === 'rejected';
+              const hasReviewed = studentReviews.has(complaint.id);
+              const canReview = (complaint.status === 'fixed' || complaint.status === 'cancelled') && !hasReviewed;
               
               return (
                 <Card key={complaint.id} className="bg-card border-border hover:border-primary/50 transition-all">
@@ -136,6 +151,15 @@ export default function StudentStatus() {
                       </div>
                     )}
                     
+                    {canReview && (
+                      <div className="mt-4 pt-4 border-t border-border">
+                        <ReviewForm 
+                          complaintId={complaint.id}
+                          onReviewSubmitted={fetchComplaints}
+                        />
+                      </div>
+                    )}
+                    
                     {showReviews && (
                       <div className="mt-4 pt-4 border-t border-border">
                         <Button
@@ -154,7 +178,7 @@ export default function StudentStatus() {
                         </Button>
                         
                         {isExpanded && (
-                          <div className="mt-4">
+                          <div className="mt-4 space-y-4">
                             <ReviewsList complaintId={complaint.id} />
                           </div>
                         )}
