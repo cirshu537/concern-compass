@@ -54,15 +54,15 @@ const Index = () => {
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
         <div className="text-center space-y-8 max-w-4xl mx-auto">
           {/* Logo placeholder */}
-          <div className="w-32 h-32 mx-auto bg-gradient-cyber rounded-2xl flex items-center justify-center shadow-glow-cyan-lg">
-            <span className="text-4xl font-bold text-background">BC</span>
+          <div className="w-32 h-32 mx-auto bg-gradient-cyber rounded-2xl flex items-center justify-center">
+            <span className="text-4xl font-bold text-background">BT</span>
           </div>
 
           {/* Main heading */}
           <div className="space-y-4">
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
               <span className="bg-gradient-cyber bg-clip-text text-transparent">
-                Bro Camp
+                Brototype
               </span>
             </h1>
             <h2 className="text-3xl md:text-4xl font-semibold text-foreground">
@@ -79,39 +79,24 @@ const Index = () => {
               <Button
                 size="lg"
                 onClick={() => setAuthModalOpen(true)}
-                className="bg-gradient-cyber text-background hover:opacity-90 text-lg px-8 py-6 shadow-glow-cyan"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-12 py-6 rounded-lg font-semibold"
               >
                 Login to Continue
               </Button>
             ) : (
-              <div className="space-y-4">
-                <div className="text-lg text-foreground">
-                  Hello, <span className="text-primary font-semibold">{profile?.full_name}</span>
-                </div>
-                <div className="flex gap-4 justify-center">
-                  <Button
-                    size="lg"
-                    onClick={() => {
-                      if (profile?.role === 'student') navigate('/student/dashboard');
-                      else if (profile?.role === 'trainer') navigate('/trainer/dashboard');
-                      else if (profile?.role === 'staff') navigate('/staff/dashboard');
-                      else if (profile?.role === 'branch_admin') navigate('/branch-admin/dashboard');
-                      else if (profile?.role === 'main_admin') navigate('/main-admin/dashboard');
-                    }}
-                    className="bg-gradient-cyber text-background hover:opacity-90"
-                  >
-                    Go to Dashboard
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    onClick={signOut}
-                    className="border-primary/50 text-primary hover:bg-primary/10"
-                  >
-                    Logout
-                  </Button>
-                </div>
-              </div>
+              <Button
+                size="lg"
+                onClick={() => {
+                  if (profile?.role === 'student') navigate('/student/dashboard');
+                  else if (profile?.role === 'trainer') navigate('/trainer/dashboard');
+                  else if (profile?.role === 'staff') navigate('/staff/dashboard');
+                  else if (profile?.role === 'branch_admin') navigate('/branch-admin/dashboard');
+                  else if (profile?.role === 'main_admin') navigate('/main-admin/dashboard');
+                }}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-12 py-6 rounded-lg font-semibold"
+              >
+                Home
+              </Button>
             )}
           </div>
         </div>

@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ComplaintsList } from '@/components/complaints/ComplaintsList';
 import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
-import { FileText, Users, MessageSquare, LogOut } from 'lucide-react';
+import { FileText, Users, MessageSquare, LogOut, ChevronLeft } from 'lucide-react';
+import { DashboardNav } from '@/components/DashboardNav';
 
 export default function BranchAdminDashboard() {
   const navigate = useNavigate();
@@ -58,10 +59,11 @@ export default function BranchAdminDashboard() {
       return (
         <div>
           <Button 
-            variant="ghost" 
+            variant="default" 
             onClick={() => setSelectedView('dashboard')}
             className="mb-4"
           >
+            <ChevronLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
           <ComplaintsList
@@ -179,17 +181,9 @@ export default function BranchAdminDashboard() {
       <header className="border-b border-border bg-card/50 backdrop-blur">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
-            Branch Admin Portal
+            Branch Admin Dashboard
           </h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              Branch: <span className="text-primary font-semibold">{profile?.branch}</span>
-            </span>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </div>
+          <DashboardNav showChat showProfile />
         </div>
       </header>
 
