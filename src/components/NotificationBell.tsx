@@ -115,18 +115,19 @@ export function NotificationBell() {
 
     // Navigate based on notification type
     if (notification.data?.complaint_id) {
-      // Navigate to appropriate dashboard with complaint details
+      const complaintId = notification.data.complaint_id;
       const role = profile?.role;
+      
       if (role === 'student') {
         navigate('/student/status');
       } else if (role === 'trainer') {
-        navigate('/trainer/dashboard');
+        navigate(`/trainer/dashboard?complaint=${complaintId}`);
       } else if (role === 'staff') {
-        navigate('/staff/dashboard');
+        navigate(`/staff/dashboard?complaint=${complaintId}`);
       } else if (role === 'branch_admin') {
-        navigate('/admin/branch');
+        navigate(`/admin/branch?complaint=${complaintId}`);
       } else if (role === 'main_admin') {
-        navigate('/admin/main');
+        navigate(`/admin/main?complaint=${complaintId}`);
       }
     }
   };
