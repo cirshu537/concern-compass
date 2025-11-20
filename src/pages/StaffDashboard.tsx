@@ -46,6 +46,7 @@ export default function StaffDashboard() {
         total: allComplaints?.length || 0,
         assigned: assignedComplaints?.length || 0,
         open: assignedComplaints?.filter(c => c.status === 'logged' || c.status === 'in_process').length || 0,
+        newComplaints: allComplaints?.filter(c => c.status === 'logged').length || 0,
       };
     },
   });
@@ -154,19 +155,30 @@ export default function StaffDashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card 
-            className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer"
+            className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer relative"
             onClick={() => setSelectedView('all')}
           >
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                 <FileText className="w-6 h-6 text-primary" />
               </div>
-              <CardTitle className="text-xl">All Complaints</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl">All Complaints</CardTitle>
+                {stats?.newComplaints ? (
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive"></span>
+                    </span>
+                  </div>
+                ) : null}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary mb-2">{stats?.total || 0}</div>
               <p className="text-sm text-muted-foreground">
                 View all concerns for your branch
+                {stats?.newComplaints ? ` (${stats.newComplaints} new)` : ''}
               </p>
             </CardContent>
           </Card>
