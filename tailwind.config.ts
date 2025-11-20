@@ -47,16 +47,27 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        status: {
+          logged: "hsl(var(--status-logged))",
+          inProcess: "hsl(var(--status-in-process))",
+          fixed: "hsl(var(--status-fixed))",
+          cancelled: "hsl(var(--status-cancelled))",
+          rejected: "hsl(var(--status-rejected))",
         },
+        glow: {
+          cyan: "hsl(var(--glow-cyan))",
+          purple: "hsl(var(--glow-purple))",
+        },
+      },
+      backgroundImage: {
+        "gradient-cyber": "linear-gradient(135deg, hsl(var(--gradient-start)), hsl(var(--gradient-end)))",
+        "gradient-radial": "radial-gradient(circle, hsl(var(--gradient-start)), hsl(var(--gradient-end)))",
+      },
+      boxShadow: {
+        "glow-cyan": "0 0 20px hsla(var(--glow-cyan), 0.5)",
+        "glow-purple": "0 0 20px hsla(var(--glow-purple), 0.5)",
+        "glow-cyan-lg": "0 0 40px hsla(var(--glow-cyan), 0.6)",
+        "glow-purple-lg": "0 0 40px hsla(var(--glow-purple), 0.6)",
       },
       borderRadius: {
         lg: "var(--radius)",
