@@ -94,15 +94,15 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
         </DialogHeader>
 
         {isLogin ? (
-          <Tabs defaultValue="student" className="w-full">
+          <Tabs defaultValue="student" className="w-full" onValueChange={(value) => setRole(value as AppRole)}>
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="student" onClick={() => setRole('student')}>Student</TabsTrigger>
-              <TabsTrigger value="trainer" onClick={() => setRole('trainer')}>Trainer</TabsTrigger>
-              <TabsTrigger value="staff" onClick={() => setRole('staff')}>Staff</TabsTrigger>
-              <TabsTrigger value="admin" onClick={() => setRole('main_admin')}>Admin</TabsTrigger>
+              <TabsTrigger value="student">Student</TabsTrigger>
+              <TabsTrigger value="trainer">Trainer</TabsTrigger>
+              <TabsTrigger value="staff">Staff</TabsTrigger>
+              <TabsTrigger value="main_admin">Admin</TabsTrigger>
             </TabsList>
 
-            <TabsContent value={role} className="space-y-4 mt-4">
+            <TabsContent value="student" className="space-y-4 mt-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -126,22 +126,151 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
               </div>
 
               <Button
-                onClick={() => handleLogin(role)}
+                onClick={() => handleLogin('student')}
                 disabled={loading}
                 className="w-full bg-gradient-cyber text-primary-foreground hover:opacity-90"
               >
                 {loading ? 'Logging in...' : 'Login'}
               </Button>
 
-              {role === 'student' && (
-                <Button
-                  variant="outline"
-                  onClick={() => setIsLogin(false)}
-                  className="w-full"
-                >
-                  Register as Student
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                onClick={() => setIsLogin(false)}
+                className="w-full"
+              >
+                Register as Student
+              </Button>
+
+              <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border">
+                <p className="text-xs text-muted-foreground font-semibold mb-2">Demo Accounts:</p>
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  <p>student1@example.com / student123</p>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="trainer" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="email-trainer">Email</Label>
+                <Input
+                  id="email-trainer"
+                  type="email"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  className="bg-input border-border"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password-trainer">Password</Label>
+                <Input
+                  id="password-trainer"
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="bg-input border-border"
+                />
+              </div>
+
+              <Button
+                onClick={() => handleLogin('trainer')}
+                disabled={loading}
+                className="w-full bg-gradient-cyber text-primary-foreground hover:opacity-90"
+              >
+                {loading ? 'Logging in...' : 'Login'}
+              </Button>
+
+              <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border">
+                <p className="text-xs text-muted-foreground font-semibold mb-2">Demo Accounts:</p>
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  <p>trainer1kochi@gmail.com / trainer123</p>
+                  <p>trainer1calicut@gmail.com / trainer123</p>
+                  <p>trainer1tvm@gmail.com / trainer123</p>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="staff" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="email-staff">Email</Label>
+                <Input
+                  id="email-staff"
+                  type="email"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  className="bg-input border-border"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password-staff">Password</Label>
+                <Input
+                  id="password-staff"
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="bg-input border-border"
+                />
+              </div>
+
+              <Button
+                onClick={() => handleLogin('staff')}
+                disabled={loading}
+                className="w-full bg-gradient-cyber text-primary-foreground hover:opacity-90"
+              >
+                {loading ? 'Logging in...' : 'Login'}
+              </Button>
+
+              <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border">
+                <p className="text-xs text-muted-foreground font-semibold mb-2">Demo Accounts:</p>
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  <p>staff1kochi@gmail.com / staff123</p>
+                  <p>staff1calicut@gmail.com / staff123</p>
+                  <p>staff1tvm@gmail.com / staff123</p>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="main_admin" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="email-admin">Email</Label>
+                <Input
+                  id="email-admin"
+                  type="email"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  className="bg-input border-border"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password-admin">Password</Label>
+                <Input
+                  id="password-admin"
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="bg-input border-border"
+                />
+              </div>
+
+              <Button
+                onClick={() => handleLogin('main_admin')}
+                disabled={loading}
+                className="w-full bg-gradient-cyber text-primary-foreground hover:opacity-90"
+              >
+                {loading ? 'Logging in...' : 'Login'}
+              </Button>
+
+              <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border">
+                <p className="text-xs text-muted-foreground font-semibold mb-2">Demo Accounts:</p>
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  <p>adminmain@gmail.com / admin123</p>
+                  <p>adminkochi@gmail.com / admin123</p>
+                  <p>admincalicut@gmail.com / admin123</p>
+                  <p>admintvm@gmail.com / admin123</p>
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
         ) : (
