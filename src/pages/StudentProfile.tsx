@@ -68,12 +68,14 @@ export default function StudentProfile() {
                 <div className="text-sm text-muted-foreground mb-1">Email</div>
                 <div className="text-lg">{profile?.email}</div>
               </div>
-              <div>
-                <div className="text-sm text-muted-foreground mb-1">Student Type</div>
-                <div className="text-lg font-semibold capitalize">
-                  {profile?.student_type === 'brocamp' ? 'BroCamp Student' : 'Exclusive Member'}
+              {profile?.role === 'student' && (
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Student Type</div>
+                  <div className="text-lg font-semibold capitalize">
+                    {profile?.student_type === 'brocamp' ? 'BroCamp Student' : 'Exclusive Member'}
+                  </div>
                 </div>
-              </div>
+              )}
               {profile?.student_type === 'brocamp' && profile?.branch && (
                 <div>
                   <div className="text-sm text-muted-foreground mb-1">Branch</div>
