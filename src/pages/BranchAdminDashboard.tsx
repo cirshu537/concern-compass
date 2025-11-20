@@ -190,7 +190,7 @@ export default function BranchAdminDashboard() {
           <h1 className="text-2xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
             Branch Admin Dashboard
           </h1>
-          <DashboardNav showNotifications showChat showProfile />
+          <DashboardNav showNotifications showChat />
         </div>
       </header>
 
