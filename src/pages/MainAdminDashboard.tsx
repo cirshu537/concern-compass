@@ -5,9 +5,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ComplaintsList } from '@/components/complaints/ComplaintsList';
 import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
-import { FileText, MessageSquare, Building, LogOut, ChevronLeft } from 'lucide-react';
+import { FileText, MessageSquare, Building, LogOut, ChevronLeft, Calendar } from 'lucide-react';
 import { DashboardNav } from '@/components/DashboardNav';
 
 export default function MainAdminDashboard() {
@@ -15,6 +16,7 @@ export default function MainAdminDashboard() {
   const { profile, signOut } = useAuth();
   const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
+  const [timeRange, setTimeRange] = useState<'weekly' | 'monthly' | 'yearly' | 'lifetime'>('weekly');
 
   // Redirect if not main admin
   useEffect(() => {
@@ -23,24 +25,73 @@ export default function MainAdminDashboard() {
     }
   }, [profile, navigate]);
 
+
+  // Get date ranges
+  const getDateRange = () => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return today.toISOString();
+  };
+
+  const getTimeRangeDate = () => {
+    const now = new Date();
+    switch (timeRange) {
+      case 'weekly':
+        return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      case 'monthly':
+        return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      case 'yearly':
+        return new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString();
+      default:
+        return '1970-01-01';
+    }
+  };
+
+  // Today's stats
   const { data: stats } = useQuery({
-    queryKey: ['main-admin-stats'],
+    queryKey: ['main-admin-stats-today'],
     queryFn: async () => {
+      const todayStart = getDateRange();
+      
       const { data: complaints } = await supabase
         .from('complaints')
-        .select('id, status, student_type');
-
-      const { data: staff } = await supabase
-        .from('profiles')
-        .select('id, high_alert')
-        .eq('role', 'staff');
+        .select('id, status, student_type, branch')
+        .gte('created_at', todayStart);
 
       return {
         total: complaints?.length || 0,
         open: complaints?.filter(c => c.status === 'logged' || c.status === 'in_process').length || 0,
         fixed: complaints?.filter(c => c.status === 'fixed').length || 0,
         brocamp: complaints?.filter(c => c.student_type === 'brocamp').length || 0,
-        highAlert: staff?.filter(s => s.high_alert).length || 0,
+        online: complaints?.filter(c => c.branch === 'Online').length || 0,
+      };
+    },
+  });
+
+  // Time range stats for all concerns section
+  const { data: rangeStats } = useQuery({
+    queryKey: ['main-admin-range-stats', timeRange],
+    queryFn: async () => {
+      const rangeStart = getTimeRangeDate();
+      
+      const query = supabase
+        .from('complaints')
+        .select('id, status, created_at, title, category, branch');
+      
+      if (timeRange !== 'lifetime') {
+        query.gte('created_at', rangeStart);
+      }
+
+      const { data: complaints } = await query.order('created_at', { ascending: false });
+
+      return {
+        total: complaints?.length || 0,
+        logged: complaints?.filter(c => c.status === 'logged').length || 0,
+        in_process: complaints?.filter(c => c.status === 'in_process').length || 0,
+        fixed: complaints?.filter(c => c.status === 'fixed').length || 0,
+        cancelled: complaints?.filter(c => c.status === 'cancelled').length || 0,
+        rejected: complaints?.filter(c => c.status === 'rejected').length || 0,
+        complaints: complaints || [],
       };
     },
   });
@@ -110,7 +161,7 @@ export default function MainAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary">{stats?.total || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">All branches</p>
+              <p className="text-xs text-muted-foreground mt-1">Today</p>
             </CardContent>
           </Card>
 
@@ -120,7 +171,7 @@ export default function MainAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-secondary">{stats?.open || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Pending</p>
+              <p className="text-xs text-muted-foreground mt-1">Today</p>
             </CardContent>
           </Card>
 
@@ -130,7 +181,7 @@ export default function MainAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-status-fixed">{stats?.fixed || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Resolved</p>
+              <p className="text-xs text-muted-foreground mt-1">Today</p>
             </CardContent>
           </Card>
 
@@ -140,17 +191,99 @@ export default function MainAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-accent">{stats?.brocamp || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Students</p>
+              <p className="text-xs text-muted-foreground mt-1">Today</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/30">
+          <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/30">
             <CardHeader>
-              <CardTitle className="text-sm text-muted-foreground">High Alert</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">Online</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-destructive">{stats?.highAlert || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Staff members</p>
+              <div className="text-3xl font-bold text-blue-500">{stats?.online || 0}</div>
+              <p className="text-xs text-muted-foreground mt-1">Today</p>
+            </CardContent>
+          </Card>
+        </div>
+
+
+        {/* All Concerns Tracking Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-6 h-6 text-primary" />
+              <h3 className="text-xl font-semibold">All Concerns Tracking</h3>
+            </div>
+          </div>
+          
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as any)}>
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="weekly">Weekly</TabsTrigger>
+                  <TabsTrigger value="monthly">Monthly</TabsTrigger>
+                  <TabsTrigger value="yearly">Yearly</TabsTrigger>
+                  <TabsTrigger value="lifetime">Lifetime</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+                <div className="text-center p-4 bg-primary/5 rounded-lg border border-primary/20">
+                  <div className="text-2xl font-bold text-primary">{rangeStats?.total || 0}</div>
+                  <p className="text-xs text-muted-foreground mt-1">Total</p>
+                </div>
+                <div className="text-center p-4 bg-blue-500/5 rounded-lg border border-blue-500/20">
+                  <div className="text-2xl font-bold text-blue-500">{rangeStats?.logged || 0}</div>
+                  <p className="text-xs text-muted-foreground mt-1">Logged</p>
+                </div>
+                <div className="text-center p-4 bg-yellow-500/5 rounded-lg border border-yellow-500/20">
+                  <div className="text-2xl font-bold text-yellow-500">{rangeStats?.in_process || 0}</div>
+                  <p className="text-xs text-muted-foreground mt-1">In Process</p>
+                </div>
+                <div className="text-center p-4 bg-green-500/5 rounded-lg border border-green-500/20">
+                  <div className="text-2xl font-bold text-green-500">{rangeStats?.fixed || 0}</div>
+                  <p className="text-xs text-muted-foreground mt-1">Fixed</p>
+                </div>
+                <div className="text-center p-4 bg-orange-500/5 rounded-lg border border-orange-500/20">
+                  <div className="text-2xl font-bold text-orange-500">{rangeStats?.cancelled || 0}</div>
+                  <p className="text-xs text-muted-foreground mt-1">Cancelled</p>
+                </div>
+                <div className="text-center p-4 bg-red-500/5 rounded-lg border border-red-500/20">
+                  <div className="text-2xl font-bold text-red-500">{rangeStats?.rejected || 0}</div>
+                  <p className="text-xs text-muted-foreground mt-1">Rejected</p>
+                </div>
+              </div>
+
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {rangeStats?.complaints?.map((complaint: any) => (
+                  <Card 
+                    key={complaint.id} 
+                    className="p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                    onClick={() => {
+                      setSelectedComplaintId(complaint.id);
+                      setSelectedView('detail');
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm">{complaint.title}</h4>
+                        <p className="text-xs text-muted-foreground">
+                          {complaint.branch} • {complaint.category.replace(/_/g, ' ')}
+                        </p>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(complaint.created_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+                {(!rangeStats?.complaints || rangeStats.complaints.length === 0) && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No concerns found for this time range
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
