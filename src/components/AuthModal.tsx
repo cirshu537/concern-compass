@@ -27,7 +27,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [studentType, setStudentType] = useState<StudentType>('brocamp');
+  const [studentType, setStudentType] = useState<StudentType | ''>('');
   const [branch, setBranch] = useState('');
   const [program, setProgram] = useState('');
 
@@ -51,8 +51,8 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
   };
 
   const handleRegister = async () => {
-    if (!fullName || !branch) {
-      toast.error('Please fill all required fields');
+    if (!fullName || !branch || !studentType) {
+      toast.error('Please fill all required fields (Name, Email, Password, Student Type, and Branch)');
       return;
     }
     
@@ -312,7 +312,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
               <Label htmlFor="student-type" className="text-sm">Student Type *</Label>
               <Select value={studentType} onValueChange={(value) => setStudentType(value as StudentType)}>
                 <SelectTrigger className="bg-input border-border h-9">
-                  <SelectValue />
+                  <SelectValue placeholder="Select student type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="brocamp">BroCamp Student</SelectItem>
