@@ -114,7 +114,7 @@ const Index = () => {
               </div>
             )}
           </div>
-
+        </div>
       </div>
 
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />

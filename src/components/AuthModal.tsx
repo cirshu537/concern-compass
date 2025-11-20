@@ -328,7 +328,8 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Kochi">Kochi</SelectItem>
-                  <SelectItem value="Calicut">Calicut</SelectItem>
+                  <SelectItem value="Calicut - Kakkanchery">Calicut - Kakkanchery</SelectItem>
+                  <SelectItem value="Trivandrum">Trivandrum</SelectItem>
                   <SelectItem value="Online">Online</SelectItem>
                 </SelectContent>
               </Select>
