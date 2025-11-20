@@ -1,38 +1,101 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ComplaintsList } from '@/components/complaints/ComplaintsList';
+import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
 import { FileText, Award, LogOut, AlertTriangle } from 'lucide-react';
 
 export default function StaffDashboard() {
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
+  const [selectedView, setSelectedView] = useState<'dashboard' | 'all' | 'assigned' | 'detail'>('dashboard');
+  const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
+
+  const { data: stats } = useQuery({
+    queryKey: ['staff-stats', profile?.branch, profile?.id],
+    enabled: !!profile?.branch && !!profile?.id,
+    queryFn: async () => {
+      const { data: allComplaints } = await supabase
+        .from('complaints')
+        .select('id, status')
+        .eq('branch', profile!.branch);
+
+      const { data: assignedComplaints } = await supabase
+        .from('complaints')
+        .select('id, status')
+        .eq('assigned_staff_id', profile!.id);
+
+      return {
+        total: allComplaints?.length || 0,
+        assigned: assignedComplaints?.length || 0,
+        open: assignedComplaints?.filter(c => c.status === 'logged' || c.status === 'in_process').length || 0,
+      };
+    },
+  });
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
   };
 
-  return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 backdrop-blur">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
-            Staff Portal
-          </h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              Hello, <span className="text-primary font-semibold">{profile?.full_name}</span>
-            </span>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </div>
-        </div>
-      </header>
+  const renderContent = () => {
+    if (selectedView === 'detail' && selectedComplaintId) {
+      return (
+        <ComplaintDetails 
+          complaintId={selectedComplaintId}
+          onBack={() => setSelectedView('assigned')}
+        />
+      );
+    }
 
-      <main className="container mx-auto px-4 py-8">
+    if (selectedView === 'all') {
+      return (
+        <div>
+          <Button 
+            variant="ghost" 
+            onClick={() => setSelectedView('dashboard')}
+            className="mb-4"
+          >
+            Back to Dashboard
+          </Button>
+          <ComplaintsList
+            filterByBranch={profile?.branch || ''}
+            onComplaintClick={(complaint) => {
+              setSelectedComplaintId(complaint.id);
+              setSelectedView('detail');
+            }}
+          />
+        </div>
+      );
+    }
+
+    if (selectedView === 'assigned') {
+      return (
+        <div>
+          <Button 
+            variant="ghost" 
+            onClick={() => setSelectedView('dashboard')}
+            className="mb-4"
+          >
+            Back to Dashboard
+          </Button>
+          <ComplaintsList
+            filterByAssigned={profile?.id || ''}
+            onComplaintClick={(complaint) => {
+              setSelectedComplaintId(complaint.id);
+              setSelectedView('detail');
+            }}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <>
         <div className="mb-8">
           <h2 className="text-3xl font-bold mb-2">Staff Dashboard</h2>
           <p className="text-muted-foreground">Manage and resolve student concerns for {profile?.branch}</p>
@@ -75,30 +138,38 @@ export default function StaffDashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer">
+          <Card 
+            className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer"
+            onClick={() => setSelectedView('all')}
+          >
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                 <FileText className="w-6 h-6 text-primary" />
               </div>
-              <CardTitle className="text-xl">Complaints</CardTitle>
+              <CardTitle className="text-xl">All Complaints</CardTitle>
             </CardHeader>
             <CardContent>
+              <div className="text-3xl font-bold text-primary mb-2">{stats?.total || 0}</div>
               <p className="text-sm text-muted-foreground">
-                View and process student concerns for your branch
+                View all concerns for your branch
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer">
+          <Card 
+            className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer"
+            onClick={() => setSelectedView('assigned')}
+          >
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4">
                 <FileText className="w-6 h-6 text-secondary" />
               </div>
-              <CardTitle className="text-xl">Reviews</CardTitle>
+              <CardTitle className="text-xl">Assigned to Me</CardTitle>
             </CardHeader>
             <CardContent>
+              <div className="text-3xl font-bold text-secondary mb-2">{stats?.assigned || 0}</div>
               <p className="text-sm text-muted-foreground">
-                View feedback and ratings from students
+                Complaints you're handling
               </p>
             </CardContent>
           </Card>
@@ -108,32 +179,41 @@ export default function StaffDashboard() {
               <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
                 <Award className="w-6 h-6 text-accent" />
               </div>
-              <CardTitle className="text-xl">Leaderboard</CardTitle>
+              <CardTitle className="text-xl">Performance</CardTitle>
             </CardHeader>
             <CardContent>
+              <div className="text-3xl font-bold text-accent mb-2">{stats?.open || 0}</div>
               <p className="text-sm text-muted-foreground">
-                View staff rankings and performance metrics
+                Open assignments
               </p>
             </CardContent>
           </Card>
         </div>
+      </>
+    );
+  };
 
-        {profile?.high_alert && (
-          <Card className="mt-8 bg-destructive/10 border-destructive">
-            <CardHeader>
-              <CardTitle className="text-destructive flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5" />
-                High Alert Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-destructive/90">
-                You have received 3 or more negative events this week. Please review your performance 
-                and speak with your branch admin for guidance on improvement.
-              </p>
-            </CardContent>
-          </Card>
-        )}
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border bg-card/50 backdrop-blur">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
+            Staff Portal
+          </h1>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">
+              Hello, <span className="text-primary font-semibold">{profile?.full_name}</span>
+            </span>
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        {renderContent()}
       </main>
     </div>
   );
