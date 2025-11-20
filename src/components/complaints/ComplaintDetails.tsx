@@ -53,6 +53,19 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
     },
   });
 
+  const { data: reviews } = useQuery({
+    queryKey: ['reviews', complaintId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('complaint_reviews')
+        .select('*')
+        .eq('complaint_id', complaintId);
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const updateStatusMutation = useMutation({
     mutationFn: async (status: ComplaintStatus) => {
       const updateData: any = { 
@@ -279,32 +292,57 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
       {/* Reviews Section */}
       <ReviewsList complaintId={complaintId} />
 
-      {/* Student Review - After Fixed */}
+      {/* Student Review - After Staff/Admin Review */}
       {profile?.role === 'student' && 
        complaint.student_id === profile.id && 
-       complaint.status === 'fixed' && (
-        <ReviewForm 
-          complaintId={complaintId}
-          onReviewSubmitted={() => {
-            queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
-            queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
-          }}
-          allowStatusChange={false}
-        />
+       (complaint.status === 'fixed' || complaint.status === 'cancelled') &&
+       reviews?.some(r => r.reviewer_role === 'staff' || r.reviewer_role === 'branch_admin') &&
+       !reviews?.some(r => r.reviewer_role === 'student') && (
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <CardTitle>Provide Your Review</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Please share your feedback about how this concern was handled
+            </p>
+          </CardHeader>
+          <CardContent>
+            <ReviewForm 
+              complaintId={complaintId}
+              onReviewSubmitted={() => {
+                queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
+                queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
+              }}
+              allowStatusChange={false}
+              currentStatus={complaint.status}
+            />
+          </CardContent>
+        </Card>
       )}
 
-      {/* Trainer Reply - For trainer_related concerns */}
+      {/* Trainer Can Review Trainer-Related Concerns */}
       {profile?.role === 'trainer' && 
-       complaint.category === 'trainer_related' && (
-        <ReviewForm 
-          complaintId={complaintId}
-          onReviewSubmitted={() => {
-            queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
-            queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
-          }}
-          allowStatusChange={false}
-          isTrainerReply={true}
-        />
+       complaint.category === 'trainer_related' &&
+       !reviews?.some(r => r.reviewer_role === 'trainer' && r.reviewer_id === profile.id) && (
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <CardTitle>Respond to Student Feedback</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Share your thoughts on this feedback (student identity is protected)
+            </p>
+          </CardHeader>
+          <CardContent>
+            <ReviewForm 
+              complaintId={complaintId}
+              onReviewSubmitted={() => {
+                queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
+                queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
+              }}
+              allowStatusChange={false}
+              currentStatus={complaint.status}
+              isTrainerReply={true}
+            />
+          </CardContent>
+        </Card>
       )}
     </div>
   );
