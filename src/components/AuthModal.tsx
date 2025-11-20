@@ -144,7 +144,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
               <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border">
                 <p className="text-xs text-muted-foreground font-semibold mb-2">Demo Accounts:</p>
                 <div className="space-y-1 text-xs text-muted-foreground">
-                  <p>student1@example.com / student123</p>
+                  <p>student1@gmail.com / student123</p>
                 </div>
               </div>
             </TabsContent>
