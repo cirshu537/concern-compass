@@ -173,7 +173,7 @@ export default function StudentStatus() {
                     </div>
                     {complaint.resolved_at && (
                       <div className="mt-4 pt-4 border-t border-border text-sm text-muted-foreground">
-                        Resolved on {format(new Date(complaint.resolved_at), 'MMM dd, yyyy')}
+                        Resolved on {format(new Date(complaint.resolved_at), 'MMM dd, yyyy h:mm a')}
                       </div>
                     )}
                     
