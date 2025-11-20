@@ -17,6 +17,7 @@ export default function StudentStatus() {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedComplaints, setExpandedComplaints] = useState<Set<string>>(new Set());
+  const [expandedReviewForms, setExpandedReviewForms] = useState<Set<string>>(new Set());
   const [studentReviews, setStudentReviews] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -69,6 +70,18 @@ export default function StudentStatus() {
     });
   };
 
+  const toggleReviewForm = (id: string) => {
+    setExpandedReviewForms(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur">
@@ -109,6 +122,7 @@ export default function StudentStatus() {
           <div className="space-y-4">
             {complaints.map((complaint) => {
               const isExpanded = expandedComplaints.has(complaint.id);
+              const isReviewFormExpanded = expandedReviewForms.has(complaint.id);
               const showReviews = complaint.status === 'fixed' || complaint.status === 'cancelled' || complaint.status === 'rejected';
               const hasReviewed = studentReviews.has(complaint.id);
               const canReview = (complaint.status === 'fixed' || complaint.status === 'cancelled') && !hasReviewed;
@@ -153,10 +167,32 @@ export default function StudentStatus() {
                     
                     {canReview && (
                       <div className="mt-4 pt-4 border-t border-border">
-                        <ReviewForm 
-                          complaintId={complaint.id}
-                          onReviewSubmitted={fetchComplaints}
-                        />
+                        <Button
+                          variant="ghost"
+                          onClick={() => toggleReviewForm(complaint.id)}
+                          className="w-full justify-between"
+                        >
+                          <span className="font-medium">
+                            {isReviewFormExpanded ? 'Hide Review Form' : 'Write a Review'}
+                          </span>
+                          {isReviewFormExpanded ? (
+                            <ChevronUp className="w-4 h-4" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4" />
+                          )}
+                        </Button>
+                        
+                        {isReviewFormExpanded && (
+                          <div className="mt-4">
+                            <ReviewForm 
+                              complaintId={complaint.id}
+                              onReviewSubmitted={() => {
+                                fetchComplaints();
+                                toggleReviewForm(complaint.id);
+                              }}
+                            />
+                          </div>
+                        )}
                       </div>
                     )}
                     
