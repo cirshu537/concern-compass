@@ -185,6 +185,24 @@ Deno.serve(async (req) => {
         student_type: 'none',
         branch: 'Trivandrum',
         program: null
+      },
+      {
+        email: 'staff1online@gmail.com',
+        password: 'staff123',
+        full_name: 'Staff 1 Online',
+        role: 'staff',
+        student_type: 'none',
+        branch: 'Online',
+        program: null
+      },
+      {
+        email: 'staff2online@gmail.com',
+        password: 'staff123',
+        full_name: 'Staff 2 Online',
+        role: 'staff',
+        student_type: 'none',
+        branch: 'Online',
+        program: null
       }
     ]
 

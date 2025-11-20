@@ -69,38 +69,6 @@ export default function StudentDashboard() {
           </Card>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-          <Card className="bg-gradient-to-br from-card to-card/50 border-primary/30">
-            <CardHeader>
-              <CardTitle className="text-lg text-muted-foreground">Total Credits</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-bold text-primary">{profile?.credits || 0}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-card to-card/50 border-destructive/30">
-            <CardHeader>
-              <CardTitle className="text-lg text-muted-foreground">Negative Events</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-bold text-destructive">{profile?.negative_count_lifetime || 0}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-card to-card/50 border-secondary/30">
-            <CardHeader>
-              <CardTitle className="text-lg text-muted-foreground">Student Type</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-secondary capitalize">
-                {profile?.student_type === 'brocamp' ? 'BroCamp' : profile?.student_type === 'exclusive' ? 'Exclusive' : 'N/A'}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         {profile?.banned_from_raise && (
           <Card className="mt-8 bg-destructive/10 border-destructive">
             <CardHeader>
