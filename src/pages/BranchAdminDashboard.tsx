@@ -54,7 +54,7 @@ export default function BranchAdminDashboard() {
 
       return {
         total: complaints?.length || 0,
-        open: complaints?.filter(c => c.status === 'logged' || c.status === 'in_process').length || 0,
+        open: complaints?.filter(c => c.status === 'logged' || c.status === 'noted' || c.status === 'in_process').length || 0,
         fixed: complaints?.filter(c => c.status === 'fixed').length || 0,
         highAlert: staff?.filter(s => s.high_alert).length || 0,
       };

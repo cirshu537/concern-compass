@@ -52,7 +52,7 @@ export default function TrainerDashboard() {
         .eq('assigned_trainer_id', profile!.id);
 
       const assignedOpen = assignedComplaints?.filter(
-        c => c.status === 'logged' || c.status === 'in_process'
+        c => c.status === 'logged' || c.status === 'noted' || c.status === 'in_process'
       ).length || 0;
 
       const assignedResolved = assignedComplaints?.filter(
@@ -62,7 +62,7 @@ export default function TrainerDashboard() {
       return {
         total: allComplaints?.length || 0,
         assigned: assignedComplaints?.length || 0,
-        open: allComplaints?.filter(c => c.status === 'logged' || c.status === 'in_process').length || 0,
+        open: allComplaints?.filter(c => c.status === 'logged' || c.status === 'noted' || c.status === 'in_process').length || 0,
         resolved: allComplaints?.filter(c => c.status === 'fixed').length || 0,
         newComplaints: allComplaints?.filter(c => c.status === 'logged' && !c.assigned_trainer_id).length || 0,
         assignedOpen,
@@ -157,7 +157,7 @@ export default function TrainerDashboard() {
       const filteredComplaints = statusFilter === 'all' 
         ? trainerComplaints 
         : statusFilter === 'open'
-        ? trainerComplaints?.filter(c => c.status === 'logged' || c.status === 'in_process')
+        ? trainerComplaints?.filter(c => c.status === 'logged' || c.status === 'noted' || c.status === 'in_process')
         : trainerComplaints?.filter(c => c.status === 'fixed');
 
       return (

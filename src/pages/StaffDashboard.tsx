@@ -50,7 +50,7 @@ export default function StaffDashboard() {
       return {
         total: allComplaints?.length || 0,
         assigned: assignedComplaints?.length || 0,
-        open: assignedComplaints?.filter(c => c.status === 'logged' || c.status === 'in_process').length || 0,
+        open: assignedComplaints?.filter(c => c.status === 'logged' || c.status === 'noted' || c.status === 'in_process').length || 0,
         newComplaints: allComplaints?.filter(c => c.status === 'logged').length || 0,
       };
     },

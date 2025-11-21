@@ -32,7 +32,7 @@ export default function StudentProfile() {
 
       return {
         assigned: assignedComplaints?.length || 0,
-        open: assignedComplaints?.filter(c => c.status === 'logged' || c.status === 'in_process').length || 0,
+        open: assignedComplaints?.filter(c => c.status === 'logged' || c.status === 'noted' || c.status === 'in_process').length || 0,
         weeklyNegatives: weeklyNegatives?.length || 0,
       };
     },
