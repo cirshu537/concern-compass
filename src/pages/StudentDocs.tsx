@@ -100,8 +100,10 @@ export default function StudentDocs() {
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>Automatically assigned to trainers in your branch</li>
                 <li>When trainer replies, concern is marked as Fixed</li>
-                <li>You can view trainer's response in Reviews section</li>
-                <li>No student rating back to trainer (one-way feedback)</li>
+                <li><strong>You CAN:</strong> View trainer's response in the Reviews section</li>
+                <li><strong>You CANNOT:</strong> Rate or review the trainer's response back</li>
+                <li>Read-only access to trainer feedback - no scoring allowed</li>
+                <li>This protects honest, one-way feedback from students to trainers</li>
               </ul>
             </CardContent>
           </Card>
@@ -116,16 +118,26 @@ export default function StudentDocs() {
             <CardContent className="space-y-3 text-muted-foreground">
               <p><strong className="text-foreground">When to Rate:</strong></p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>After non-trainer concerns are marked as Fixed or Cancelled</li>
+                <li>After <strong>NON-trainer</strong> concerns are marked as Fixed or Cancelled</li>
                 <li>Rating is optional but helps improve service quality</li>
               </ul>
-              <p className="mt-4"><strong className="text-foreground">Rating Options:</strong></p>
+              <p className="mt-4"><strong className="text-foreground">Rating Options (For Staff-Handled Concerns Only):</strong></p>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li><strong className="text-status-fixed">👍 Positive:</strong> Issue resolved satisfactorily, staff responsive</li>
                 <li><strong className="text-muted-foreground">— Neutral:</strong> Partial resolution or acceptable outcome</li>
                 <li><strong className="text-destructive">👎 Negative:</strong> Poor handling, unresolved, or unprofessional</li>
               </ul>
-              <p className="mt-4 text-foreground font-semibold">Important: Trainer-related concerns DO NOT allow student ratings back to trainers. This is one-way feedback to protect trainer evaluation integrity.</p>
+              
+              <div className="mt-4 bg-accent/10 p-4 rounded-lg border border-accent/20">
+                <p className="font-semibold text-foreground mb-2">📋 Trainer-Related Concerns - Special Rules:</p>
+                <ul className="list-disc list-inside space-y-2 ml-4 text-sm">
+                  <li><strong>You CAN SEE:</strong> Trainer's response to your concern in the Reviews section</li>
+                  <li><strong>You CANNOT:</strong> Rate the trainer's response (no positive/negative/neutral buttons)</li>
+                  <li><strong>One-Way Feedback:</strong> You give feedback to trainers, but don't rate their replies</li>
+                  <li><strong>Why?</strong> This prevents retaliation and maintains honest feedback environment</li>
+                  <li><strong>Read Only:</strong> Review the trainer's explanation without scoring it</li>
+                </ul>
+              </div>
             </CardContent>
           </Card>
 
