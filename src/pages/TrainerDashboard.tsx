@@ -14,9 +14,10 @@ export default function TrainerDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { profile, signOut } = useAuth();
-  const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail'>('dashboard');
+  const [selectedView, setSelectedView] = useState<'dashboard' | 'all' | 'assigned' | 'complaints' | 'detail'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<'all' | 'open' | 'resolved'>('all');
+  const [previousView, setPreviousView] = useState<'all' | 'assigned' | 'complaints'>('all');
 
   // Read URL parameters and set state
   useEffect(() => {
@@ -28,35 +29,52 @@ export default function TrainerDashboard() {
       setSelectedComplaintId(id);
     } else if (view === 'complaints') {
       setSelectedView('complaints');
+    } else if (view === 'all') {
+      setSelectedView('all');
+    } else if (view === 'assigned') {
+      setSelectedView('assigned');
     }
   }, [searchParams]);
 
+  // Stats query for Exclusive Handlers
+  const { data: stats } = useQuery({
+    queryKey: ['exclusive-handler-stats', profile?.id, profile?.handles_exclusive],
+    enabled: !!profile?.handles_exclusive && !!profile?.id,
+    queryFn: async () => {
+      const { data: allComplaints } = await supabase
+        .from('complaints')
+        .select('id, status')
+        .eq('student_type', 'exclusive');
+
+      const { data: assignedComplaints } = await supabase
+        .from('complaints')
+        .select('id, status')
+        .eq('assigned_trainer_id', profile!.id);
+
+      return {
+        total: allComplaints?.length || 0,
+        assigned: assignedComplaints?.length || 0,
+        open: allComplaints?.filter(c => c.status === 'logged' || c.status === 'in_process').length || 0,
+        resolved: allComplaints?.filter(c => c.status === 'fixed').length || 0,
+        newComplaints: allComplaints?.filter(c => c.status === 'logged').length || 0,
+      };
+    },
+  });
+
   const { data: trainerComplaints } = useQuery({
     queryKey: ['trainer-complaints', profile?.branch, profile?.handles_exclusive],
-    enabled: !!profile?.branch,
+    enabled: !!profile?.branch && !profile?.handles_exclusive,
     queryFn: async () => {
-      if (profile?.handles_exclusive) {
-        // Fetch all exclusive member complaints
-        const { data, error } = await supabase
-          .from('complaints')
-          .select('*')
-          .eq('student_type', 'exclusive')
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        return data;
-      } else {
-        // Fetch trainer-related complaints for this branch
-        const { data, error } = await supabase
-          .from('complaints')
-          .select('*')
-          .eq('category', 'trainer_related')
-          .eq('branch', profile!.branch)
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        return data;
-      }
+      // Fetch trainer-related complaints for this branch
+      const { data, error } = await supabase
+        .from('complaints')
+        .select('*')
+        .eq('category', 'trainer_related')
+        .eq('branch', profile!.branch)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
     },
   });
 
@@ -70,11 +88,61 @@ export default function TrainerDashboard() {
       return (
         <ComplaintDetails 
           complaintId={selectedComplaintId}
-          onBack={() => setSelectedView('complaints')}
+          onBack={() => setSelectedView(previousView)}
         />
       );
     }
 
+    // Exclusive Handler Views (Staff-like functionality)
+    if (profile?.handles_exclusive) {
+      if (selectedView === 'all') {
+        return (
+          <div>
+            <Button 
+              variant="default" 
+              onClick={() => setSelectedView('dashboard')}
+              className="mb-4"
+            >
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+            <ComplaintsList
+              filterByStudentType="exclusive"
+              onComplaintClick={(complaint) => {
+                setPreviousView('all');
+                setSelectedComplaintId(complaint.id);
+                setSelectedView('detail');
+              }}
+            />
+          </div>
+        );
+      }
+
+      if (selectedView === 'assigned') {
+        return (
+          <div>
+            <Button 
+              variant="default" 
+              onClick={() => setSelectedView('dashboard')}
+              className="mb-4"
+            >
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+            <ComplaintsList
+              filterByAssigned={profile?.id || ''}
+              onComplaintClick={(complaint) => {
+                setPreviousView('assigned');
+                setSelectedComplaintId(complaint.id);
+                setSelectedView('detail');
+              }}
+            />
+          </div>
+        );
+      }
+    }
+
+    // Regular Trainer View (Simple list)
     if (selectedView === 'complaints') {
       const filteredComplaints = statusFilter === 'all' 
         ? trainerComplaints 
@@ -101,7 +169,7 @@ export default function TrainerDashboard() {
             </h2>
             <p className="text-muted-foreground">
               {statusFilter === 'all' 
-                ? `Viewing all ${profile?.handles_exclusive ? 'exclusive member' : 'trainer-related'} concerns` 
+                ? 'Viewing all trainer-related concerns' 
                 : statusFilter === 'open'
                 ? 'Concerns requiring attention'
                 : 'Successfully handled concerns'}
@@ -114,6 +182,7 @@ export default function TrainerDashboard() {
                   key={complaint.id}
                   className="cursor-pointer hover:border-primary/50 transition-all"
                   onClick={() => {
+                    setPreviousView('complaints');
                     setSelectedComplaintId(complaint.id);
                     setSelectedView('detail');
                   }}
@@ -143,100 +212,131 @@ export default function TrainerDashboard() {
       );
     }
 
-    return (
-      <>
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">
-            Welcome, {profile?.full_name}
-          </h2>
-          <p className="text-muted-foreground">
-            {profile?.handles_exclusive 
-              ? 'Manage all Exclusive Member concerns and provide premium support'
-              : 'Manage student concerns and track feedback'}
-          </p>
-        </div>
+    // Dashboard view
+    if (profile?.handles_exclusive) {
+      // Exclusive Handler Dashboard (Staff-like)
+      return (
+        <>
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold mb-2">
+              Welcome, {profile?.full_name}
+            </h2>
+            <p className="text-muted-foreground">
+              Manage all Exclusive Member concerns and provide premium support
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card 
-            className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group"
-            onClick={() => setSelectedView('complaints')}
-          >
-            <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <Users className="w-6 h-6 text-primary" />
-              </div>
-              <CardTitle className="text-xl">
-                {profile?.handles_exclusive ? 'Exclusive Member Concerns' : 'Student Concerns'}
-              </CardTitle>
-              <CardDescription>
-                {profile?.handles_exclusive ? 'All exclusive member issues' : 'Trainer-related issues'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-primary mb-2">
-                {trainerComplaints?.length || 0}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {profile?.handles_exclusive 
-                  ? 'View and respond to all exclusive member concerns'
-                  : 'View and respond to concerns about training quality'}
-              </p>
-            </CardContent>
-          </Card>
-
-          {profile?.handles_exclusive && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card 
-              className="bg-card border-border hover:border-accent/50 transition-all cursor-pointer group"
-              onClick={() => {
-                setStatusFilter('open');
-                setSelectedView('complaints');
-              }}
+              className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer relative"
+              onClick={() => setSelectedView('all')}
             >
               <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                  <FileText className="w-6 h-6 text-accent" />
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <FileText className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle className="text-xl">Open Concerns</CardTitle>
-                <CardDescription>Pending resolution</CardDescription>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-xl">All Exclusive Concerns</CardTitle>
+                  {stats?.newComplaints ? (
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive"></span>
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-accent mb-2">
-                  {trainerComplaints?.filter(c => c.status === 'logged' || c.status === 'in_process').length || 0}
-                </div>
+                <div className="text-3xl font-bold text-primary mb-2">{stats?.total || 0}</div>
                 <p className="text-sm text-muted-foreground">
+                  View all exclusive member concerns
+                  {stats?.newComplaints ? ` (${stats.newComplaints} new)` : ''}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer"
+              onClick={() => setSelectedView('assigned')}
+            >
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4">
+                  <FileText className="w-6 h-6 text-secondary" />
+                </div>
+                <CardTitle className="text-xl">Assigned to Me</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-secondary mb-2">{stats?.assigned || 0}</div>
+                <p className="text-sm text-muted-foreground">
+                  Concerns you're handling
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <Card className="bg-gradient-to-br from-card to-card/50 border-accent/30">
+              <CardHeader>
+                <CardTitle className="text-lg text-muted-foreground">Open Concerns</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-accent">{stats?.open || 0}</div>
+                <p className="text-sm text-muted-foreground mt-2">
                   Concerns requiring attention
                 </p>
               </CardContent>
             </Card>
-          )}
 
-          {profile?.handles_exclusive && (
-            <Card 
-              className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group"
-              onClick={() => {
-                setStatusFilter('resolved');
-                setSelectedView('complaints');
-              }}
-            >
+            <Card className="bg-gradient-to-br from-card to-card/50 border-primary/30">
               <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
-                  <FileText className="w-6 h-6 text-secondary" />
-                </div>
-                <CardTitle className="text-xl">Resolved</CardTitle>
-                <CardDescription>Successfully handled</CardDescription>
+                <CardTitle className="text-lg text-muted-foreground">Resolved</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-secondary mb-2">
-                  {trainerComplaints?.filter(c => c.status === 'fixed').length || 0}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Fixed exclusive member concerns
+                <div className="text-3xl font-bold text-primary">{stats?.resolved || 0}</div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Successfully handled concerns
                 </p>
               </CardContent>
             </Card>
-          )}
+          </div>
+        </>
+      );
+    } else {
+      // Regular Trainer Dashboard
+      return (
+        <>
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold mb-2">
+              Welcome, {profile?.full_name}
+            </h2>
+            <p className="text-muted-foreground">
+              Manage student concerns and track feedback
+            </p>
+          </div>
 
-          {!profile?.handles_exclusive && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card 
+              className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group"
+              onClick={() => setSelectedView('complaints')}
+            >
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <Users className="w-6 h-6 text-primary" />
+                </div>
+                <CardTitle className="text-xl">Student Concerns</CardTitle>
+                <CardDescription>Trainer-related issues</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary mb-2">
+                  {trainerComplaints?.length || 0}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  View and respond to concerns about training quality
+                </p>
+              </CardContent>
+            </Card>
+
             <Card 
               className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group"
               onClick={() => navigate('/chat')}
@@ -254,9 +354,7 @@ export default function TrainerDashboard() {
                 </p>
               </CardContent>
             </Card>
-          )}
 
-          {!profile?.handles_exclusive && (
             <Card 
               className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group"
               onClick={() => navigate('/student/docs')}
@@ -274,30 +372,23 @@ export default function TrainerDashboard() {
                 </p>
               </CardContent>
             </Card>
-          )}
-        </div>
+          </div>
 
-        <div className="mt-8">
-          <Card className="bg-gradient-to-br from-card to-card/50 border-primary/30">
-            <CardHeader>
-              <CardTitle className="text-lg text-muted-foreground">
-                {profile?.handles_exclusive ? 'Handler Type' : 'Branch'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-primary">
-                {profile?.handles_exclusive ? '⭐ Exclusive Members Handler' : profile?.branch || 'N/A'}
-              </div>
-              {profile?.handles_exclusive && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  Premium support for all exclusive member concerns
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </>
-    );
+          <div className="mt-8">
+            <Card className="bg-gradient-to-br from-card to-card/50 border-primary/30">
+              <CardHeader>
+                <CardTitle className="text-lg text-muted-foreground">Branch</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary">
+                  {profile?.branch || 'N/A'}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      );
+    }
   };
 
   return (

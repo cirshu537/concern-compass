@@ -12,6 +12,7 @@ interface ComplaintsListProps {
   filterByBranch?: string;
   filterByTrainer?: boolean;
   filterByAssigned?: string;
+  filterByStudentType?: 'brocamp' | 'exclusive' | 'none';
   onComplaintClick?: (complaint: Complaint) => void;
 }
 
@@ -19,13 +20,14 @@ export function ComplaintsList({
   filterByBranch, 
   filterByTrainer, 
   filterByAssigned,
+  filterByStudentType,
   onComplaintClick 
 }: ComplaintsListProps) {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<ComplaintStatus | 'all'>('all');
 
   const { data: complaints, isLoading } = useQuery({
-    queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, statusFilter],
+    queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, statusFilter],
     queryFn: async () => {
       let query = supabase
         .from('complaints')
@@ -34,6 +36,10 @@ export function ComplaintsList({
 
       if (filterByBranch) {
         query = query.eq('branch', filterByBranch);
+      }
+
+      if (filterByStudentType) {
+        query = query.eq('student_type', filterByStudentType);
       }
 
       if (filterByTrainer) {
@@ -54,7 +60,7 @@ export function ComplaintsList({
       }
 
       if (filterByAssigned) {
-        query = query.eq('assigned_staff_id', filterByAssigned);
+        query = query.or(`assigned_staff_id.eq.${filterByAssigned},assigned_trainer_id.eq.${filterByAssigned}`);
       }
 
       if (statusFilter !== 'all') {
