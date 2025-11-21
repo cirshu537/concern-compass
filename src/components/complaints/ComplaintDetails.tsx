@@ -530,8 +530,14 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
         </CardContent>
       </Card>
 
-      {/* Reviews Section */}
-      <ReviewsList complaintId={complaintId} />
+      {/* Reviews Section - Only show if there are reviews OR concern is not trainer-related in logged status */}
+      {(!profile?.role || 
+        profile.role !== 'trainer' || 
+        complaint.category !== 'trainer_related' || 
+        complaint.status !== 'logged' ||
+        (reviews && reviews.length > 0)) && (
+        <ReviewsList complaintId={complaintId} />
+      )}
 
       {/* Student Review - Only for Non-Trainer Concerns (After Resolution) */}
       {profile?.role === 'student' && 
