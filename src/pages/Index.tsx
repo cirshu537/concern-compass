@@ -56,14 +56,20 @@ const Index = () => {
         {/* Professional spotlight effect */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(6,182,212,0.06),transparent_50%)]"></div>
         
+        {/* Enhanced radial gradient overlay for depth */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(30,41,59,0.3),transparent_70%)]"></div>
+        
         {/* Minimal grid pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:80px_80px] opacity-40"></div>
+        
+        {/* Faint dot pattern for texture */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px] opacity-30"></div>
       </div>
 
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-12">
         <div className="text-center w-full max-w-7xl mx-auto">
           {/* Professional Logo Section */}
-          <div className="mt-8 mb-20 animate-fade-in">
+          <div className="mt-16 mb-24 animate-fade-in">
             <div className="w-full max-w-sm sm:max-w-md md:max-w-xl lg:max-w-2xl mx-auto px-4">
               <img 
                 src={brototypeLogo} 
@@ -74,25 +80,25 @@ const Index = () => {
           </div>
 
           {/* Refined Hero Headline */}
-          <div className="mb-6 animate-fade-in">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-white leading-tight max-w-4xl mx-auto">
+          <div className="mb-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-[-0.02em] text-white leading-tight max-w-4xl mx-auto">
               Student Concern System
             </h1>
           </div>
 
           {/* Elegant Subheadline */}
-          <div className="mb-12 animate-fade-in">
-            <p className="text-base sm:text-lg md:text-xl text-gray-300/80 max-w-2xl mx-auto font-normal leading-relaxed">
+          <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <p className="text-base sm:text-lg md:text-xl text-gray-300/70 max-w-2xl mx-auto font-normal leading-relaxed">
               We value your comfort more than anything
             </p>
           </div>
 
           {/* Professional CTA Button */}
-          <div className="animate-fade-in">
+          <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
             {!user ? (
               <button
                 onClick={() => setAuthModalOpen(true)}
-                className="group relative inline-flex items-center justify-center px-8 py-3.5 text-base font-medium text-white transition-all duration-300 ease-out rounded-xl overflow-hidden shadow-lg hover:shadow-2xl hover:scale-105"
+                className="group relative inline-flex items-center justify-center px-8 py-3.5 text-base font-medium text-white transition-all duration-300 ease-out rounded-xl overflow-hidden shadow-xl hover:shadow-2xl hover:-translate-y-1"
               >
                 {/* Sophisticated gradient */}
                 <span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 transition-all duration-300 group-hover:brightness-110"></span>
@@ -104,7 +110,7 @@ const Index = () => {
                 <span className="relative z-10 flex items-center gap-2">
                   Login to Continue
                   <svg 
-                    className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" 
+                    className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" 
                     fill="none" 
                     viewBox="0 0 24 24" 
                     stroke="currentColor"
@@ -123,7 +129,7 @@ const Index = () => {
                   else if (profile?.role === 'branch_admin') navigate('/branch-admin/dashboard');
                   else if (profile?.role === 'main_admin') navigate('/main-admin/dashboard');
                 }}
-                className="group relative inline-flex items-center justify-center px-8 py-3.5 text-base font-medium text-white transition-all duration-300 ease-out rounded-xl overflow-hidden shadow-lg hover:shadow-2xl hover:scale-105"
+                className="group relative inline-flex items-center justify-center px-8 py-3.5 text-base font-medium text-white transition-all duration-300 ease-out rounded-xl overflow-hidden shadow-xl hover:shadow-2xl hover:-translate-y-1"
               >
                 {/* Sophisticated gradient */}
                 <span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 transition-all duration-300 group-hover:brightness-110"></span>
@@ -135,7 +141,7 @@ const Index = () => {
                 <span className="relative z-10 flex items-center gap-2">
                   Go to Dashboard
                   <svg 
-                    className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" 
+                    className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" 
                     fill="none" 
                     viewBox="0 0 24 24" 
                     stroke="currentColor"
