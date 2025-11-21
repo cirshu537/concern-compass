@@ -27,8 +27,8 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [studentType, setStudentType] = useState<StudentType | ''>('exclusive');
-  const [branch, setBranch] = useState('Online');
+  const [studentType, setStudentType] = useState<StudentType | ''>('');
+  const [branch, setBranch] = useState('');
   const [program, setProgram] = useState('');
 
   const handleLogin = async (loginRole: AppRole) => {
