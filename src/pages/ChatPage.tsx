@@ -219,8 +219,8 @@ export default function ChatPage() {
 
   const getDashboardPath = () => {
     switch (profile?.role) {
-      case 'main_admin': return '/admin/main';
-      case 'branch_admin': return '/admin/branch';
+      case 'main_admin': return '/main-admin/dashboard';
+      case 'branch_admin': return '/branch-admin/dashboard';
       case 'staff': return '/staff/dashboard';
       case 'trainer': return '/trainer/dashboard';
       default: return '/student/dashboard';
@@ -228,8 +228,12 @@ export default function ChatPage() {
   };
 
   const selectedConvData = conversations.find(c => c.id === selectedConversation);
-  const canCloseConversation = selectedConvData && !selectedConvData.is_closed && 
-    (profile?.role === 'main_admin' || profile?.role === 'branch_admin');
+  
+  // Determine if current user can close the conversation based on type
+  const canCloseConversation = selectedConvData && !selectedConvData.is_closed && (
+    (selectedConvData.type === 'main_to_branch' && profile?.role === 'main_admin') ||
+    ((selectedConvData.type === 'branch_to_staff_group' || selectedConvData.type === 'branch_to_staff_direct') && profile?.role === 'branch_admin')
+  );
 
   return (
     <div className="min-h-screen bg-background">
