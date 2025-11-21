@@ -63,12 +63,7 @@ const Index = () => {
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-12">
         <div className="text-center w-full max-w-7xl mx-auto">
           {/* Professional Logo Section */}
-          <div 
-            className="mt-8 mb-20 opacity-0" 
-            style={{ 
-              animation: 'fade-in 0.8s ease-out 0.1s forwards' 
-            }}
-          >
+          <div className="mt-8 mb-20 animate-fade-in">
             <div className="w-full max-w-sm sm:max-w-md md:max-w-xl lg:max-w-2xl mx-auto px-4">
               <img 
                 src={brototypeLogo} 
@@ -79,36 +74,21 @@ const Index = () => {
           </div>
 
           {/* Refined Hero Headline */}
-          <div 
-            className="mb-6 opacity-0" 
-            style={{ 
-              animation: 'fade-in 0.6s ease-out 0.3s forwards, slide-up 0.6s ease-out 0.3s forwards' 
-            }}
-          >
+          <div className="mb-6 animate-fade-in">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-white leading-tight max-w-4xl mx-auto">
               Student Concern System
             </h1>
           </div>
 
           {/* Elegant Subheadline */}
-          <div 
-            className="mb-12 opacity-0" 
-            style={{ 
-              animation: 'fade-in 0.6s ease-out 0.5s forwards' 
-            }}
-          >
+          <div className="mb-12 animate-fade-in">
             <p className="text-base sm:text-lg md:text-xl text-gray-300/80 max-w-2xl mx-auto font-normal leading-relaxed">
               We value your comfort more than anything
             </p>
           </div>
 
           {/* Professional CTA Button */}
-          <div 
-            className="opacity-0" 
-            style={{ 
-              animation: 'fade-in 0.6s ease-out 0.7s forwards' 
-            }}
-          >
+          <div className="animate-fade-in">
             {!user ? (
               <button
                 onClick={() => setAuthModalOpen(true)}
