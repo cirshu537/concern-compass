@@ -63,17 +63,9 @@ export function ReviewsList({ complaintId }: ReviewsListProps) {
       {reviews.map((review) => (
         <Card key={review.id} className="bg-card border-border">
           <CardHeader>
-            <div className="flex items-center gap-3">
-              {getRatingIcon(review.rating)}
-              <div className="flex-1">
-                <CardTitle className="text-base">
-                  {getRatingLabel(review.rating)} Review
-                </CardTitle>
-                <p className="text-sm text-muted-foreground capitalize">
-                  {review.reviewer_role.replace('_', ' ')} • {format(new Date(review.created_at), 'MMM d, yyyy h:mm a')}
-                </p>
-              </div>
-            </div>
+            <p className="text-sm text-muted-foreground capitalize">
+              {review.reviewer_role.replace('_', ' ')} • {format(new Date(review.created_at), 'MMM d, yyyy h:mm a')}
+            </p>
           </CardHeader>
           {review.comment && (
             <CardContent>
