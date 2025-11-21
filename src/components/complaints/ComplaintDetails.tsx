@@ -385,8 +385,8 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
             </div>
           </div>
 
-          {/* Exclusive Handler Actions - Working on Concern Button when Logged */}
-          {isExclusiveHandler && complaint.student_type === 'exclusive' && complaint.status === 'logged' && !complaint.assigned_trainer_id && (
+          {/* Exclusive Handler Actions - Working on Concern Button when Logged or Noted */}
+          {isExclusiveHandler && complaint.student_type === 'exclusive' && (complaint.status === 'logged' || complaint.status === 'noted') && !complaint.assigned_trainer_id && (
             <div className="space-y-4 pt-4 border-t">
               <h3 className="font-semibold">Take Action</h3>
               <Button 
@@ -399,8 +399,8 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
             </div>
           )}
 
-          {/* Staff Actions - Process Button when Logged */}
-          {(profile?.role === 'staff' || profile?.role === 'branch_admin') && complaint.status === 'logged' && (
+          {/* Staff Actions - Process Button when Logged or Noted */}
+          {(profile?.role === 'staff' || profile?.role === 'branch_admin') && (complaint.status === 'logged' || complaint.status === 'noted') && (
             <div className="space-y-4 pt-4 border-t">
               <h3 className="font-semibold">Take Action</h3>
               <Button 
@@ -457,7 +457,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
             <div className="space-y-4 pt-4 border-t">
               <h3 className="font-semibold">Admin Actions</h3>
               
-              {staff && complaint.status === 'logged' && (
+              {staff && (complaint.status === 'logged' || complaint.status === 'noted') && (
                 <div>
                   <label className="text-sm font-medium mb-2 block">Assign to Staff</label>
                   <div className="flex gap-2">
