@@ -170,7 +170,7 @@ export default function ChatPage() {
         .from('conversations')
         .select(`
           *,
-          complaints!inner(title)
+          complaints!inner(title, assigned_staff_id)
         `)
         .order('created_at', { ascending: false });
 
@@ -181,8 +181,8 @@ export default function ChatPage() {
         query = query.or(`type.eq.main_to_branch,type.eq.branch_to_staff_group,type.eq.branch_to_staff_direct`);
         query = query.eq('branch', profile.branch);
       } else if (profile.role === 'staff') {
-        query = query.or(`type.eq.branch_to_staff_group,assigned_staff_id.eq.${profile.id}`);
         query = query.eq('branch', profile.branch);
+        query = query.or(`type.eq.branch_to_staff_group,and(type.eq.branch_to_staff_direct,complaints.assigned_staff_id.eq.${profile.id})`);
       }
 
       const { data, error } = await query;
