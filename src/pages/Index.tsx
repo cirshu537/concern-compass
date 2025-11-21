@@ -80,7 +80,7 @@ const Index = () => {
           </div>
 
           {/* Refined Hero Headline */}
-          <div className="mb-2 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <div className="mb-0 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-[-0.02em] text-white leading-tight max-w-4xl mx-auto">
               Student Concerns
             </h1>
