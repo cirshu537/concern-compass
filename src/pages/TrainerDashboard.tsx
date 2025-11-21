@@ -325,7 +325,7 @@ export default function TrainerDashboard() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card 
               className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group"
               onClick={() => setSelectedView('complaints')}
@@ -364,24 +364,6 @@ export default function TrainerDashboard() {
               <CardContent>
                 <p className="text-sm text-muted-foreground">
                   View and manage trainer-related concerns you need to address
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group"
-              onClick={() => navigate('/student/docs')}
-            >
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <BookOpen className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle className="text-xl">Documentation</CardTitle>
-                <CardDescription>System guide</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Learn about the concern system and your role
                 </p>
               </CardContent>
             </Card>
