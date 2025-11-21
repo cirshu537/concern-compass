@@ -23,8 +23,8 @@ export const useUnreadMessages = () => {
           conversationsQuery = conversationsQuery.or(`type.eq.main_to_branch,type.eq.branch_to_staff_group,type.eq.branch_to_staff_direct`);
           conversationsQuery = conversationsQuery.eq('branch', profile.branch);
         } else if (profile.role === 'staff') {
-          conversationsQuery = conversationsQuery.or(`type.eq.branch_to_staff_group,assigned_staff_id.eq.${profile.id}`);
           conversationsQuery = conversationsQuery.eq('branch', profile.branch);
+          conversationsQuery = conversationsQuery.or(`type.eq.branch_to_staff_group,type.eq.branch_to_staff_direct`);
         }
 
         const { data: conversations } = await conversationsQuery;
