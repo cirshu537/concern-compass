@@ -60,8 +60,8 @@ const Index = () => {
 
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-20">
         <div className="text-center space-y-12 max-w-5xl mx-auto w-full">
-          {/* Logo with subtle entrance */}
-          <div className="animate-fade-in opacity-0 [animation-delay:0.2s] [animation-fill-mode:forwards]">
+          {/* Logo */}
+          <div className="animate-fade-in">
             <div className="w-full max-w-3xl mx-auto mb-16">
               <img 
                 src={brototypeLogo} 
@@ -72,7 +72,7 @@ const Index = () => {
           </div>
 
           {/* Main content */}
-          <div className="space-y-8 animate-fade-in opacity-0 [animation-delay:0.4s] [animation-fill-mode:forwards]">
+          <div className="space-y-8 animate-fade-in">
             <h1 className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-white leading-[1.1]">
               Student Concern System
             </h1>
@@ -83,7 +83,7 @@ const Index = () => {
           </div>
 
           {/* CTA Button */}
-          <div className="pt-8 animate-fade-in opacity-0 [animation-delay:0.6s] [animation-fill-mode:forwards]">
+          <div className="pt-8 animate-fade-in">
             {!user ? (
               <button
                 onClick={() => setAuthModalOpen(true)}
