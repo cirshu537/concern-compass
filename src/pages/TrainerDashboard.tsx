@@ -179,7 +179,10 @@ export default function TrainerDashboard() {
           )}
 
           {!profile?.handles_exclusive && (
-            <Card className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group">
+            <Card 
+              className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group"
+              onClick={() => navigate('/chat')}
+            >
               <CardHeader>
                 <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
                   <FileText className="w-6 h-6 text-secondary" />
@@ -195,7 +198,10 @@ export default function TrainerDashboard() {
             </Card>
           )}
 
-          <Card className="bg-card border-border hover:border-accent/50 transition-all cursor-pointer group">
+          <Card 
+            className="bg-card border-border hover:border-accent/50 transition-all cursor-pointer group"
+            onClick={() => navigate('/chat')}
+          >
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
                 <Bell className="w-6 h-6 text-accent" />
@@ -211,7 +217,10 @@ export default function TrainerDashboard() {
           </Card>
 
           {!profile?.handles_exclusive && (
-            <Card className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group">
+            <Card 
+              className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group"
+              onClick={() => navigate('/student/docs')}
+            >
               <CardHeader>
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <BookOpen className="w-6 h-6 text-primary" />
