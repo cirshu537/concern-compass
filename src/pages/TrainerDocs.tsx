@@ -179,47 +179,6 @@ export default function TrainerDocs() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-border border-destructive/30">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-destructive">
-                <AlertTriangle className="w-5 h-5" />
-                High Alert System - Important
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-muted-foreground">
-              <p><strong className="text-foreground">What is High Alert?</strong></p>
-              <p>If you receive <strong className="text-destructive">3 or more negative reviews within 7 days</strong>, you will be placed on High Alert status.</p>
-              
-              <p className="mt-4"><strong className="text-foreground">What Happens:</strong></p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>You receive immediate notification</li>
-                <li>Your account is flagged with "High Alert" status</li>
-                <li><strong className="text-destructive">You must report to administration immediately</strong></li>
-                <li>Admin reviews your cases and provides support</li>
-                <li>Status visible to branch and main admins</li>
-              </ul>
-
-              <p className="mt-4 bg-destructive/10 p-3 rounded-lg border border-destructive/20">
-                <strong className="text-destructive">This is NOT Punitive:</strong> High Alert is designed to:
-                <ul className="list-disc list-inside ml-4 mt-2">
-                  <li>Identify potential training issues early</li>
-                  <li>Provide support and resources</li>
-                  <li>Facilitate improvement conversations</li>
-                  <li>Protect both trainer and student interests</li>
-                </ul>
-              </p>
-
-              <p className="mt-4"><strong className="text-foreground">How to Avoid High Alert:</strong></p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>Respond promptly to concerns (within 24-48 hours)</li>
-                <li>Provide thoughtful, professional explanations</li>
-                <li>Take all feedback seriously</li>
-                <li>Seek clarification from students when needed</li>
-                <li>Proactively address recurring issues</li>
-              </ul>
-            </CardContent>
-          </Card>
-
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
