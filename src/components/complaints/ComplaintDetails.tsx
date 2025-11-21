@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,6 +27,41 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
   const [assignedStaffId, setAssignedStaffId] = useState<string | null>(null);
   const [showAttachment, setShowAttachment] = useState(false);
   const [attachmentUrl, setAttachmentUrl] = useState<string | null>(null);
+
+  // Subscribe to real-time updates for this complaint and its reviews
+  useEffect(() => {
+    const channel = supabase
+      .channel(`complaint-${complaintId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'complaints',
+          filter: `id=eq.${complaintId}`
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'complaint_reviews',
+          filter: `complaint_id=eq.${complaintId}`
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [complaintId, queryClient]);
 
   const { data: complaint, isLoading } = useQuery({
     queryKey: ['complaint', complaintId],
