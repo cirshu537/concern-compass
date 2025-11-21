@@ -114,7 +114,7 @@ export function ReviewForm({
       </CardHeader>
       <CardContent className="space-y-4">
         {!isTrainerReply && (
-          <div className="flex gap-4 justify-center">
+          <div className="flex gap-4 justify-center items-center">
             <Button
               variant={rating === -1 ? 'destructive' : 'outline'}
               size="lg"
@@ -124,6 +124,7 @@ export function ReviewForm({
               <ThumbsDown className="w-5 h-5 mr-2" />
               Negative
             </Button>
+            <div className="h-8 w-px bg-border" />
             <Button
               variant={rating === 0 ? 'default' : 'outline'}
               size="lg"
@@ -133,6 +134,7 @@ export function ReviewForm({
               <Minus className="w-5 h-5 mr-2" />
               Neutral
             </Button>
+            <div className="h-8 w-px bg-border" />
             <Button
               variant={rating === 1 ? 'success' : 'outline'}
               size="lg"
