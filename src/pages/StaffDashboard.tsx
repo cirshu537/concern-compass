@@ -52,6 +52,7 @@ export default function StaffDashboard() {
         assigned: assignedComplaints?.length || 0,
         open: assignedComplaints?.filter(c => c.status === 'logged' || c.status === 'noted' || c.status === 'in_process').length || 0,
         newComplaints: allComplaints?.filter(c => c.status === 'logged').length || 0,
+        inProcessAssigned: assignedComplaints?.filter(c => c.status === 'in_process').length || 0,
       };
     },
   });
@@ -155,19 +156,30 @@ export default function StaffDashboard() {
           </Card>
 
           <Card 
-            className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer"
+            className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer relative"
             onClick={() => setSelectedView('assigned')}
           >
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4">
                 <FileText className="w-6 h-6 text-secondary" />
               </div>
-              <CardTitle className="text-xl">Assigned to Me</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl">Assigned to Me</CardTitle>
+                {stats?.inProcessAssigned ? (
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive"></span>
+                    </span>
+                  </div>
+                ) : null}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-secondary mb-2">{stats?.assigned || 0}</div>
               <p className="text-sm text-muted-foreground">
                 Complaints you're handling
+                {stats?.inProcessAssigned ? ` (${stats.inProcessAssigned} in process)` : ''}
               </p>
             </CardContent>
           </Card>
