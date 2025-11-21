@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ComplaintsList } from '@/components/complaints/ComplaintsList';
 import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
-import { FileText, MessageSquare, Building, LogOut, ChevronLeft, Calendar } from 'lucide-react';
+import { FileText, MessageSquare, Building, LogOut, ChevronLeft, Calendar, BookOpen } from 'lucide-react';
 import { DashboardNav } from '@/components/DashboardNav';
 
 export default function MainAdminDashboard() {
@@ -476,9 +476,20 @@ export default function MainAdminDashboard() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
-            Main Admin Dashboard
-          </h1>
+          <div className="flex items-center gap-6">
+            <h1 className="text-2xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
+              Main Admin Dashboard
+            </h1>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate('/admin/docs')}
+              className="flex items-center gap-2"
+            >
+              <BookOpen className="w-4 h-4" />
+              Documentation
+            </Button>
+          </div>
           <DashboardNav showNotifications showChat />
         </div>
       </header>
