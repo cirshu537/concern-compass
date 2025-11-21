@@ -325,7 +325,7 @@ export default function TrainerDashboard() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card 
               className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group"
               onClick={() => setSelectedView('complaints')}
@@ -367,24 +367,6 @@ export default function TrainerDashboard() {
                 </p>
               </CardContent>
             </Card>
-
-            <Card 
-              className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group"
-              onClick={() => navigate('/student/docs')}
-            >
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <BookOpen className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle className="text-xl">Documentation</CardTitle>
-                <CardDescription>System guide</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Learn about the concern system and your role
-                </p>
-              </CardContent>
-            </Card>
           </div>
 
           <div className="mt-8">
@@ -408,9 +390,20 @@ export default function TrainerDashboard() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className={`text-2xl font-bold ${profile?.handles_exclusive ? 'text-yellow-500' : 'bg-gradient-cyber bg-clip-text text-transparent'}`}>
-            {profile?.handles_exclusive ? '⭐ Exclusive Members Handler' : 'Trainer Dashboard'}
-          </h1>
+          <div className="flex items-center gap-6">
+            <h1 className={`text-2xl font-bold ${profile?.handles_exclusive ? 'text-yellow-500' : 'bg-gradient-cyber bg-clip-text text-transparent'}`}>
+              {profile?.handles_exclusive ? '⭐ Exclusive Members Handler' : 'Trainer Dashboard'}
+            </h1>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate('/student/docs')}
+              className="flex items-center gap-2"
+            >
+              <BookOpen className="w-4 h-4" />
+              Documentation
+            </Button>
+          </div>
           <DashboardNav showNotifications showChat showProfile />
         </div>
       </header>
