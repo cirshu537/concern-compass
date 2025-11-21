@@ -16,6 +16,7 @@ import StaffDashboard from "./pages/StaffDashboard";
 import BranchAdminDashboard from "./pages/BranchAdminDashboard";
 import MainAdminDashboard from "./pages/MainAdminDashboard";
 import ChatPage from "./pages/ChatPage";
+import RegisterExclusiveHandler from "./pages/RegisterExclusiveHandler";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/branch-admin/dashboard" element={<BranchAdminDashboard />} />
             <Route path="/main-admin/dashboard" element={<MainAdminDashboard />} />
             <Route path="/chat" element={<ChatPage />} />
+            <Route path="/register-exclusive-handler" element={<RegisterExclusiveHandler />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

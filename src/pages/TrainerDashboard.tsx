@@ -31,18 +31,31 @@ export default function TrainerDashboard() {
   }, [searchParams]);
 
   const { data: trainerComplaints } = useQuery({
-    queryKey: ['trainer-complaints', profile?.branch],
+    queryKey: ['trainer-complaints', profile?.branch, profile?.handles_exclusive],
     enabled: !!profile?.branch,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('complaints')
-        .select('*')
-        .eq('category', 'trainer_related')
-        .eq('branch', profile!.branch)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data;
+      if (profile?.handles_exclusive) {
+        // Fetch all exclusive member complaints
+        const { data, error } = await supabase
+          .from('complaints')
+          .select('*')
+          .eq('student_type', 'exclusive')
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        return data;
+      } else {
+        // Fetch trainer-related complaints for this branch
+        const { data, error } = await supabase
+          .from('complaints')
+          .select('*')
+          .eq('category', 'trainer_related')
+          .eq('branch', profile!.branch)
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        return data;
+      }
     },
   });
 
@@ -100,15 +113,17 @@ export default function TrainerDashboard() {
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                 <Users className="w-6 h-6 text-primary" />
               </div>
-              <CardTitle className="text-xl">Student Concerns</CardTitle>
-              <CardDescription>Trainer-related issues</CardDescription>
+              <CardTitle className="text-xl">{profile?.handles_exclusive ? 'Exclusive Member Concerns' : 'Student Concerns'}</CardTitle>
+              <CardDescription>{profile?.handles_exclusive ? 'All exclusive member issues' : 'Trainer-related issues'}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary mb-2">
                 {trainerComplaints?.length || 0}
               </div>
               <p className="text-sm text-muted-foreground">
-                View and respond to concerns about training quality
+                {profile?.handles_exclusive 
+                  ? 'View and respond to all exclusive member concerns'
+                  : 'View and respond to concerns about training quality'}
               </p>
             </CardContent>
           </Card>
@@ -177,8 +192,8 @@ export default function TrainerDashboard() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
-            Trainer Dashboard
+          <h1 className={`text-2xl font-bold ${profile?.handles_exclusive ? 'text-yellow-500' : 'bg-gradient-cyber bg-clip-text text-transparent'}`}>
+            {profile?.handles_exclusive ? '⭐ Exclusive Members Handler' : 'Trainer Dashboard'}
           </h1>
           <DashboardNav showNotifications showChat showProfile />
         </div>

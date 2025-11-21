@@ -24,6 +24,7 @@ export interface Profile {
   negative_count_lifetime: number;
   banned_from_raise: boolean;
   high_alert: boolean;
+  handles_exclusive: boolean;
   created_at: string;
 }
 
