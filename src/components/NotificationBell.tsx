@@ -121,13 +121,13 @@ export function NotificationBell() {
       if (role === 'student') {
         navigate('/student/status');
       } else if (role === 'trainer') {
-        navigate(`/trainer/dashboard?complaint=${complaintId}`);
+        navigate(`/trainer/dashboard?view=detail&id=${complaintId}`);
       } else if (role === 'staff') {
-        navigate(`/staff/dashboard?complaint=${complaintId}`);
+        navigate(`/staff/dashboard?view=detail&id=${complaintId}`);
       } else if (role === 'branch_admin') {
-        navigate(`/admin/branch?complaint=${complaintId}`);
+        navigate(`/branch-admin/dashboard?view=detail&id=${complaintId}`);
       } else if (role === 'main_admin') {
-        navigate(`/admin/main?complaint=${complaintId}`);
+        navigate(`/main-admin/dashboard?view=detail&id=${complaintId}`);
       }
     }
   };

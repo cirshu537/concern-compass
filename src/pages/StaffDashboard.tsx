@@ -16,6 +16,7 @@ export default function StaffDashboard() {
   const { profile, signOut } = useAuth();
   const [selectedView, setSelectedView] = useState<'dashboard' | 'all' | 'assigned' | 'detail'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
+  const [previousView, setPreviousView] = useState<'all' | 'assigned'>('assigned');
 
   // Check for URL parameters on mount
   useEffect(() => {
@@ -65,7 +66,7 @@ export default function StaffDashboard() {
       return (
         <ComplaintDetails 
           complaintId={selectedComplaintId}
-          onBack={() => setSelectedView('assigned')}
+          onBack={() => setSelectedView(previousView)}
         />
       );
     }
@@ -84,6 +85,7 @@ export default function StaffDashboard() {
           <ComplaintsList
             filterByBranch={profile?.branch || ''}
             onComplaintClick={(complaint) => {
+              setPreviousView('all');
               setSelectedComplaintId(complaint.id);
               setSelectedView('detail');
             }}
@@ -106,6 +108,7 @@ export default function StaffDashboard() {
           <ComplaintsList
             filterByAssigned={profile?.id || ''}
             onComplaintClick={(complaint) => {
+              setPreviousView('assigned');
               setSelectedComplaintId(complaint.id);
               setSelectedView('detail');
             }}
