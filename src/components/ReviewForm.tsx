@@ -90,6 +90,19 @@ export function ReviewForm({
         if (statusError) throw statusError;
       }
 
+      // Auto-mark trainer-related concerns as fixed when trainer replies
+      if (isTrainerReply) {
+        const { error: statusError } = await supabase
+          .from('complaints')
+          .update({ 
+            status: 'fixed',
+            resolved_at: new Date().toISOString()
+          })
+          .eq('id', complaintId);
+
+        if (statusError) throw statusError;
+      }
+
       toast.success(isTrainerReply ? 'Reply submitted successfully' : 'Review submitted successfully');
       setRating(null);
       setComment('');
