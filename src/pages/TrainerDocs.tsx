@@ -65,7 +65,7 @@ export default function TrainerDocs() {
                 <li><strong>Auto-Fix:</strong> When you submit your reply, concern is automatically marked as Fixed</li>
               </ol>
               <p className="mt-4 bg-secondary/10 p-3 rounded-lg border border-secondary/20">
-                <strong className="text-foreground">Important:</strong> Your reply is visible to the student but they CANNOT rate or review your response back. Trainers also do NOT rate students - you only provide text explanations. This ensures fair, one-way feedback focused on improvement rather than scoring.
+                <strong className="text-foreground">Important:</strong> Your reply is visible to the student in the Reviews section, but students CANNOT rate or review your response back (no positive/negative/neutral buttons). Trainers also do NOT rate students - you only provide text explanations. This ensures fair, one-way feedback focused on improvement.
               </p>
             </CardContent>
           </Card>
