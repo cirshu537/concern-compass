@@ -349,18 +349,21 @@ export default function TrainerDashboard() {
 
             <Card 
               className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group"
-              onClick={() => navigate('/chat')}
+              onClick={() => {
+                // Show concerns assigned to this trainer
+                navigate('/trainer/dashboard?view=complaints');
+              }}
             >
               <CardHeader>
                 <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
                   <FileText className="w-6 h-6 text-secondary" />
                 </div>
-                <CardTitle className="text-xl">My Concerns</CardTitle>
-                <CardDescription>Concerns you've raised</CardDescription>
+                <CardTitle className="text-xl">Assigned Concerns</CardTitle>
+                <CardDescription>Concerns assigned to you</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Track concerns you've submitted to administration
+                  View and manage trainer-related concerns you need to address
                 </p>
               </CardContent>
             </Card>
