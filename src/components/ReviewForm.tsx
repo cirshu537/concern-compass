@@ -119,7 +119,7 @@ export function ReviewForm({
               variant={rating === -1 ? 'destructive' : 'outline'}
               size="lg"
               onClick={() => setRating(-1)}
-              className="flex-1"
+              className={`flex-1 ${rating !== -1 ? 'border-destructive/50 text-destructive hover:bg-destructive/10' : ''}`}
             >
               <ThumbsDown className="w-5 h-5 mr-2" />
               Negative
@@ -137,7 +137,7 @@ export function ReviewForm({
               variant={rating === 1 ? 'success' : 'outline'}
               size="lg"
               onClick={() => setRating(1)}
-              className="flex-1"
+              className={`flex-1 ${rating !== 1 ? 'border-success/50 text-success hover:bg-success/10' : ''}`}
             >
               <ThumbsUp className="w-5 h-5 mr-2" />
               Positive
@@ -167,14 +167,14 @@ export function ReviewForm({
                 onClick={() => {
                   setShowCancelConfirm(true);
                 }}
-                className="flex-1"
+                className={`flex-1 ${selectedAction !== 'cancelled' ? 'border-destructive/50 text-destructive hover:bg-destructive/10' : ''}`}
               >
                 Cancel Concern
               </Button>
               <Button
                 variant={selectedAction === 'fixed' ? 'success' : 'outline'}
                 onClick={() => setSelectedAction('fixed')}
-                className="flex-1"
+                className={`flex-1 ${selectedAction !== 'fixed' ? 'border-success/50 text-success hover:bg-success/10' : ''}`}
               >
                 Mark as Fixed
               </Button>
