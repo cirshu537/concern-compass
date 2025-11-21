@@ -64,6 +64,7 @@ export type Database = {
           anonymous: boolean
           assigned_staff_id: string | null
           assigned_trainer_id: string | null
+          attachment_url: string | null
           branch: string
           category: Database["public"]["Enums"]["complaint_category"]
           created_at: string
@@ -82,6 +83,7 @@ export type Database = {
           anonymous?: boolean
           assigned_staff_id?: string | null
           assigned_trainer_id?: string | null
+          attachment_url?: string | null
           branch: string
           category: Database["public"]["Enums"]["complaint_category"]
           created_at?: string
@@ -100,6 +102,7 @@ export type Database = {
           anonymous?: boolean
           assigned_staff_id?: string | null
           assigned_trainer_id?: string | null
+          attachment_url?: string | null
           branch?: string
           category?: Database["public"]["Enums"]["complaint_category"]
           created_at?: string

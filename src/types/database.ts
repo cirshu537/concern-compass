@@ -41,6 +41,7 @@ export interface Complaint {
   assigned_trainer_id: string | null;
   anonymous: boolean;
   identity_revealed: boolean;
+  attachment_url: string | null;
   created_at: string;
   updated_at: string;
   resolved_at: string | null;

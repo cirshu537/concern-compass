@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Paperclip, X } from 'lucide-react';
 import { ComplaintCategory } from '@/types/database';
 
 export default function StudentRaise() {
@@ -21,6 +21,8 @@ export default function StudentRaise() {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<ComplaintCategory | ''>('');
   const [anonymous, setAnonymous] = useState(true);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const brocampCategories: ComplaintCategory[] = [
     'facility_campus',
@@ -42,6 +44,23 @@ export default function StudentRaise() {
     return cat.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size must be less than 5MB');
+        return;
+      }
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
   const handleSubmit = async () => {
     if (!title || !description || !category) {
       toast.error('Please fill all required fields');
@@ -55,6 +74,21 @@ export default function StudentRaise() {
 
     setLoading(true);
     try {
+      let attachmentUrl = null;
+
+      // Upload image if present
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${profile!.id}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('complaint-attachments')
+          .upload(fileName, imageFile);
+
+        if (uploadError) throw uploadError;
+        attachmentUrl = fileName;
+      }
+
       const { error } = await supabase.from('complaints').insert({
         title,
         description,
@@ -64,6 +98,7 @@ export default function StudentRaise() {
         branch: profile!.branch || 'Online',
         program: profile!.program,
         anonymous,
+        attachment_url: attachmentUrl,
       });
 
       if (error) throw error;
@@ -135,6 +170,49 @@ export default function StudentRaise() {
                 placeholder="Please provide detailed information about your concern..."
                 className="bg-input border-border min-h-[200px]"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="attachment">Attachment (Optional)</Label>
+              <div className="space-y-2">
+                {imagePreview ? (
+                  <div className="relative inline-block">
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      className="max-w-xs max-h-48 rounded border border-border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-2 -right-2 h-6 w-6"
+                      onClick={removeImage}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div>
+                    <Input
+                      id="attachment"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => document.getElementById('attachment')?.click()}
+                      className="w-full"
+                    >
+                      <Paperclip className="w-4 h-4 mr-2" />
+                      Add Image
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center space-x-2">
