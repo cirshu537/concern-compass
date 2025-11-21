@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Shield, Award, AlertTriangle, MessageSquare, Star } from 'lucide-react';
+import { ArrowLeft, Shield, Award, AlertTriangle, MessageSquare, Star, Eye, Users } from 'lucide-react';
 
 export default function StudentDocs() {
   const navigate = useNavigate();
@@ -20,9 +20,9 @@ export default function StudentDocs() {
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8">
           <h1 className="text-4xl font-bold bg-gradient-cyber bg-clip-text text-transparent mb-2">
-            App Documentation
+            Student Documentation
           </h1>
-          <p className="text-muted-foreground">Learn how the concern system works</p>
+          <p className="text-muted-foreground">Complete guide to the concern management system</p>
         </div>
 
         <div className="space-y-6">
@@ -34,72 +34,26 @@ export default function StudentDocs() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-muted-foreground">
-              <p>1. Click the "Raise" button on your dashboard</p>
-              <p>2. Select the appropriate category for your concern</p>
-              <p>3. Provide a clear title and detailed description</p>
-              <p>4. Choose whether to submit anonymously (recommended for privacy)</p>
-              <p>5. Submit and track the status in the "Status" section</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-primary" />
-                Credit System
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-muted-foreground">
-              <p><strong className="text-foreground">Earning Credits:</strong></p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>+20 credits when your concern is resolved positively</li>
-                <li>+20 credits when you give positive feedback to staff</li>
-                <li>Credits represent positive contributions to the community</li>
-              </ul>
-              <p className="mt-4"><strong className="text-foreground">Using Credits:</strong></p>
-              <p>Credits serve as a measure of your positive engagement with the system and may unlock future benefits.</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-destructive" />
-                Negative Events & Bans
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-muted-foreground">
-              <p><strong className="text-foreground">What are Negative Events?</strong></p>
-              <p>Negative events are recorded when:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>You submit false or misleading concerns</li>
-                <li>Staff rates your concern negatively due to careless reporting</li>
-                <li>You provide negative feedback without valid reason</li>
-              </ul>
-              <p className="mt-4"><strong className="text-destructive font-semibold">Ban System:</strong></p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>3 negative events = Temporary ban from raising concerns</li>
-                <li>Bans can be appealed by contacting administration</li>
-                <li>Focus on quality over quantity when raising concerns</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Star className="w-5 h-5 text-secondary" />
-                Rating System
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-muted-foreground">
-              <p>After your concern is resolved, you can rate the resolution:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong className="text-status-fixed">Positive (+1):</strong> Issue resolved satisfactorily</li>
-                <li><strong className="text-muted-foreground">Neutral (0):</strong> Issue partially resolved</li>
-                <li><strong className="text-destructive">Negative (-1):</strong> Issue not resolved or handled poorly</li>
-              </ul>
-              <p className="mt-4">Your feedback helps improve the system and holds staff accountable.</p>
+              <p><strong className="text-foreground">Step-by-Step Process:</strong></p>
+              <ol className="list-decimal list-inside space-y-2 ml-4">
+                <li>Click "Raise" button on your dashboard</li>
+                <li>Select appropriate category:
+                  <ul className="list-disc list-inside ml-6 mt-1">
+                    <li><strong>Trainer Related:</strong> Training quality, teaching methods</li>
+                    <li><strong>Facility/Campus:</strong> Infrastructure, cleanliness, equipment</li>
+                    <li><strong>Personal/Institute:</strong> Personal issues affecting learning</li>
+                    <li><strong>Content Quality:</strong> Course material concerns</li>
+                    <li><strong>Platform Issues:</strong> Technical problems</li>
+                    <li><strong>Payment/Membership:</strong> Billing concerns</li>
+                    <li><strong>Support/Communication:</strong> Admin response issues</li>
+                    <li><strong>Safety/Wellbeing:</strong> Security or health concerns</li>
+                  </ul>
+                </li>
+                <li>Provide clear title and detailed description</li>
+                <li>Choose anonymous (recommended) or public submission</li>
+                <li>Attach evidence if applicable (optional)</li>
+                <li>Submit and track status in "Status" section</li>
+              </ol>
             </CardContent>
           </Card>
 
@@ -111,17 +65,165 @@ export default function StudentDocs() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-muted-foreground">
-              <p><strong className="text-foreground">Anonymous (Default):</strong></p>
+              <p><strong className="text-foreground">Anonymous (Recommended):</strong></p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>Your identity is hidden from staff and trainers</li>
-                <li>Provides safety for sensitive concerns</li>
-                <li>Recommended for most situations</li>
+                <li>Your identity is hidden from all staff and trainers</li>
+                <li>Protected from potential bias or retaliation</li>
+                <li>Only Main Admin can reveal identity (in extreme cases)</li>
+                <li>Best for sensitive or trainer-related concerns</li>
               </ul>
               <p className="mt-4"><strong className="text-foreground">Public:</strong></p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>Your identity is visible to staff</li>
-                <li>May lead to faster, more personalized resolution</li>
-                <li>Use when you're comfortable being identified</li>
+                <li>Your identity is visible to assigned staff</li>
+                <li>May enable direct communication and faster resolution</li>
+                <li>Use when comfortable being identified</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary" />
+                Concern Status & Workflow
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-muted-foreground">
+              <p><strong className="text-foreground">Status Stages:</strong></p>
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li><strong className="text-status-logged">Logged:</strong> Concern submitted, awaiting assignment</li>
+                <li><strong className="text-status-in-process">In Process:</strong> Staff/trainer working on resolution</li>
+                <li><strong className="text-status-fixed">Fixed:</strong> Issue resolved successfully</li>
+                <li><strong className="text-status-cancelled">Cancelled:</strong> Invalid or duplicate concern</li>
+              </ul>
+              <p className="mt-4"><strong className="text-foreground">Trainer-Related Concerns:</strong></p>
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li>Automatically assigned to trainers in your branch</li>
+                <li>When trainer replies, concern is marked as Fixed</li>
+                <li>You can view trainer's response in Reviews section</li>
+                <li>No student rating back to trainer (one-way feedback)</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Star className="w-5 h-5 text-secondary" />
+                Rating & Review System
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-muted-foreground">
+              <p><strong className="text-foreground">When to Rate:</strong></p>
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li>After non-trainer concerns are marked as Fixed or Cancelled</li>
+                <li>Rating is optional but helps improve service quality</li>
+              </ul>
+              <p className="mt-4"><strong className="text-foreground">Rating Options:</strong></p>
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li><strong className="text-status-fixed">👍 Positive:</strong> Issue resolved satisfactorily, staff responsive</li>
+                <li><strong className="text-muted-foreground">— Neutral:</strong> Partial resolution or acceptable outcome</li>
+                <li><strong className="text-destructive">👎 Negative:</strong> Poor handling, unresolved, or unprofessional</li>
+              </ul>
+              <p className="mt-4 text-foreground font-semibold">Important: Trainer-related concerns DO NOT allow student ratings back to trainers. This is one-way feedback to protect trainer evaluation integrity.</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="w-5 h-5 text-primary" />
+                Credit System - Earn Rewards
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-muted-foreground">
+              <p><strong className="text-foreground">How to Earn Credits:</strong></p>
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li><strong>+20 Credits:</strong> When staff rates your concern positively</li>
+                <li><strong>+20 Credits:</strong> When you give positive feedback to staff</li>
+                <li>Both student and staff earn credits for positive interactions</li>
+              </ul>
+              <p className="mt-4"><strong className="text-foreground">Credit Purpose:</strong></p>
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li>Reflects quality engagement with the system</li>
+                <li>Demonstrates responsible concern reporting</li>
+                <li>May unlock future benefits and rewards</li>
+                <li>Viewable in your profile</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-border border-destructive/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-destructive">
+                <AlertTriangle className="w-5 h-5" />
+                Negative Events & Temporary Bans
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-muted-foreground">
+              <p><strong className="text-foreground">What Causes Negative Events?</strong></p>
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li>Submitting false or misleading concerns</li>
+                <li>Repeated frivolous complaints</li>
+                <li>Staff rates your concern negatively for being invalid</li>
+                <li>Concern marked as Cancelled due to careless reporting</li>
+              </ul>
+              <p className="mt-4"><strong className="text-destructive font-semibold">Ban System:</strong></p>
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li><strong>3 Negative Events (Lifetime)</strong> = Temporary ban from raising concerns</li>
+                <li>Ban prevents submitting new concerns until resolved</li>
+                <li>Appeals can be made by contacting administration</li>
+                <li>Demonstrates importance of quality over quantity</li>
+              </ul>
+              <p className="mt-4 bg-destructive/10 p-3 rounded-lg border border-destructive/20">
+                <strong className="text-destructive">Prevention Tips:</strong> Always provide accurate details, include evidence when possible, and only submit legitimate concerns. Think carefully before raising an issue.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="w-5 h-5 text-accent" />
+                Privacy & Identity Protection
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-muted-foreground">
+              <p><strong className="text-foreground">Your Privacy Rights:</strong></p>
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li>Anonymous concerns protect your identity by default</li>
+                <li>Staff and trainers cannot see who submitted the concern</li>
+                <li>Only Main Admin can reveal identity in exceptional circumstances:
+                  <ul className="list-disc list-inside ml-6 mt-1">
+                    <li>Serious safety concerns requiring intervention</li>
+                    <li>Legal or disciplinary requirements</li>
+                    <li>Cannot resolve without knowing identity</li>
+                  </ul>
+                </li>
+                <li>Identity revelation is logged and monitored for accountability</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-primary" />
+                Best Practices for Students
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-muted-foreground">
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li>✅ Choose the correct category for your concern</li>
+                <li>✅ Provide clear, detailed descriptions</li>
+                <li>✅ Attach evidence (screenshots, photos) when possible</li>
+                <li>✅ Use anonymous mode for sensitive issues</li>
+                <li>✅ Track status regularly and respond to staff inquiries</li>
+                <li>✅ Provide honest, constructive feedback</li>
+                <li>❌ Avoid submitting duplicate concerns</li>
+                <li>❌ Don't exaggerate or provide false information</li>
+                <li>❌ Don't use the system to settle personal disputes</li>
+                <li>❌ Don't rate negatively without valid reason</li>
               </ul>
             </CardContent>
           </Card>
