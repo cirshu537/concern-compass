@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { NotificationBell } from '@/components/NotificationBell';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 
 interface DashboardNavProps {
   showNotifications?: boolean;
@@ -17,6 +18,7 @@ export const DashboardNav = ({
 }: DashboardNavProps) => {
   const { signOut, profile } = useAuth();
   const navigate = useNavigate();
+  const { unreadCount, markAsRead } = useUnreadMessages();
 
   const handleLogout = async () => {
     await signOut();
@@ -36,9 +38,19 @@ export const DashboardNav = ({
           variant="ghost" 
           size="icon" 
           className="relative"
-          onClick={() => navigate(getChatPath())}
+          onClick={() => {
+            markAsRead();
+            navigate(getChatPath());
+          }}
         >
           <MessageSquare className="h-5 w-5" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
+              <span className="text-[10px] font-bold text-white">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            </span>
+          )}
         </Button>
       )}
       

@@ -10,6 +10,7 @@ import { ArrowLeft, Send, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { DashboardNav } from '@/components/DashboardNav';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 
 interface Conversation {
   id: string;
@@ -34,6 +35,7 @@ export default function ChatPage() {
   const { profile } = useAuth();
   const [searchParams] = useSearchParams();
   const conversationIdParam = searchParams.get('conversation');
+  const { markAsRead } = useUnreadMessages();
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(conversationIdParam);
@@ -41,6 +43,11 @@ export default function ChatPage() {
   const [messageInput, setMessageInput] = useState('');
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Mark messages as read when page loads
+  useEffect(() => {
+    markAsRead();
+  }, []);
 
   useEffect(() => {
     if (profile) {
@@ -139,8 +146,23 @@ export default function ChatPage() {
           table: 'conversation_messages',
           filter: `conversation_id=eq.${conversationId}`
         },
-        () => {
-          fetchMessages(conversationId);
+        async (payload) => {
+          // Fetch sender name and add message directly instead of refetching all
+          const { data: senderData } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', payload.new.sender_id)
+            .single();
+          
+          const newMessage: Message = {
+            id: payload.new.id,
+            sender_id: payload.new.sender_id,
+            body: payload.new.body,
+            created_at: payload.new.created_at,
+            sender_name: senderData?.full_name || 'Unknown'
+          };
+          
+          setMessages(prev => [...prev, newMessage]);
         }
       )
       .subscribe();
