@@ -533,9 +533,37 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
       {/* Reviews Section */}
       <ReviewsList complaintId={complaintId} />
 
-      {/* Student Review - Optional After Resolution */}
+      {/* Student Review - For Trainer-Related Concerns (After Trainer Response) */}
       {profile?.role === 'student' && 
        complaint.student_id === profile.id && 
+       complaint.category === 'trainer_related' &&
+       (complaint.status === 'in_process' || complaint.status === 'fixed' || complaint.status === 'cancelled') &&
+       !reviews?.some(r => r.reviewer_role === 'student') && (
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <CardTitle>Review Trainer Response</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Share your feedback about how the trainer handled your concern
+            </p>
+          </CardHeader>
+          <CardContent>
+            <ReviewForm 
+              complaintId={complaintId}
+              onReviewSubmitted={() => {
+                queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
+                queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
+              }}
+              allowStatusChange={false}
+              currentStatus={complaint.status}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Student Review - For Other Concerns (After Resolution) */}
+      {profile?.role === 'student' && 
+       complaint.student_id === profile.id && 
+       complaint.category !== 'trainer_related' &&
        (complaint.status === 'fixed' || complaint.status === 'cancelled') &&
        !reviews?.some(r => r.reviewer_role === 'student') && (
         <Card className="bg-card border-border">
