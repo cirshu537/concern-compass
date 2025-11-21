@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ export default function StaffDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { profile, signOut } = useAuth();
+  const queryClient = useQueryClient();
   const [selectedView, setSelectedView] = useState<'dashboard' | 'all' | 'assigned' | 'detail'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
   const [previousView, setPreviousView] = useState<'all' | 'assigned'>('assigned');
@@ -32,6 +33,32 @@ export default function StaffDashboard() {
       setSelectedView('assigned');
     }
   }, [searchParams]);
+
+  // Subscribe to real-time updates for complaints
+  useEffect(() => {
+    if (!profile?.branch) return;
+
+    const channel = supabase
+      .channel('staff-complaints')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'complaints',
+          filter: `branch=eq.${profile.branch}`
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['staff-stats'] });
+          queryClient.invalidateQueries({ queryKey: ['complaints'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.branch, queryClient]);
 
   const { data: stats } = useQuery({
     queryKey: ['staff-stats', profile?.branch, profile?.id],

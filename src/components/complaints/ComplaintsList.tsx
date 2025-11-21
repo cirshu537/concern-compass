@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Complaint, ComplaintStatus } from '@/types/database';
 import { ComplaintCard } from './ComplaintCard';
@@ -24,7 +24,30 @@ export function ComplaintsList({
   onComplaintClick 
 }: ComplaintsListProps) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<ComplaintStatus | 'all'>('all');
+
+  // Subscribe to real-time updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('complaints-list')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'complaints'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['complaints'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const { data: complaints, isLoading } = useQuery({
     queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, statusFilter],
