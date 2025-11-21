@@ -52,39 +52,34 @@ const Index = () => {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
-        <div className="text-center space-y-8 max-w-4xl mx-auto">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12">
+        <div className="text-center space-y-12 max-w-5xl mx-auto">
           {/* Logo */}
-          <div className="w-full max-w-2xl mx-auto px-4">
+          <div className="w-full max-w-3xl mx-auto px-4 animate-fade-in">
             <img 
               src={brototypeLogo} 
               alt="Brototype Logo" 
-              className="w-full h-auto object-contain"
+              className="w-full h-auto object-contain drop-shadow-2xl"
             />
           </div>
 
           {/* Main heading */}
-          <div className="space-y-4">
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
-              <span className="bg-gradient-cyber bg-clip-text text-transparent">
-                Brototype
-              </span>
-            </h1>
-            <h2 className="text-3xl md:text-4xl font-semibold text-foreground">
+          <div className="space-y-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground">
               Student Concern System
-            </h2>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
+            </h1>
+            <p className="text-xl md:text-2xl lg:text-3xl text-muted-foreground max-w-3xl mx-auto font-light">
               We value your comfort more than anything
             </p>
           </div>
 
           {/* CTA section */}
-          <div className="pt-8 space-y-4">
+          <div className="pt-8 space-y-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             {!user ? (
               <Button
                 size="lg"
                 onClick={() => setAuthModalOpen(true)}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-12 py-6 rounded-lg font-semibold"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-12 py-6 rounded-xl font-semibold shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105"
               >
                 Login to Continue
               </Button>
@@ -98,9 +93,9 @@ const Index = () => {
                   else if (profile?.role === 'branch_admin') navigate('/branch-admin/dashboard');
                   else if (profile?.role === 'main_admin') navigate('/main-admin/dashboard');
                 }}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-12 py-6 rounded-lg font-semibold"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-12 py-6 rounded-xl font-semibold shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105"
               >
-                Home
+                Go to Dashboard
               </Button>
             )}
           </div>
