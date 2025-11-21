@@ -60,7 +60,7 @@ export function ComplaintsList({
       }
 
       if (filterByAssigned) {
-        query = query.or(`assigned_staff_id.eq.${filterByAssigned},assigned_trainer_id.eq.${filterByAssigned}`);
+        query = query.eq('assigned_staff_id', filterByAssigned);
       }
 
       if (statusFilter !== 'all') {
