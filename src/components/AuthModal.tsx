@@ -51,8 +51,8 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
   };
 
   const handleRegister = async () => {
-    if (!fullName || !branch || !studentType) {
-      toast.error('Please fill all required fields (Name, Email, Password, Student Type, and Branch)');
+    if (!fullName || !studentType || (studentType === 'brocamp' && !branch)) {
+      toast.error('Please fill all required fields');
       return;
     }
     
@@ -67,7 +67,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
             full_name: fullName,
             role: 'student',
             student_type: studentType,
-            branch,
+            branch: studentType === 'exclusive' ? 'Online' : branch,
             program: program || null,
           },
         },
@@ -321,20 +321,22 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
               </Select>
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="branch" className="text-sm">Branch *</Label>
-              <Select value={branch} onValueChange={setBranch}>
-                <SelectTrigger className="bg-input border-border h-9">
-                  <SelectValue placeholder="Select branch" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Kochi">Kochi</SelectItem>
-                  <SelectItem value="Calicut - Kakkanchery">Calicut - Kakkanchery</SelectItem>
-                  <SelectItem value="Trivandrum">Trivandrum</SelectItem>
-                  <SelectItem value="Online">Online</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {studentType === 'brocamp' && (
+              <div className="space-y-1">
+                <Label htmlFor="branch" className="text-sm">Branch *</Label>
+                <Select value={branch} onValueChange={setBranch}>
+                  <SelectTrigger className="bg-input border-border h-9">
+                    <SelectValue placeholder="Select branch" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Kochi">Kochi</SelectItem>
+                    <SelectItem value="Calicut - Kakkanchery">Calicut - Kakkanchery</SelectItem>
+                    <SelectItem value="Trivandrum">Trivandrum</SelectItem>
+                    <SelectItem value="Online">Online</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {studentType === 'brocamp' && (
               <div className="space-y-1">
