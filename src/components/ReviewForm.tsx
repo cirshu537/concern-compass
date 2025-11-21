@@ -6,6 +6,16 @@ import { ThumbsUp, ThumbsDown, Minus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface ReviewFormProps {
   complaintId: string;
@@ -27,6 +37,7 @@ export function ReviewForm({
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [selectedAction, setSelectedAction] = useState<'fixed' | 'cancelled' | null>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const handleSubmit = async () => {
     if (!isTrainerReply && rating === null) {
@@ -105,13 +116,13 @@ export function ReviewForm({
         {!isTrainerReply && (
           <div className="flex gap-4 justify-center">
             <Button
-              variant={rating === 1 ? 'default' : 'outline'}
+              variant={rating === -1 ? 'destructive' : 'outline'}
               size="lg"
-              onClick={() => setRating(1)}
+              onClick={() => setRating(-1)}
               className="flex-1"
             >
-              <ThumbsUp className="w-5 h-5 mr-2" />
-              Positive
+              <ThumbsDown className="w-5 h-5 mr-2" />
+              Negative
             </Button>
             <Button
               variant={rating === 0 ? 'default' : 'outline'}
@@ -123,13 +134,13 @@ export function ReviewForm({
               Neutral
             </Button>
             <Button
-              variant={rating === -1 ? 'default' : 'outline'}
+              variant={rating === 1 ? 'success' : 'outline'}
               size="lg"
-              onClick={() => setRating(-1)}
+              onClick={() => setRating(1)}
               className="flex-1"
             >
-              <ThumbsDown className="w-5 h-5 mr-2" />
-              Negative
+              <ThumbsUp className="w-5 h-5 mr-2" />
+              Positive
             </Button>
           </div>
         )}
@@ -152,18 +163,20 @@ export function ReviewForm({
             <label className="text-sm font-medium">Action</label>
             <div className="flex gap-3">
               <Button
-                variant={selectedAction === 'fixed' ? 'default' : 'outline'}
+                variant={selectedAction === 'cancelled' ? 'destructive' : 'outline'}
+                onClick={() => {
+                  setShowCancelConfirm(true);
+                }}
+                className="flex-1"
+              >
+                Cancel Concern
+              </Button>
+              <Button
+                variant={selectedAction === 'fixed' ? 'success' : 'outline'}
                 onClick={() => setSelectedAction('fixed')}
                 className="flex-1"
               >
                 Mark as Fixed
-              </Button>
-              <Button
-                variant={selectedAction === 'cancelled' ? 'default' : 'outline'}
-                onClick={() => setSelectedAction('cancelled')}
-                className="flex-1"
-              >
-                Cancel Concern
               </Button>
             </div>
           </div>
@@ -181,6 +194,29 @@ export function ReviewForm({
           {submitting ? 'Submitting...' : isTrainerReply ? 'Send Reply' : 'Submit Review'}
         </Button>
       </CardContent>
+
+      <AlertDialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Concern</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this concern? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>No, Keep It</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setSelectedAction('cancelled');
+                setShowCancelConfirm(false);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Yes, Cancel Concern
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
