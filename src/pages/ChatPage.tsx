@@ -29,6 +29,7 @@ interface Message {
   body: string;
   created_at: string;
   sender_name?: string;
+  sender_role?: string;
   pending?: boolean;
   failed?: boolean;
 }
@@ -209,7 +210,7 @@ export default function ChatPage() {
         .from('conversation_messages')
         .select(`
           *,
-          profiles!inner(full_name)
+          profiles!inner(full_name, role)
         `)
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
@@ -218,7 +219,8 @@ export default function ChatPage() {
 
       const messagesWithSender = data.map(msg => ({
         ...msg,
-        sender_name: (msg as any).profiles?.full_name || 'Unknown'
+        sender_name: (msg as any).profiles?.full_name || 'Unknown',
+        sender_role: (msg as any).profiles?.role || 'student'
       }));
 
       setMessages(messagesWithSender);
@@ -245,10 +247,10 @@ export default function ChatPage() {
             return;
           }
           
-          // Fetch sender name and add message from other users
+          // Fetch sender name and role and add message from other users
           const { data: senderData } = await supabase
             .from('profiles')
-            .select('full_name')
+            .select('full_name, role')
             .eq('id', payload.new.sender_id)
             .single();
           
@@ -257,7 +259,8 @@ export default function ChatPage() {
             sender_id: payload.new.sender_id,
             body: payload.new.body,
             created_at: payload.new.created_at,
-            sender_name: senderData?.full_name || 'Unknown'
+            sender_name: senderData?.full_name || 'Unknown',
+            sender_role: senderData?.role || 'student'
           };
           
           setMessages(prev => {
@@ -300,6 +303,7 @@ export default function ChatPage() {
       body: messageText,
       created_at: new Date().toISOString(),
       sender_name: profile.full_name,
+      sender_role: profile.role,
       pending: true
     };
     
@@ -516,32 +520,42 @@ export default function ChatPage() {
                 <CardContent className="flex-1 flex flex-col p-0">
                   <ScrollArea className="flex-1 p-4">
                     <div className="space-y-4">
-                      {messages.map((msg) => (
-                        <div
-                          key={msg.id}
-                          className={`flex ${
-                            msg.sender_id === profile?.id ? 'justify-end' : 'justify-start'
-                          }`}
-                        >
+                      {messages.map((msg) => {
+                        const isAdmin = msg.sender_role === 'main_admin' || msg.sender_role === 'branch_admin';
+                        const isOwnMessage = msg.sender_id === profile?.id;
+                        
+                        return (
                           <div
-                            className={`max-w-[70%] rounded-lg p-3 ${
-                              msg.sender_id === profile?.id
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted'
-                            } ${msg.pending ? 'opacity-60' : ''} ${msg.failed ? 'opacity-40 border-2 border-red-500' : ''}`}
+                            key={msg.id}
+                            className={`flex ${
+                              isOwnMessage ? 'justify-end' : 'justify-start'
+                            }`}
                           >
-                            <div className="text-xs opacity-70 mb-1 flex items-center gap-2">
-                              {msg.sender_name}
-                              {msg.pending && <span className="text-[10px]">(Sending...)</span>}
-                              {msg.failed && <span className="text-[10px] text-red-500">(Failed)</span>}
-                            </div>
-                            <div className="break-words">{msg.body}</div>
-                            <div className="text-xs opacity-70 mt-1">
-                              {format(new Date(msg.created_at), 'h:mm a')}
+                            <div
+                              className={`max-w-[70%] rounded-lg p-3 ${
+                                isOwnMessage
+                                  ? 'bg-primary text-primary-foreground'
+                                  : isAdmin
+                                  ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-2 border-amber-500/50'
+                                  : 'bg-muted'
+                              } ${msg.pending ? 'opacity-60' : ''} ${msg.failed ? 'opacity-40 border-2 border-red-500' : ''}`}
+                            >
+                              <div className="text-xs opacity-70 mb-1 flex items-center gap-2">
+                                <span className={isAdmin && !isOwnMessage ? 'font-semibold text-amber-600 dark:text-amber-400' : ''}>
+                                  {msg.sender_name}
+                                  {isAdmin && !isOwnMessage && ' (Admin)'}
+                                </span>
+                                {msg.pending && <span className="text-[10px]">(Sending...)</span>}
+                                {msg.failed && <span className="text-[10px] text-red-500">(Failed)</span>}
+                              </div>
+                              <div className="break-words">{msg.body}</div>
+                              <div className="text-xs opacity-70 mt-1">
+                                {format(new Date(msg.created_at), 'h:mm a')}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                       <div ref={messagesEndRef} />
                     </div>
                   </ScrollArea>
