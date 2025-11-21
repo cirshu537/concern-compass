@@ -65,7 +65,7 @@ export default function TrainerDocs() {
                 <li><strong>Auto-Fix:</strong> When you submit your reply, concern is automatically marked as Fixed</li>
               </ol>
               <p className="mt-4 bg-secondary/10 p-3 rounded-lg border border-secondary/20">
-                <strong className="text-foreground">Important:</strong> Your reply is visible to the student but they CANNOT rate or review your response back. This is one-way feedback to maintain evaluation integrity.
+                <strong className="text-foreground">Important:</strong> Your reply is visible to the student but they CANNOT rate or review your response back. Trainers also do NOT rate students - you only provide text explanations. This ensures fair, one-way feedback focused on improvement rather than scoring.
               </p>
             </CardContent>
           </Card>
@@ -123,6 +123,37 @@ export default function TrainerDocs() {
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-accent" />
+                No Rating System for Trainers
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-muted-foreground">
+              <p className="bg-accent/10 p-3 rounded-lg border border-accent/20">
+                <strong className="text-foreground">Key Policy:</strong> Unlike staff members, trainers do NOT rate students or concerns. You only provide text-based responses and explanations.
+              </p>
+
+              <p className="mt-4"><strong className="text-foreground">Why No Ratings?</strong></p>
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li>Avoids conflict of interest - you're being evaluated, not the student</li>
+                <li>Prevents retaliatory rating behaviors</li>
+                <li>Keeps focus on constructive dialogue and improvement</li>
+                <li>Students receive your response without fear of negative consequences</li>
+                <li>Maintains trust in the feedback system</li>
+              </ul>
+
+              <p className="mt-4"><strong className="text-foreground">What You Provide:</strong></p>
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li><strong>Text Response Only:</strong> Thoughtful explanation addressing the concern</li>
+                <li><strong>No Stars or Thumbs:</strong> No positive/negative/neutral rating buttons</li>
+                <li><strong>Automatic Neutral Record:</strong> System records your reply as neutral (0) for tracking</li>
+                <li><strong>Focus on Content:</strong> Quality of your response matters, not a score</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
                 <Award className="w-5 h-5 text-primary" />
                 Credit System for Trainers
               </CardTitle>
@@ -143,7 +174,7 @@ export default function TrainerDocs() {
                 <li>Reflects positive student relationships</li>
               </ul>
               <p className="mt-4 bg-primary/10 p-3 rounded-lg">
-                Note: When you respond to concerns, you don't rate students or provide numerical scores. Your reply is treated as neutral acknowledgment (rating: 0).
+                <strong className="text-foreground">Important:</strong> You do NOT rate students or provide ratings when responding to concerns. You only provide text responses explaining your perspective. Your reply is recorded as a neutral acknowledgment without scoring.
               </p>
             </CardContent>
           </Card>
