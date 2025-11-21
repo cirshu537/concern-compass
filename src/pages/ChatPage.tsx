@@ -182,7 +182,7 @@ export default function ChatPage() {
         query = query.eq('branch', profile.branch);
       } else if (profile.role === 'staff') {
         query = query.eq('branch', profile.branch);
-        query = query.or(`type.eq.branch_to_staff_group,and(type.eq.branch_to_staff_direct,complaints.assigned_staff_id.eq.${profile.id})`);
+        query = query.or(`type.eq.branch_to_staff_group,type.eq.branch_to_staff_direct`);
       }
 
       const { data, error } = await query;
