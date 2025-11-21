@@ -153,6 +153,41 @@ const Index = () => {
               </button>
             )}
           </div>
+
+          {/* Demo Accounts Section */}
+          <div className="mt-16 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+            <div className="max-w-2xl mx-auto bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 shadow-2xl">
+              <h2 className="text-2xl font-semibold text-white mb-6 text-center">Demo Accounts</h2>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
+                  <span className="text-gray-300 font-mono text-sm">traineronline@gmail.com</span>
+                  <span className="text-gray-400 font-mono text-sm">trainer123</span>
+                  <span className="text-xs text-gray-500 bg-white/10 px-2 py-1 rounded">(Online)</span>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-yellow-500/20 rounded-lg border border-yellow-500/50 hover:bg-yellow-500/30 transition-colors">
+                  <span className="text-yellow-300 font-mono text-sm font-semibold">exclusivehandler@gmail.com</span>
+                  <span className="text-yellow-400 font-mono text-sm">exclusive123</span>
+                  <span className="text-xs text-yellow-300 bg-yellow-500/30 px-2 py-1 rounded">⭐ Exclusive Handler</span>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
+                  <span className="text-gray-300 font-mono text-sm">trainer1kochi@gmail.com</span>
+                  <span className="text-gray-400 font-mono text-sm">trainer123</span>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
+                  <span className="text-gray-300 font-mono text-sm">trainer1calicut@gmail.com</span>
+                  <span className="text-gray-400 font-mono text-sm">trainer123</span>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
+                  <span className="text-gray-300 font-mono text-sm">trainer1tvm@gmail.com</span>
+                  <span className="text-gray-400 font-mono text-sm">trainer123</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
