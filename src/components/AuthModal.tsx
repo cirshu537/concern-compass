@@ -266,7 +266,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
               <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border">
                 <p className="text-xs text-muted-foreground font-semibold mb-2">Demo Accounts:</p>
                 <div className="space-y-1 text-xs">
-                  <p className="text-primary font-medium">adminmain@gmail.com / admin123</p>
+                  <p className="text-primary font-medium">adminmain@gmail.com / admin123 (Main Admin)</p>
                   <p className="text-muted-foreground">adminkochi@gmail.com / admin123</p>
                   <p className="text-muted-foreground">admincalicut@gmail.com / admin123</p>
                   <p className="text-muted-foreground">admintvm@gmail.com / admin123</p>
