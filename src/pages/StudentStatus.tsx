@@ -137,7 +137,7 @@ export default function StudentStatus() {
               const isReviewFormExpanded = expandedReviewForms.has(complaint.id);
               const showReviews = complaint.status === 'fixed' || complaint.status === 'cancelled' || complaint.status === 'rejected';
               const hasReviewed = studentReviews.has(complaint.id);
-              const canReview = (complaint.status === 'fixed' || complaint.status === 'cancelled') && !hasReviewed;
+              const canReview = complaint.status === 'fixed' && !hasReviewed;
               
               return (
                 <Card key={complaint.id} className="bg-card border-border hover:border-primary/50 transition-all">
