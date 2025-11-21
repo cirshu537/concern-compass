@@ -1,6 +1,6 @@
 export type AppRole = 'student' | 'trainer' | 'staff' | 'branch_admin' | 'main_admin';
 export type StudentType = 'brocamp' | 'exclusive' | 'none';
-export type ComplaintStatus = 'logged' | 'in_process' | 'fixed' | 'cancelled' | 'rejected';
+export type ComplaintStatus = 'logged' | 'noted' | 'in_process' | 'fixed' | 'cancelled' | 'rejected';
 export type ComplaintCategory = 
   | 'facility_campus'
   | 'trainer_related'

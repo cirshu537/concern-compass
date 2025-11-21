@@ -90,12 +90,12 @@ export function ReviewForm({
         if (statusError) throw statusError;
       }
 
-      // Auto-mark trainer-related concerns as in_process when trainer replies
+      // Auto-mark trainer-related concerns as noted when trainer replies
       if (isTrainerReply && currentStatus === 'logged') {
         const { error: statusError } = await supabase
           .from('complaints')
           .update({ 
-            status: 'in_process',
+            status: 'noted',
             updated_at: new Date().toISOString()
           })
           .eq('id', complaintId);

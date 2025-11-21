@@ -403,6 +403,7 @@ export type Database = {
         | "fixed"
         | "cancelled"
         | "rejected"
+        | "noted"
       conversation_type:
         | "main_to_branch"
         | "branch_to_staff_group"
@@ -552,6 +553,7 @@ export const Constants = {
         "fixed",
         "cancelled",
         "rejected",
+        "noted",
       ],
       conversation_type: [
         "main_to_branch",

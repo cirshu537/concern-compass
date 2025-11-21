@@ -103,6 +103,7 @@ export function ComplaintsList({
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="logged">Logged</SelectItem>
+            <SelectItem value="noted">Noted</SelectItem>
             <SelectItem value="in_process">In Process</SelectItem>
             <SelectItem value="fixed">Fixed</SelectItem>
             <SelectItem value="cancelled">Cancelled</SelectItem>

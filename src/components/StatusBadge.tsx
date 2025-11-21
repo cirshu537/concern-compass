@@ -11,6 +11,8 @@ export const StatusBadge = ({ status }: StatusBadgeProps) => {
     switch (status) {
       case 'logged':
         return 'bg-status-logged/20 text-status-logged border-status-logged/30';
+      case 'noted':
+        return 'bg-blue-500/20 text-blue-500 border-blue-500/30';
       case 'in_process':
         return 'bg-status-inProcess/20 text-status-inProcess border-status-inProcess/30';
       case 'fixed':
@@ -26,6 +28,8 @@ export const StatusBadge = ({ status }: StatusBadgeProps) => {
 
   const getStatusLabel = () => {
     switch (status) {
+      case 'noted':
+        return 'Noted';
       case 'in_process':
         return 'In Process';
       default:

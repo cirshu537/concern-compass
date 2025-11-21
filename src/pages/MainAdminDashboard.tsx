@@ -83,7 +83,7 @@ export default function MainAdminDashboard() {
 
       return {
         total: complaints?.length || 0,
-        open: complaints?.filter(c => c.status === 'logged' || c.status === 'in_process').length || 0,
+        open: complaints?.filter(c => c.status === 'logged' || c.status === 'noted' || c.status === 'in_process').length || 0,
         fixed: complaints?.filter(c => c.status === 'fixed').length || 0,
         brocamp: complaints?.filter(c => c.student_type === 'brocamp').length || 0,
         online: complaints?.filter(c => c.branch === 'Online').length || 0,
@@ -113,6 +113,7 @@ export default function MainAdminDashboard() {
       return {
         total: complaints?.length || 0,
         logged: complaints?.filter(c => c.status === 'logged').length || 0,
+        noted: complaints?.filter(c => c.status === 'noted').length || 0,
         in_process: complaints?.filter(c => c.status === 'in_process').length || 0,
         fixed: complaints?.filter(c => c.status === 'fixed').length || 0,
         cancelled: complaints?.filter(c => c.status === 'cancelled').length || 0,
@@ -266,7 +267,7 @@ export default function MainAdminDashboard() {
                 </Tabs>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-7 gap-4 mb-6">
                   <div className="text-center p-4 bg-primary/5 rounded-lg border border-primary/20">
                     <div className="text-2xl font-bold text-primary">{branchRangeStats?.total || 0}</div>
                     <p className="text-xs text-muted-foreground mt-1">Total</p>
@@ -274,6 +275,10 @@ export default function MainAdminDashboard() {
                   <div className="text-center p-4 bg-blue-500/5 rounded-lg border border-blue-500/20">
                     <div className="text-2xl font-bold text-blue-500">{branchRangeStats?.logged || 0}</div>
                     <p className="text-xs text-muted-foreground mt-1">Logged</p>
+                  </div>
+                  <div className="text-center p-4 bg-cyan-500/5 rounded-lg border border-cyan-500/20">
+                    <div className="text-2xl font-bold text-cyan-500">{branchRangeStats?.noted || 0}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Noted</p>
                   </div>
                   <div className="text-center p-4 bg-yellow-500/5 rounded-lg border border-yellow-500/20">
                     <div className="text-2xl font-bold text-yellow-500">{branchRangeStats?.in_process || 0}</div>
