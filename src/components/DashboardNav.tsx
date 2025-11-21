@@ -58,7 +58,11 @@ export const DashboardNav = ({
     <Button 
       variant="ghost" 
       size="icon"
-      onClick={() => navigate('/student/profile')}
+      onClick={() => {
+        if (profile?.role === 'student' || profile?.role === 'staff' || profile?.role === 'trainer') {
+          navigate('/student/profile');
+        }
+      }}
     >
       <User className="h-5 w-5" />
     </Button>
