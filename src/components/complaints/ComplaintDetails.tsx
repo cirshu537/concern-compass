@@ -199,6 +199,29 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
     },
   });
 
+  const assignTrainerMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from('complaints')
+        .update({ 
+          assigned_trainer_id: profile!.id,
+          status: 'in_process',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', complaintId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
+      queryClient.invalidateQueries({ queryKey: ['complaints'] });
+      toast.success('You are now working on this concern');
+    },
+    onError: () => {
+      toast.error('Failed to assign concern');
+    },
+  });
+
   const revealIdentityMutation = useMutation({
     mutationFn: async () => {
       const { error } = await supabase
@@ -229,6 +252,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
   }
 
   const canManage = profile?.role === 'staff' || profile?.role === 'branch_admin' || profile?.role === 'main_admin';
+  const isExclusiveHandler = profile?.role === 'trainer' && profile?.handles_exclusive;
 
   const handleViewAttachment = async () => {
     if (!complaint.attachment_url) return;
@@ -335,6 +359,20 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
             </div>
           </div>
 
+          {/* Exclusive Handler Actions - Working on Concern Button when Logged */}
+          {isExclusiveHandler && complaint.student_type === 'exclusive' && complaint.status === 'logged' && !complaint.assigned_trainer_id && (
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="font-semibold">Take Action</h3>
+              <Button 
+                onClick={() => assignTrainerMutation.mutate()}
+                disabled={assignTrainerMutation.isPending}
+                className="w-full"
+              >
+                Working on Concern
+              </Button>
+            </div>
+          )}
+
           {/* Staff Actions - Process Button when Logged */}
           {(profile?.role === 'staff' || profile?.role === 'branch_admin') && complaint.status === 'logged' && (
             <div className="space-y-4 pt-4 border-t">
@@ -346,6 +384,26 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
               >
                 Process Concern
               </Button>
+            </div>
+          )}
+
+          {/* Exclusive Handler Actions - Review & Complete when In Process */}
+          {isExclusiveHandler && 
+           complaint.student_type === 'exclusive' && 
+           complaint.status === 'in_process' && 
+           complaint.assigned_trainer_id === profile.id && (
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="font-semibold">Review & Complete</h3>
+              <p className="text-sm text-muted-foreground">Please provide your rating and review before marking as fixed or cancelled</p>
+              <ReviewForm 
+                complaintId={complaintId} 
+                onReviewSubmitted={() => {
+                  queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
+                  queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
+                }}
+                allowStatusChange={true}
+                currentStatus={complaint.status}
+              />
             </div>
           )}
 
@@ -449,17 +507,16 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
       {/* Reviews Section */}
       <ReviewsList complaintId={complaintId} />
 
-      {/* Student Review - After Staff/Admin Review */}
+      {/* Student Review - Optional After Resolution */}
       {profile?.role === 'student' && 
        complaint.student_id === profile.id && 
        (complaint.status === 'fixed' || complaint.status === 'cancelled') &&
-       reviews?.some(r => r.reviewer_role === 'staff' || r.reviewer_role === 'branch_admin') &&
        !reviews?.some(r => r.reviewer_role === 'student') && (
         <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle>Provide Your Review</CardTitle>
+            <CardTitle>Provide Your Review (Optional)</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Please share your feedback about how this concern was handled
+              You can share your feedback about how this concern was handled
             </p>
           </CardHeader>
           <CardContent>
