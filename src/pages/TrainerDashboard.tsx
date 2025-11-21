@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ComplaintsList } from '@/components/complaints/ComplaintsList';
 import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
-import { FileText, Bell, BookOpen, LogOut, Users, ChevronLeft } from 'lucide-react';
+import { FileText, BookOpen, LogOut, Users, ChevronLeft } from 'lucide-react';
 import { DashboardNav } from '@/components/DashboardNav';
 
 export default function TrainerDashboard() {
@@ -16,6 +16,7 @@ export default function TrainerDashboard() {
   const { profile, signOut } = useAuth();
   const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'open' | 'resolved'>('all');
 
   // Read URL parameters and set state
   useEffect(() => {
@@ -75,24 +76,69 @@ export default function TrainerDashboard() {
     }
 
     if (selectedView === 'complaints') {
+      const filteredComplaints = statusFilter === 'all' 
+        ? trainerComplaints 
+        : statusFilter === 'open'
+        ? trainerComplaints?.filter(c => c.status === 'logged' || c.status === 'in_process')
+        : trainerComplaints?.filter(c => c.status === 'fixed');
+
       return (
         <div>
           <Button 
             variant="default" 
-            onClick={() => setSelectedView('dashboard')}
+            onClick={() => {
+              setSelectedView('dashboard');
+              setStatusFilter('all');
+            }}
             className="mb-4"
           >
             <ChevronLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
-          <ComplaintsList
-            filterByBranch={profile?.branch || ''}
-            filterByTrainer={true}
-            onComplaintClick={(complaint) => {
-              setSelectedComplaintId(complaint.id);
-              setSelectedView('detail');
-            }}
-          />
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-2">
+              {statusFilter === 'all' ? 'All Concerns' : statusFilter === 'open' ? 'Open Concerns' : 'Resolved Concerns'}
+            </h2>
+            <p className="text-muted-foreground">
+              {statusFilter === 'all' 
+                ? `Viewing all ${profile?.handles_exclusive ? 'exclusive member' : 'trainer-related'} concerns` 
+                : statusFilter === 'open'
+                ? 'Concerns requiring attention'
+                : 'Successfully handled concerns'}
+            </p>
+          </div>
+          {filteredComplaints && filteredComplaints.length > 0 ? (
+            <div className="space-y-4">
+              {filteredComplaints.map((complaint) => (
+                <Card 
+                  key={complaint.id}
+                  className="cursor-pointer hover:border-primary/50 transition-all"
+                  onClick={() => {
+                    setSelectedComplaintId(complaint.id);
+                    setSelectedView('detail');
+                  }}
+                >
+                  <CardHeader>
+                    <CardTitle>{complaint.title}</CardTitle>
+                    <CardDescription>
+                      {new Date(complaint.created_at).toLocaleDateString()} • Status: {complaint.status}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {complaint.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <p className="text-muted-foreground">No concerns found</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
       );
     }
@@ -139,7 +185,13 @@ export default function TrainerDashboard() {
           </Card>
 
           {profile?.handles_exclusive && (
-            <Card className="bg-card border-border hover:border-accent/50 transition-all group">
+            <Card 
+              className="bg-card border-border hover:border-accent/50 transition-all cursor-pointer group"
+              onClick={() => {
+                setStatusFilter('open');
+                setSelectedView('complaints');
+              }}
+            >
               <CardHeader>
                 <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
                   <FileText className="w-6 h-6 text-accent" />
@@ -159,7 +211,13 @@ export default function TrainerDashboard() {
           )}
 
           {profile?.handles_exclusive && (
-            <Card className="bg-card border-border hover:border-secondary/50 transition-all group">
+            <Card 
+              className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group"
+              onClick={() => {
+                setStatusFilter('resolved');
+                setSelectedView('complaints');
+              }}
+            >
               <CardHeader>
                 <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
                   <FileText className="w-6 h-6 text-secondary" />
@@ -197,24 +255,6 @@ export default function TrainerDashboard() {
               </CardContent>
             </Card>
           )}
-
-          <Card 
-            className="bg-card border-border hover:border-accent/50 transition-all cursor-pointer group"
-            onClick={() => navigate('/chat')}
-          >
-            <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                <Bell className="w-6 h-6 text-accent" />
-              </div>
-              <CardTitle className="text-xl">Notifications</CardTitle>
-              <CardDescription>Updates and alerts</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Stay updated on concern status and feedback
-              </p>
-            </CardContent>
-          </Card>
 
           {!profile?.handles_exclusive && (
             <Card 
