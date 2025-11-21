@@ -382,6 +382,10 @@ export default function ChatPage() {
       navigate(`/main-admin/dashboard?view=detail&id=${currentComplaint.id}`);
     } else if (profile?.role === 'branch_admin') {
       navigate(`/branch-admin/dashboard?view=detail&id=${currentComplaint.id}`);
+    } else if (profile?.role === 'staff') {
+      navigate(`/staff/dashboard?view=detail&id=${currentComplaint.id}`);
+    } else if (profile?.role === 'trainer') {
+      navigate(`/trainer/dashboard?view=detail&id=${currentComplaint.id}`);
     }
   };
 
