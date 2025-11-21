@@ -158,7 +158,7 @@ export default function StudentStatus() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4" />
-                        {format(new Date(complaint.created_at), 'MMM dd, yyyy')}
+                        {format(new Date(complaint.created_at), 'MMM dd, yyyy h:mm a')}
                       </div>
                       {complaint.branch && (
                         <div className="px-2 py-1 rounded bg-primary/10 text-primary text-xs font-medium">
