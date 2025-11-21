@@ -59,8 +59,25 @@ export const DashboardNav = ({
       variant="ghost" 
       size="icon"
       onClick={() => {
-        if (profile?.role === 'student' || profile?.role === 'staff' || profile?.role === 'trainer') {
-          navigate('/student/profile');
+        // Navigate based on role
+        switch (profile?.role) {
+          case 'student':
+            navigate('/student/profile');
+            break;
+          case 'trainer':
+            navigate('/trainer/dashboard');
+            break;
+          case 'staff':
+            navigate('/staff/dashboard');
+            break;
+          case 'branch_admin':
+            navigate('/branch-admin/dashboard');
+            break;
+          case 'main_admin':
+            navigate('/main-admin/dashboard');
+            break;
+          default:
+            navigate('/student/profile');
         }
       }}
     >
