@@ -257,6 +257,38 @@ export default function StudentProfile() {
                 </Card>
               </div>
             </>
+          ) : profile?.role === 'trainer' ? (
+            // Trainer Profile - No Credits or Negative Events
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Profile Information</h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/30">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-secondary" />
+                      Branch
+                    </CardTitle>
+                    <CardDescription>Your assigned branch</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-4xl font-bold text-secondary">{profile?.branch || 'N/A'}</div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="w-5 h-5 text-primary" />
+                      Role
+                    </CardTitle>
+                    <CardDescription>Your position</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-4xl font-bold text-primary capitalize">{profile?.role || 'Trainer'}</div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           ) : (
             // Student Statistics
             <div>
