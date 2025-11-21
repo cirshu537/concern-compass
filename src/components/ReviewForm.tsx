@@ -130,7 +130,6 @@ export function ReviewForm({
               onClick={() => setRating(0)}
               className="flex-1"
             >
-              <Minus className="w-5 h-5 mr-2" />
               — Neutral —
             </Button>
             <Button
