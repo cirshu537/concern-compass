@@ -9,7 +9,7 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { ArrowLeft, User, MapPin, Calendar, Tag, Eye, MessageSquare, Users } from 'lucide-react';
+import { ArrowLeft, User, MapPin, Calendar, Tag, Eye, MessageSquare, Users, Paperclip } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { ReviewForm } from '@/components/ReviewForm';
 import { ReviewsList } from '@/components/complaints/ReviewsList';
@@ -25,6 +25,8 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
   const queryClient = useQueryClient();
   const [newStatus, setNewStatus] = useState<ComplaintStatus | null>(null);
   const [assignedStaffId, setAssignedStaffId] = useState<string | null>(null);
+  const [showAttachment, setShowAttachment] = useState(false);
+  const [attachmentUrl, setAttachmentUrl] = useState<string | null>(null);
 
   const { data: complaint, isLoading } = useQuery({
     queryKey: ['complaint', complaintId],
@@ -228,6 +230,24 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
 
   const canManage = profile?.role === 'staff' || profile?.role === 'branch_admin' || profile?.role === 'main_admin';
 
+  const handleViewAttachment = async () => {
+    if (!complaint.attachment_url) return;
+    
+    try {
+      const { data, error } = await supabase.storage
+        .from('complaint-attachments')
+        .createSignedUrl(complaint.attachment_url, 60);
+
+      if (error) throw error;
+      if (data) {
+        setAttachmentUrl(data.signedUrl);
+        setShowAttachment(true);
+      }
+    } catch (error) {
+      toast.error('Failed to load attachment');
+    }
+  };
+
   return (
     <div className="space-y-6">
       {onBack && (
@@ -256,6 +276,39 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
             <h3 className="font-semibold mb-2">Description</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{complaint.description}</p>
           </div>
+
+          {complaint.attachment_url && (
+            <div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleViewAttachment}
+              >
+                <Paperclip className="w-4 h-4 mr-2" />
+                View Attachment
+              </Button>
+              
+              {showAttachment && attachmentUrl && (
+                <div className="mt-4 border border-border rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium">Attachment</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAttachment(false)}
+                    >
+                      Close
+                    </Button>
+                  </div>
+                  <img 
+                    src={attachmentUrl} 
+                    alt="Complaint attachment" 
+                    className="max-w-full rounded"
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center gap-2 text-sm">
