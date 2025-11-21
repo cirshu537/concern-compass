@@ -152,26 +152,43 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
         updated_at: new Date().toISOString() 
       };
       
-      // If moving to in_process, assign to current staff
+      // If moving to in_process, assign to current staff or trainer
       if (status === 'in_process' && profile?.role === 'staff') {
         updateData.assigned_staff_id = profile.id;
+      } else if (status === 'in_process' && profile?.role === 'trainer' && profile?.handles_exclusive) {
+        updateData.assigned_trainer_id = profile.id;
       }
       
-      const { error } = await supabase
+      // Set resolved_at timestamp when marking as fixed
+      if (status === 'fixed') {
+        updateData.resolved_at = new Date().toISOString();
+      }
+      
+      const { data, error } = await supabase
         .from('complaints')
         .update(updateData)
-        .eq('id', complaintId);
+        .eq('id', complaintId)
+        .select()
+        .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Status update error:', error);
+        throw error;
+      }
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
       queryClient.invalidateQueries({ queryKey: ['complaints'] });
+      queryClient.invalidateQueries({ queryKey: ['exclusive-handler-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['trainer-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['staff-stats'] });
       toast.success('Status updated successfully');
       setNewStatus(null);
     },
-    onError: () => {
-      toast.error('Failed to update status');
+    onError: (error: any) => {
+      console.error('Failed to update status:', error);
+      toast.error(error?.message || 'Failed to update status');
     },
   });
 
@@ -201,24 +218,33 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
 
   const assignTrainerMutation = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('complaints')
         .update({ 
           assigned_trainer_id: profile!.id,
           status: 'in_process',
           updated_at: new Date().toISOString()
         })
-        .eq('id', complaintId);
+        .eq('id', complaintId)
+        .select()
+        .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Assignment error:', error);
+        throw error;
+      }
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
       queryClient.invalidateQueries({ queryKey: ['complaints'] });
+      queryClient.invalidateQueries({ queryKey: ['exclusive-handler-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['trainer-stats'] });
       toast.success('You are now working on this concern');
     },
-    onError: () => {
-      toast.error('Failed to assign concern');
+    onError: (error: any) => {
+      console.error('Failed to assign concern:', error);
+      toast.error(error?.message || 'Failed to assign concern');
     },
   });
 

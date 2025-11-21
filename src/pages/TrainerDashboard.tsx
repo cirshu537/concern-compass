@@ -43,7 +43,7 @@ export default function TrainerDashboard() {
     queryFn: async () => {
       const { data: allComplaints } = await supabase
         .from('complaints')
-        .select('id, status')
+        .select('id, status, assigned_trainer_id')
         .eq('student_type', 'exclusive');
 
       const { data: assignedComplaints } = await supabase
@@ -51,12 +51,22 @@ export default function TrainerDashboard() {
         .select('id, status')
         .eq('assigned_trainer_id', profile!.id);
 
+      const assignedOpen = assignedComplaints?.filter(
+        c => c.status === 'logged' || c.status === 'in_process'
+      ).length || 0;
+
+      const assignedResolved = assignedComplaints?.filter(
+        c => c.status === 'fixed'
+      ).length || 0;
+
       return {
         total: allComplaints?.length || 0,
         assigned: assignedComplaints?.length || 0,
         open: allComplaints?.filter(c => c.status === 'logged' || c.status === 'in_process').length || 0,
         resolved: allComplaints?.filter(c => c.status === 'fixed').length || 0,
-        newComplaints: allComplaints?.filter(c => c.status === 'logged').length || 0,
+        newComplaints: allComplaints?.filter(c => c.status === 'logged' && !c.assigned_trainer_id).length || 0,
+        assignedOpen,
+        assignedResolved
       };
     },
   });
