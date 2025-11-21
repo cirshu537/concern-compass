@@ -28,6 +28,8 @@ interface Message {
   body: string;
   created_at: string;
   sender_name?: string;
+  pending?: boolean;
+  failed?: boolean;
 }
 
 export default function ChatPage() {
@@ -147,7 +149,12 @@ export default function ChatPage() {
           filter: `conversation_id=eq.${conversationId}`
         },
         async (payload) => {
-          // Fetch sender name and add message directly instead of refetching all
+          // Skip if message is from current user (already added optimistically)
+          if (payload.new.sender_id === profile?.id) {
+            return;
+          }
+          
+          // Fetch sender name and add message from other users
           const { data: senderData } = await supabase
             .from('profiles')
             .select('full_name')
@@ -162,7 +169,13 @@ export default function ChatPage() {
             sender_name: senderData?.full_name || 'Unknown'
           };
           
-          setMessages(prev => [...prev, newMessage]);
+          setMessages(prev => {
+            // Check if message already exists
+            if (prev.some(m => m.id === newMessage.id)) {
+              return prev;
+            }
+            return [...prev, newMessage];
+          });
         }
       )
       .subscribe();
@@ -175,19 +188,52 @@ export default function ChatPage() {
   const sendMessage = async () => {
     if (!messageInput.trim() || !selectedConversation || !profile) return;
 
+    const tempId = `temp-${Date.now()}`;
+    const messageText = messageInput.trim();
+    
+    // Optimistically add message to UI
+    const optimisticMessage: Message = {
+      id: tempId,
+      sender_id: profile.id,
+      body: messageText,
+      created_at: new Date().toISOString(),
+      sender_name: profile.full_name,
+      pending: true
+    };
+    
+    setMessages(prev => [...prev, optimisticMessage]);
+    setMessageInput('');
+
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('conversation_messages')
         .insert({
           conversation_id: selectedConversation,
           sender_id: profile.id,
-          body: messageInput.trim()
-        });
+          body: messageText
+        })
+        .select('id')
+        .single();
 
       if (error) throw error;
 
-      setMessageInput('');
+      // Replace temp message with real one
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === tempId 
+            ? { ...msg, id: data.id, pending: false }
+            : msg
+        )
+      );
     } catch (error: any) {
+      // Mark message as failed
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === tempId 
+            ? { ...msg, pending: false, failed: true }
+            : msg
+        )
+      );
       toast.error(error.message || 'Failed to send message');
     }
   };
@@ -328,9 +374,13 @@ export default function ChatPage() {
                               msg.sender_id === profile?.id
                                 ? 'bg-primary text-primary-foreground'
                                 : 'bg-muted'
-                            }`}
+                            } ${msg.pending ? 'opacity-60' : ''} ${msg.failed ? 'opacity-40 border-2 border-red-500' : ''}`}
                           >
-                            <div className="text-xs opacity-70 mb-1">{msg.sender_name}</div>
+                            <div className="text-xs opacity-70 mb-1 flex items-center gap-2">
+                              {msg.sender_name}
+                              {msg.pending && <span className="text-[10px]">(Sending...)</span>}
+                              {msg.failed && <span className="text-[10px] text-red-500">(Failed)</span>}
+                            </div>
                             <div className="break-words">{msg.body}</div>
                             <div className="text-xs opacity-70 mt-1">
                               {format(new Date(msg.created_at), 'h:mm a')}
@@ -348,11 +398,14 @@ export default function ChatPage() {
                         <Input
                           value={messageInput}
                           onChange={(e) => setMessageInput(e.target.value)}
-                          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                          onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                           placeholder="Type a message..."
                           className="flex-1"
                         />
-                        <Button onClick={sendMessage} disabled={!messageInput.trim()}>
+                        <Button 
+                          onClick={sendMessage} 
+                          disabled={!messageInput.trim()}
+                        >
                           <Send className="w-4 h-4" />
                         </Button>
                       </div>
