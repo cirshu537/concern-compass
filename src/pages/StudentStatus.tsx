@@ -135,7 +135,7 @@ export default function StudentStatus() {
             {complaints.map((complaint) => {
               const isExpanded = expandedComplaints.has(complaint.id);
               const isReviewFormExpanded = expandedReviewForms.has(complaint.id);
-              const showReviews = complaint.status === 'fixed' || complaint.status === 'cancelled' || complaint.status === 'rejected';
+              const showReviews = true; // Students can always view reviews (trainer responses) at any status
               const hasReviewed = studentReviews.has(complaint.id);
               const canReview = complaint.status === 'fixed' && !hasReviewed;
               
