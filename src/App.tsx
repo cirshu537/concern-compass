@@ -12,9 +12,12 @@ import StudentStatus from "./pages/StudentStatus";
 import StudentProfile from "./pages/StudentProfile";
 import StudentDocs from "./pages/StudentDocs";
 import TrainerDashboard from "./pages/TrainerDashboard";
+import TrainerDocs from "./pages/TrainerDocs";
 import StaffDashboard from "./pages/StaffDashboard";
+import StaffDocs from "./pages/StaffDocs";
 import BranchAdminDashboard from "./pages/BranchAdminDashboard";
 import MainAdminDashboard from "./pages/MainAdminDashboard";
+import AdminDocs from "./pages/AdminDocs";
 import ChatPage from "./pages/ChatPage";
 import RegisterExclusiveHandler from "./pages/RegisterExclusiveHandler";
 
@@ -35,9 +38,12 @@ const App = () => (
             <Route path="/student/profile" element={<StudentProfile />} />
             <Route path="/student/docs" element={<StudentDocs />} />
             <Route path="/trainer/dashboard" element={<TrainerDashboard />} />
+            <Route path="/trainer/docs" element={<TrainerDocs />} />
             <Route path="/staff/dashboard" element={<StaffDashboard />} />
+            <Route path="/staff/docs" element={<StaffDocs />} />
             <Route path="/branch-admin/dashboard" element={<BranchAdminDashboard />} />
             <Route path="/main-admin/dashboard" element={<MainAdminDashboard />} />
+            <Route path="/admin/docs" element={<AdminDocs />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/register-exclusive-handler" element={<RegisterExclusiveHandler />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

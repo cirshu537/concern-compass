@@ -397,7 +397,7 @@ export default function TrainerDashboard() {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => navigate('/student/docs')}
+              onClick={() => navigate('/trainer/docs')}
               className="flex items-center gap-2"
             >
               <BookOpen className="w-4 h-4" />
