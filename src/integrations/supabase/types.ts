@@ -339,6 +339,7 @@ export type Database = {
           credits: number
           email: string
           full_name: string
+          handles_exclusive: boolean
           high_alert: boolean
           id: string
           negative_count_lifetime: number
@@ -353,6 +354,7 @@ export type Database = {
           credits?: number
           email: string
           full_name: string
+          handles_exclusive?: boolean
           high_alert?: boolean
           id: string
           negative_count_lifetime?: number
@@ -367,6 +369,7 @@ export type Database = {
           credits?: number
           email?: string
           full_name?: string
+          handles_exclusive?: boolean
           high_alert?: boolean
           id?: string
           negative_count_lifetime?: number

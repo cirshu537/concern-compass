@@ -37,7 +37,20 @@ export function ComplaintsList({
       }
 
       if (filterByTrainer) {
-        query = query.eq('category', 'trainer_related');
+        // Check if current user is exclusive handler
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('handles_exclusive')
+          .eq('id', (await supabase.auth.getUser()).data.user?.id)
+          .single();
+        
+        if (profile?.handles_exclusive) {
+          // Show all exclusive member complaints
+          query = query.eq('student_type', 'exclusive');
+        } else {
+          // Show only trainer-related complaints
+          query = query.eq('category', 'trainer_related');
+        }
       }
 
       if (filterByAssigned) {
