@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { AuthModal } from '@/components/AuthModal';
 import { useAuth } from '@/hooks/useAuth';
+import brototypeLogo from '@/assets/logo-brototype.png';
 
 const Index = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -53,9 +54,13 @@ const Index = () => {
 
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
         <div className="text-center space-y-8 max-w-4xl mx-auto">
-          {/* Logo placeholder */}
-          <div className="w-32 h-32 mx-auto bg-gradient-cyber rounded-2xl flex items-center justify-center">
-            <span className="text-4xl font-bold text-background">BT</span>
+          {/* Logo */}
+          <div className="w-full max-w-2xl mx-auto px-4">
+            <img 
+              src={brototypeLogo} 
+              alt="Brototype Logo" 
+              className="w-full h-auto object-contain"
+            />
           </div>
 
           {/* Main heading */}
