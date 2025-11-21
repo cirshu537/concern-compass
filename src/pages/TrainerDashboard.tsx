@@ -100,8 +100,14 @@ export default function TrainerDashboard() {
     return (
       <>
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Welcome, {profile?.full_name}</h2>
-          <p className="text-muted-foreground">Manage student concerns and track feedback</p>
+          <h2 className="text-3xl font-bold mb-2">
+            Welcome, {profile?.full_name}
+          </h2>
+          <p className="text-muted-foreground">
+            {profile?.handles_exclusive 
+              ? 'Manage all Exclusive Member concerns and provide premium support'
+              : 'Manage student concerns and track feedback'}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -113,8 +119,12 @@ export default function TrainerDashboard() {
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                 <Users className="w-6 h-6 text-primary" />
               </div>
-              <CardTitle className="text-xl">{profile?.handles_exclusive ? 'Exclusive Member Concerns' : 'Student Concerns'}</CardTitle>
-              <CardDescription>{profile?.handles_exclusive ? 'All exclusive member issues' : 'Trainer-related issues'}</CardDescription>
+              <CardTitle className="text-xl">
+                {profile?.handles_exclusive ? 'Exclusive Member Concerns' : 'Student Concerns'}
+              </CardTitle>
+              <CardDescription>
+                {profile?.handles_exclusive ? 'All exclusive member issues' : 'Trainer-related issues'}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary mb-2">
@@ -128,20 +138,62 @@ export default function TrainerDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
-                <FileText className="w-6 h-6 text-secondary" />
-              </div>
-              <CardTitle className="text-xl">My Concerns</CardTitle>
-              <CardDescription>Concerns you've raised</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Track concerns you've submitted to administration
-              </p>
-            </CardContent>
-          </Card>
+          {profile?.handles_exclusive && (
+            <Card className="bg-card border-border hover:border-accent/50 transition-all group">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
+                  <FileText className="w-6 h-6 text-accent" />
+                </div>
+                <CardTitle className="text-xl">Open Concerns</CardTitle>
+                <CardDescription>Pending resolution</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-accent mb-2">
+                  {trainerComplaints?.filter(c => c.status === 'logged' || c.status === 'in_process').length || 0}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Concerns requiring attention
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {profile?.handles_exclusive && (
+            <Card className="bg-card border-border hover:border-secondary/50 transition-all group">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
+                  <FileText className="w-6 h-6 text-secondary" />
+                </div>
+                <CardTitle className="text-xl">Resolved</CardTitle>
+                <CardDescription>Successfully handled</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-secondary mb-2">
+                  {trainerComplaints?.filter(c => c.status === 'fixed').length || 0}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Fixed exclusive member concerns
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {!profile?.handles_exclusive && (
+            <Card className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
+                  <FileText className="w-6 h-6 text-secondary" />
+                </div>
+                <CardTitle className="text-xl">My Concerns</CardTitle>
+                <CardDescription>Concerns you've raised</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Track concerns you've submitted to administration
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           <Card className="bg-card border-border hover:border-accent/50 transition-all cursor-pointer group">
             <CardHeader>
@@ -158,29 +210,40 @@ export default function TrainerDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <BookOpen className="w-6 h-6 text-primary" />
-              </div>
-              <CardTitle className="text-xl">Documentation</CardTitle>
-              <CardDescription>System guide</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Learn about the concern system and your role
-              </p>
-            </CardContent>
-          </Card>
+          {!profile?.handles_exclusive && (
+            <Card className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <BookOpen className="w-6 h-6 text-primary" />
+                </div>
+                <CardTitle className="text-xl">Documentation</CardTitle>
+                <CardDescription>System guide</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Learn about the concern system and your role
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <div className="mt-8">
           <Card className="bg-gradient-to-br from-card to-card/50 border-primary/30">
             <CardHeader>
-              <CardTitle className="text-lg text-muted-foreground">Branch</CardTitle>
+              <CardTitle className="text-lg text-muted-foreground">
+                {profile?.handles_exclusive ? 'Handler Type' : 'Branch'}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{profile?.branch || 'N/A'}</div>
+              <div className="text-3xl font-bold text-primary">
+                {profile?.handles_exclusive ? '⭐ Exclusive Members Handler' : profile?.branch || 'N/A'}
+              </div>
+              {profile?.handles_exclusive && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Premium support for all exclusive member concerns
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>
