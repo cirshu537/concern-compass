@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,6 +12,7 @@ import { DashboardNav } from '@/components/DashboardNav';
 
 export default function BranchAdminDashboard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { profile, signOut } = useAuth();
   const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
@@ -22,6 +23,19 @@ export default function BranchAdminDashboard() {
       navigate('/');
     }
   }, [profile, navigate]);
+
+  // Read URL parameters and set state
+  useEffect(() => {
+    const view = searchParams.get('view');
+    const id = searchParams.get('id');
+    
+    if (view === 'detail' && id) {
+      setSelectedView('detail');
+      setSelectedComplaintId(id);
+    } else if (view === 'complaints') {
+      setSelectedView('complaints');
+    }
+  }, [searchParams]);
 
   const { data: stats } = useQuery({
     queryKey: ['branch-stats', profile?.branch],
