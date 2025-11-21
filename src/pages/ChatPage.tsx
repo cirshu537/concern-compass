@@ -45,6 +45,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState('');
   const [loading, setLoading] = useState(true);
+  const [currentComplaint, setCurrentComplaint] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Mark messages as read when page loads
@@ -123,8 +124,22 @@ export default function ChatPage() {
       fetchMessages(selectedConversation);
       subscribeToMessages(selectedConversation);
       markConversationAsRead(selectedConversation);
+      fetchComplaintDetails(selectedConversation);
     }
   }, [selectedConversation]);
+
+  const fetchComplaintDetails = async (conversationId: string) => {
+    const conversation = conversations.find(c => c.id === conversationId);
+    if (conversation?.complaint_id) {
+      const { data: complaint } = await supabase
+        .from('complaints')
+        .select('*, profiles!complaints_student_id_fkey(full_name)')
+        .eq('id', conversation.complaint_id)
+        .single();
+      
+      setCurrentComplaint(complaint);
+    }
+  };
 
   const markConversationAsRead = (conversationId: string) => {
     if (!profile) return;
@@ -360,6 +375,16 @@ export default function ChatPage() {
     }
   };
 
+  const navigateToConcernDetails = () => {
+    if (!currentComplaint) return;
+    
+    if (profile?.role === 'main_admin') {
+      navigate(`/main-admin/dashboard?view=detail&id=${currentComplaint.id}`);
+    } else if (profile?.role === 'branch_admin') {
+      navigate(`/branch-admin/dashboard?view=detail&id=${currentComplaint.id}`);
+    }
+  };
+
   const selectedConvData = conversations.find(c => c.id === selectedConversation);
   
   // Determine if current user can close the conversation based on type
@@ -436,7 +461,7 @@ export default function ChatPage() {
 
           {/* Messages Panel */}
           <Card className="lg:col-span-2 bg-card border-border flex flex-col">
-            {selectedConversation ? (
+          {selectedConversation ? (
               <>
                 <CardHeader className="flex-shrink-0 border-b border-border">
                   <div className="flex items-center justify-between">
@@ -452,6 +477,37 @@ export default function ChatPage() {
                       </Button>
                     )}
                   </div>
+                  {currentComplaint && (
+                    <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-border">
+                      <p className="text-xs text-muted-foreground mb-1">Discussing Concern:</p>
+                      <button
+                        onClick={navigateToConcernDetails}
+                        className="text-left hover:underline focus:outline-none w-full group"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold group-hover:text-primary transition-colors truncate">
+                              {currentComplaint.title}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              By: {currentComplaint.profiles?.full_name} • {currentComplaint.category?.replace(/_/g, ' ')}
+                            </p>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-shrink-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigateToConcernDetails();
+                            }}
+                          >
+                            View Details
+                          </Button>
+                        </div>
+                      </button>
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col p-0">
                   <ScrollArea className="flex-1 p-4">
