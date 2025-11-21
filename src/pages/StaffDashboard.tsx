@@ -17,16 +17,20 @@ export default function StaffDashboard() {
   const [selectedView, setSelectedView] = useState<'dashboard' | 'all' | 'assigned' | 'detail'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
 
-  // Check for complaint query parameter
+  // Check for URL parameters on mount
   useEffect(() => {
-    const complaintId = searchParams.get('complaint');
-    if (complaintId) {
-      setSelectedComplaintId(complaintId);
+    const view = searchParams.get('view');
+    const id = searchParams.get('id');
+    
+    if (view === 'detail' && id) {
       setSelectedView('detail');
-      // Clear the query parameter
-      navigate('/staff/dashboard', { replace: true });
+      setSelectedComplaintId(id);
+    } else if (view === 'all') {
+      setSelectedView('all');
+    } else if (view === 'assigned') {
+      setSelectedView('assigned');
     }
-  }, [searchParams, navigate]);
+  }, [searchParams]);
 
   const { data: stats } = useQuery({
     queryKey: ['staff-stats', profile?.branch, profile?.id],
