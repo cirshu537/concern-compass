@@ -133,6 +133,15 @@ Deno.serve(async (req) => {
         program: null
       },
       {
+        email: 'exclusivehandler@gmail.com',
+        password: 'exclusive123',
+        full_name: 'Exclusive Handler',
+        role: 'trainer',
+        student_type: 'none',
+        branch: 'Online',
+        program: null
+      },
+      {
         email: 'staff1kochi@gmail.com',
         password: 'staff123',
         full_name: 'Staff 1 Kochi',
@@ -272,12 +281,19 @@ Deno.serve(async (req) => {
         if (error) {
           errors.push({ email: account.email, error: error.message })
         } else if (data.user) {
+          const updateData: any = {
+            branch: account.branch,
+            program: account.program
+          };
+          
+          // Set handles_exclusive flag for exclusive handler
+          if (account.email === 'exclusivehandler@gmail.com') {
+            updateData.handles_exclusive = true;
+          }
+          
           await supabaseAdmin
             .from('profiles')
-            .update({
-              branch: account.branch,
-              program: account.program
-            })
+            .update(updateData)
             .eq('id', data.user.id)
 
           results.push({ email: account.email, success: true })
