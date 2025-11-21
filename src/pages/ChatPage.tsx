@@ -20,6 +20,7 @@ interface Conversation {
   is_closed: boolean;
   created_at: string;
   complaint_title?: string;
+  unread_count?: number;
 }
 
 interface Message {
@@ -51,18 +52,92 @@ export default function ChatPage() {
     markAsRead();
   }, []);
 
+  // Fetch unread counts for all conversations
+  const fetchUnreadCounts = async (convs: Conversation[]) => {
+    if (!profile) return convs;
+
+    const conversationsWithUnread = await Promise.all(
+      convs.map(async (conv) => {
+        const lastViewKey = `conv_last_view_${profile.id}_${conv.id}`;
+        const lastView = localStorage.getItem(lastViewKey);
+        const lastViewTime = lastView ? new Date(lastView) : new Date(0);
+
+        const { count } = await supabase
+          .from('conversation_messages')
+          .select('*', { count: 'exact', head: true })
+          .eq('conversation_id', conv.id)
+          .neq('sender_id', profile.id)
+          .gt('created_at', lastViewTime.toISOString());
+
+        return { ...conv, unread_count: count || 0 };
+      })
+    );
+
+    return conversationsWithUnread;
+  };
+
   useEffect(() => {
     if (profile) {
       fetchConversations();
     }
   }, [profile]);
 
+  // Subscribe to new messages across all conversations for unread counts
+  useEffect(() => {
+    if (!profile || conversations.length === 0) return;
+
+    const channels = conversations.map(conv => {
+      return supabase
+        .channel(`unread_updates:${conv.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'conversation_messages',
+            filter: `conversation_id=eq.${conv.id}`
+          },
+          (payload) => {
+            // Only increment unread if message is not from current user and conversation is not selected
+            if (payload.new.sender_id !== profile.id && conv.id !== selectedConversation) {
+              setConversations(prev =>
+                prev.map(c =>
+                  c.id === conv.id
+                    ? { ...c, unread_count: (c.unread_count || 0) + 1 }
+                    : c
+                )
+              );
+            }
+          }
+        )
+        .subscribe();
+    });
+
+    return () => {
+      channels.forEach(channel => supabase.removeChannel(channel));
+    };
+  }, [profile, conversations.length, selectedConversation]);
+
   useEffect(() => {
     if (selectedConversation) {
       fetchMessages(selectedConversation);
       subscribeToMessages(selectedConversation);
+      markConversationAsRead(selectedConversation);
     }
   }, [selectedConversation]);
+
+  const markConversationAsRead = (conversationId: string) => {
+    if (!profile) return;
+    const lastViewKey = `conv_last_view_${profile.id}_${conversationId}`;
+    localStorage.setItem(lastViewKey, new Date().toISOString());
+    
+    // Update unread count for this conversation
+    setConversations(prev =>
+      prev.map(conv =>
+        conv.id === conversationId ? { ...conv, unread_count: 0 } : conv
+      )
+    );
+  };
 
   useEffect(() => {
     scrollToBottom();
@@ -103,7 +178,8 @@ export default function ChatPage() {
         complaint_title: (conv as any).complaints?.title || 'Untitled'
       }));
 
-      setConversations(conversationsWithTitle);
+      const conversationsWithUnread = await fetchUnreadCounts(conversationsWithTitle);
+      setConversations(conversationsWithUnread);
     } catch (error) {
       console.error('Error fetching conversations:', error);
       toast.error('Failed to load conversations');
@@ -176,6 +252,17 @@ export default function ChatPage() {
             }
             return [...prev, newMessage];
           });
+
+          // Update unread count for the conversation if it's not the selected one
+          if (conversationId !== selectedConversation) {
+            setConversations(prev =>
+              prev.map(conv =>
+                conv.id === conversationId
+                  ? { ...conv, unread_count: (conv.unread_count || 0) + 1 }
+                  : conv
+              )
+            );
+          }
         }
       )
       .subscribe();
@@ -319,13 +406,20 @@ export default function ChatPage() {
                       <button
                         key={conv.id}
                         onClick={() => setSelectedConversation(conv.id)}
-                        className={`w-full p-3 rounded-lg text-left transition-colors ${
+                        className={`w-full p-3 rounded-lg text-left transition-colors relative ${
                           selectedConversation === conv.id
                             ? 'bg-primary/20 border border-primary/50'
                             : 'hover:bg-muted'
                         }`}
                       >
-                        <div className="font-medium truncate">{conv.complaint_title}</div>
+                        {conv.unread_count && conv.unread_count > 0 && (
+                          <span className="absolute top-2 right-2 h-5 w-5 rounded-full bg-red-500 flex items-center justify-center">
+                            <span className="text-[10px] font-bold text-white">
+                              {conv.unread_count > 9 ? '9+' : conv.unread_count}
+                            </span>
+                          </span>
+                        )}
+                        <div className="font-medium truncate pr-8">{conv.complaint_title}</div>
                         <div className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
                           <span>{format(new Date(conv.created_at), 'MMM d, yyyy')}</span>
                           {conv.is_closed && (
