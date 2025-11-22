@@ -16,6 +16,8 @@ export default function BranchAdminDashboard() {
   const { profile, signOut } = useAuth();
   const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
+  const [filterCategory, setFilterCategory] = useState<string | undefined>(undefined);
+  const [filterHighAlertStaff, setFilterHighAlertStaff] = useState<boolean>(false);
 
   // Redirect if not branch admin
   useEffect(() => {
@@ -89,7 +91,11 @@ export default function BranchAdminDashboard() {
         <div>
           <Button 
             variant="default" 
-            onClick={() => setSelectedView('dashboard')}
+            onClick={() => {
+              setSelectedView('dashboard');
+              setFilterCategory(undefined);
+              setFilterHighAlertStaff(false);
+            }}
             className="mb-4"
           >
             <ChevronLeft className="w-4 h-4 mr-2" />
@@ -97,6 +103,8 @@ export default function BranchAdminDashboard() {
           </Button>
           <ComplaintsList
             filterByBranch={profile?.branch || ''}
+            filterByCategory={filterCategory}
+            filterByHighAlertStaff={filterHighAlertStaff}
             onComplaintClick={(complaint) => {
               setSelectedComplaintId(complaint.id);
               setSelectedView('detail');
@@ -173,7 +181,14 @@ export default function BranchAdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-border hover:border-destructive/50 transition-all group">
+          <Card 
+            className="bg-card border-border hover:border-destructive/50 transition-all cursor-pointer group"
+            onClick={() => {
+              setFilterHighAlertStaff(true);
+              setFilterCategory(undefined);
+              setSelectedView('complaints');
+            }}
+          >
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-destructive/10 flex items-center justify-center mb-4 group-hover:bg-destructive/20 transition-colors">
                 <AlertTriangle className="w-6 h-6 text-destructive" />
@@ -195,6 +210,7 @@ export default function BranchAdminDashboard() {
               ) : (
                 <p className="text-sm text-muted-foreground">No staff on high alert</p>
               )}
+              <p className="text-xs text-muted-foreground mt-4">Click to view complaints with negative reviews</p>
             </CardContent>
           </Card>
 
@@ -212,7 +228,16 @@ export default function BranchAdminDashboard() {
                     .sort(([, a], [, b]) => (b as number) - (a as number))
                     .slice(0, 5)
                     .map(([category, count]) => (
-                      <div key={category} className="flex items-center justify-between">
+                      <div 
+                        key={category} 
+                        className="flex items-center justify-between p-2 rounded-lg hover:bg-accent/10 cursor-pointer transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFilterCategory(category);
+                          setFilterHighAlertStaff(false);
+                          setSelectedView('complaints');
+                        }}
+                      >
                         <span className="text-sm capitalize">{category.replace(/_/g, ' ')}</span>
                         <span className="text-sm font-semibold text-primary">{count}</span>
                       </div>
@@ -221,6 +246,7 @@ export default function BranchAdminDashboard() {
               ) : (
                 <p className="text-sm text-muted-foreground">No complaints yet</p>
               )}
+              <p className="text-xs text-muted-foreground mt-4">Click categories to filter complaints</p>
             </CardContent>
           </Card>
         </div>
