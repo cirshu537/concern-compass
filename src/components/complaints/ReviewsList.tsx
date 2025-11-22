@@ -57,10 +57,22 @@ export function ReviewsList({ complaintId }: ReviewsListProps) {
     return 'Neutral';
   };
 
+  // Sort reviews: staff/trainer/branch_admin first, then students
+  const sortedReviews = [...reviews].sort((a, b) => {
+    const aIsStaff = a.reviewer_role !== 'student';
+    const bIsStaff = b.reviewer_role !== 'student';
+    
+    if (aIsStaff && !bIsStaff) return -1;
+    if (!aIsStaff && bIsStaff) return 1;
+    
+    // If both are same type, maintain created_at order
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Reviews</h3>
-      {reviews.map((review) => (
+      {sortedReviews.map((review) => (
         <Card key={review.id} className="bg-card border-border">
           <CardHeader>
             <p className="text-sm text-muted-foreground capitalize">
