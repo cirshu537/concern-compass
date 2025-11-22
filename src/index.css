@@ -52,6 +52,9 @@ All colors MUST be HSL.
     --status-cancelled: 0 0% 50%;
     --status-rejected: 0 90% 55%;
 
+    /* Conversation colors */
+    --conversation-main-admin: 45 93% 47%;
+
     /* Gradient colors */
     --gradient-start: 185 100% 50%;
     --gradient-end: 270 100% 60%;
