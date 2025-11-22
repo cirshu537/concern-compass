@@ -13,6 +13,8 @@ interface ComplaintsListProps {
   filterByTrainer?: boolean;
   filterByAssigned?: string;
   filterByStudentType?: 'brocamp' | 'exclusive' | 'none';
+  filterByCategory?: string;
+  filterByHighAlertStaff?: boolean;
   onComplaintClick?: (complaint: Complaint) => void;
 }
 
@@ -21,6 +23,8 @@ export function ComplaintsList({
   filterByTrainer, 
   filterByAssigned,
   filterByStudentType,
+  filterByCategory,
+  filterByHighAlertStaff,
   onComplaintClick 
 }: ComplaintsListProps) {
   const navigate = useNavigate();
@@ -50,7 +54,7 @@ export function ComplaintsList({
   }, [queryClient]);
 
   const { data: complaints, isLoading } = useQuery({
-    queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, statusFilter],
+    queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, filterByCategory, filterByHighAlertStaff, statusFilter],
     queryFn: async () => {
       let query = supabase
         .from('complaints')
@@ -63,6 +67,24 @@ export function ComplaintsList({
 
       if (filterByStudentType) {
         query = query.eq('student_type', filterByStudentType);
+      }
+
+      if (filterByCategory) {
+        query = query.eq('category', filterByCategory as any);
+      }
+
+      if (filterByHighAlertStaff) {
+        // Get all high alert staff IDs
+        const { data: highAlertStaff } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('high_alert', true)
+          .eq('role', 'staff');
+        
+        if (highAlertStaff && highAlertStaff.length > 0) {
+          const staffIds = highAlertStaff.map(s => s.id);
+          query = query.in('assigned_staff_id', staffIds);
+        }
       }
 
       if (filterByTrainer) {
