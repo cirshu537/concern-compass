@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ComplaintsList } from '@/components/complaints/ComplaintsList';
 import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
-import { FileText, Users, MessageSquare, LogOut, ChevronLeft, BookOpen } from 'lucide-react';
+import { FileText, AlertTriangle, BarChart3, LogOut, ChevronLeft, BookOpen } from 'lucide-react';
 import { DashboardNav } from '@/components/DashboardNav';
 
 export default function BranchAdminDashboard() {
@@ -43,20 +43,28 @@ export default function BranchAdminDashboard() {
     queryFn: async () => {
       const { data: complaints } = await supabase
         .from('complaints')
-        .select('id, status')
+        .select('id, status, category')
         .eq('branch', profile!.branch);
 
       const { data: staff } = await supabase
         .from('profiles')
-        .select('id, high_alert')
+        .select('id, full_name, high_alert, negative_count_lifetime')
         .eq('branch', profile!.branch)
         .eq('role', 'staff');
+
+      // Calculate category breakdown
+      const categoryBreakdown = complaints?.reduce((acc, c) => {
+        acc[c.category] = (acc[c.category] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>) || {};
 
       return {
         total: complaints?.length || 0,
         open: complaints?.filter(c => c.status === 'logged' || c.status === 'noted' || c.status === 'in_process').length || 0,
         fixed: complaints?.filter(c => c.status === 'fixed').length || 0,
         highAlert: staff?.filter(s => s.high_alert).length || 0,
+        highAlertStaff: staff?.filter(s => s.high_alert) || [],
+        categoryBreakdown,
       };
     },
   });
@@ -165,37 +173,54 @@ export default function BranchAdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card 
-            className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group"
-            onClick={() => navigate('/chat')}
-          >
+          <Card className="bg-card border-border hover:border-destructive/50 transition-all group">
             <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
-                <Users className="w-6 h-6 text-secondary" />
+              <div className="w-12 h-12 rounded-lg bg-destructive/10 flex items-center justify-center mb-4 group-hover:bg-destructive/20 transition-colors">
+                <AlertTriangle className="w-6 h-6 text-destructive" />
               </div>
-              <CardTitle className="text-xl">Staff Management</CardTitle>
+              <CardTitle className="text-xl">High Alert Staff</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Monitor performance and manage your team
-              </p>
+              {stats?.highAlertStaff && stats.highAlertStaff.length > 0 ? (
+                <div className="space-y-2">
+                  {stats.highAlertStaff.map((staff: any) => (
+                    <div key={staff.id} className="flex items-center justify-between p-2 rounded-lg bg-destructive/5 border border-destructive/20">
+                      <span className="text-sm font-medium">{staff.full_name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {staff.negative_count_lifetime} lifetime negatives
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No staff on high alert</p>
+              )}
             </CardContent>
           </Card>
 
-          <Card 
-            className="bg-card border-border hover:border-accent/50 transition-all cursor-pointer group"
-            onClick={() => navigate('/chat')}
-          >
+          <Card className="bg-card border-border hover:border-accent/50 transition-all group">
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                <MessageSquare className="w-6 h-6 text-accent" />
+                <BarChart3 className="w-6 h-6 text-accent" />
               </div>
-              <CardTitle className="text-xl">Main Admin Chat</CardTitle>
+              <CardTitle className="text-xl">Complaint Categories</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Communicate with main administration
-              </p>
+              {stats?.categoryBreakdown && Object.keys(stats.categoryBreakdown).length > 0 ? (
+                <div className="space-y-2">
+                  {Object.entries(stats.categoryBreakdown)
+                    .sort(([, a], [, b]) => (b as number) - (a as number))
+                    .slice(0, 5)
+                    .map(([category, count]) => (
+                      <div key={category} className="flex items-center justify-between">
+                        <span className="text-sm capitalize">{category.replace(/_/g, ' ')}</span>
+                        <span className="text-sm font-semibold text-primary">{count}</span>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No complaints yet</p>
+              )}
             </CardContent>
           </Card>
         </div>
