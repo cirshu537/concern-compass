@@ -214,7 +214,14 @@ export default function BranchAdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-border hover:border-accent/50 transition-all group">
+          <Card 
+            className="bg-card border-border hover:border-accent/50 transition-all cursor-pointer group"
+            onClick={() => {
+              setFilterCategory(undefined);
+              setFilterHighAlertStaff(false);
+              setSelectedView('complaints');
+            }}
+          >
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
                 <BarChart3 className="w-6 h-6 text-accent" />
@@ -246,7 +253,7 @@ export default function BranchAdminDashboard() {
               ) : (
                 <p className="text-sm text-muted-foreground">No complaints yet</p>
               )}
-              <p className="text-xs text-muted-foreground mt-4">Click categories to filter complaints</p>
+              <p className="text-xs text-muted-foreground mt-4">Click card to view all complaints or click a category to filter</p>
             </CardContent>
           </Card>
         </div>
