@@ -67,9 +67,9 @@ export const DashboardNav = ({
           case 'trainer':
             navigate('/trainer/dashboard');
             break;
-          case 'staff':
-            navigate('/staff/dashboard');
-            break;
+        case 'staff':
+          navigate('/staff/profile');
+          break;
           case 'branch_admin':
             navigate('/branch-admin/dashboard');
             break;
