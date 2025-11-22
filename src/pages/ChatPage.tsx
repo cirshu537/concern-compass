@@ -49,10 +49,7 @@ export default function ChatPage() {
   const [currentComplaint, setCurrentComplaint] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Mark messages as read when page loads
-  useEffect(() => {
-    markAsRead();
-  }, []);
+  // Removed global markAsRead on page load - now tracked per conversation
 
   // Fetch unread counts for all conversations
   const fetchUnreadCounts = async (convs: Conversation[]) => {
@@ -125,6 +122,7 @@ export default function ChatPage() {
       fetchMessages(selectedConversation);
       subscribeToMessages(selectedConversation);
       markConversationAsRead(selectedConversation);
+      markAsRead(selectedConversation); // Also update global unread count
       fetchComplaintDetails(selectedConversation);
     }
   }, [selectedConversation]);
