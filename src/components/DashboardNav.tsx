@@ -39,7 +39,6 @@ export const DashboardNav = ({
           size="icon" 
           className="relative"
           onClick={() => {
-            markAsRead();
             navigate(getChatPath());
           }}
         >
