@@ -442,16 +442,22 @@ export default function ChatPage() {
                   </div>
                 ) : (
                   <div className="space-y-1 p-2">
-                    {conversations.map((conv) => (
-                      <button
-                        key={conv.id}
-                        onClick={() => setSelectedConversation(conv.id)}
-                        className={`w-full p-3 rounded-lg text-left transition-colors relative ${
-                          selectedConversation === conv.id
-                            ? 'bg-primary/20 border border-primary/50'
-                            : 'hover:bg-muted'
-                        }`}
-                      >
+                    {conversations.map((conv) => {
+                      const isMainAdminConv = conv.type === 'main_to_branch';
+                      return (
+                        <button
+                          key={conv.id}
+                          onClick={() => setSelectedConversation(conv.id)}
+                          className={`w-full p-3 rounded-lg text-left transition-colors relative ${
+                            selectedConversation === conv.id
+                              ? isMainAdminConv 
+                                ? 'bg-[hsl(var(--conversation-main-admin))]/20 border border-[hsl(var(--conversation-main-admin))]/50'
+                                : 'bg-primary/20 border border-primary/50'
+                              : isMainAdminConv
+                                ? 'bg-[hsl(var(--conversation-main-admin))]/10 hover:bg-[hsl(var(--conversation-main-admin))]/15 border border-[hsl(var(--conversation-main-admin))]/30'
+                                : 'hover:bg-muted'
+                          }`}
+                        >
                         {conv.unread_count && conv.unread_count > 0 && (
                           <span className="absolute top-2 right-2 h-5 w-5 rounded-full bg-red-500 flex items-center justify-center">
                             <span className="text-[10px] font-bold text-white">
@@ -459,15 +465,18 @@ export default function ChatPage() {
                             </span>
                           </span>
                         )}
-                        <div className="font-medium truncate pr-8">{conv.complaint_title}</div>
-                        <div className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
-                          <span>{format(new Date(conv.created_at), 'MMM d, yyyy')}</span>
-                          {conv.is_closed && (
-                            <span className="text-red-500 font-medium">Closed</span>
-                          )}
-                        </div>
-                      </button>
-                    ))}
+                          <div className={`font-medium truncate pr-8 ${isMainAdminConv ? 'text-[hsl(var(--conversation-main-admin))]' : ''}`}>
+                            {conv.complaint_title}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
+                            <span>{format(new Date(conv.created_at), 'MMM d, yyyy')}</span>
+                            {conv.is_closed && (
+                              <span className="text-red-500 font-medium">Closed</span>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </ScrollArea>
