@@ -55,18 +55,22 @@ export default function ChatPage() {
   const fetchUnreadCounts = async (convs: Conversation[]) => {
     if (!profile) return convs;
 
+    // Use the same storage format as useUnreadMessages
+    const conversationReads = JSON.parse(
+      localStorage.getItem(`chat_reads_${profile.id}`) || '{}'
+    );
+
     const conversationsWithUnread = await Promise.all(
       convs.map(async (conv) => {
-        const lastViewKey = `conv_last_view_${profile.id}_${conv.id}`;
-        const lastView = localStorage.getItem(lastViewKey);
-        const lastViewTime = lastView ? new Date(lastView) : new Date(0);
+        // Use per-conversation last read time, or conversation creation time if never read
+        const lastReadTime = conversationReads[conv.id] || conv.created_at;
 
         const { count } = await supabase
           .from('conversation_messages')
           .select('*', { count: 'exact', head: true })
           .eq('conversation_id', conv.id)
           .neq('sender_id', profile.id)
-          .gt('created_at', lastViewTime.toISOString());
+          .gt('created_at', lastReadTime);
 
         return { ...conv, unread_count: count || 0 };
       })
@@ -142,8 +146,13 @@ export default function ChatPage() {
 
   const markConversationAsRead = (conversationId: string) => {
     if (!profile) return;
-    const lastViewKey = `conv_last_view_${profile.id}_${conversationId}`;
-    localStorage.setItem(lastViewKey, new Date().toISOString());
+    
+    // Use the same storage format as useUnreadMessages
+    const conversationReads = JSON.parse(
+      localStorage.getItem(`chat_reads_${profile.id}`) || '{}'
+    );
+    conversationReads[conversationId] = new Date().toISOString();
+    localStorage.setItem(`chat_reads_${profile.id}`, JSON.stringify(conversationReads));
     
     // Update unread count for this conversation
     setConversations(prev =>
