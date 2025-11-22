@@ -173,10 +173,7 @@ export default function BranchAdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card 
-            className="bg-card border-border hover:border-destructive/50 transition-all cursor-pointer group"
-            onClick={() => setSelectedView('complaints')}
-          >
+          <Card className="bg-card border-border hover:border-destructive/50 transition-all group">
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-destructive/10 flex items-center justify-center mb-4 group-hover:bg-destructive/20 transition-colors">
                 <AlertTriangle className="w-6 h-6 text-destructive" />
@@ -198,14 +195,10 @@ export default function BranchAdminDashboard() {
               ) : (
                 <p className="text-sm text-muted-foreground">No staff on high alert</p>
               )}
-              <p className="text-xs text-muted-foreground mt-4">Click to view all complaints</p>
             </CardContent>
           </Card>
 
-          <Card 
-            className="bg-card border-border hover:border-accent/50 transition-all cursor-pointer group"
-            onClick={() => setSelectedView('complaints')}
-          >
+          <Card className="bg-card border-border hover:border-accent/50 transition-all group">
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
                 <BarChart3 className="w-6 h-6 text-accent" />
@@ -228,7 +221,6 @@ export default function BranchAdminDashboard() {
               ) : (
                 <p className="text-sm text-muted-foreground">No complaints yet</p>
               )}
-              <p className="text-xs text-muted-foreground mt-4">Click to view complaints by category</p>
             </CardContent>
           </Card>
         </div>
