@@ -74,16 +74,19 @@ export function ComplaintsList({
       }
 
       if (filterByHighAlertStaff) {
-        // Get all high alert staff IDs
-        const { data: highAlertStaff } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('high_alert', true)
-          .eq('role', 'staff');
+        // Get complaints with negative reviews from students to staff
+        const { data: negativeReviews } = await supabase
+          .from('complaint_reviews')
+          .select('complaint_id')
+          .eq('reviewer_role', 'student')
+          .eq('rating', -1);
         
-        if (highAlertStaff && highAlertStaff.length > 0) {
-          const staffIds = highAlertStaff.map(s => s.id);
-          query = query.in('assigned_staff_id', staffIds);
+        if (negativeReviews && negativeReviews.length > 0) {
+          const complaintIds = negativeReviews.map(r => r.complaint_id);
+          query = query.in('id', complaintIds);
+        } else {
+          // Return empty if no negative reviews exist
+          return [];
         }
       }
 

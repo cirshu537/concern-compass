@@ -208,9 +208,9 @@ export default function BranchAdminDashboard() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No staff on high alert</p>
+                <p className="text-sm text-muted-foreground">No negative concerns</p>
               )}
-              <p className="text-xs text-muted-foreground mt-4">Click to view complaints with negative reviews</p>
+              <p className="text-xs text-muted-foreground mt-4">Click to view complaints with student negative reviews</p>
             </CardContent>
           </Card>
 
