@@ -151,7 +151,7 @@ export default function BranchAdminDashboard() {
             {/* Staff Section */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">Staff - {profile?.branch}</CardTitle>
+                <CardTitle className="text-2xl">Staff - {profile?.branch} ({staffMembers.length})</CardTitle>
               </CardHeader>
               <CardContent>
                 {staffMembers.length > 0 ? (
@@ -191,7 +191,7 @@ export default function BranchAdminDashboard() {
             {/* Trainers Section */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">Trainers - {profile?.branch}</CardTitle>
+                <CardTitle className="text-2xl">Trainers - {profile?.branch} ({trainerMembers.length})</CardTitle>
               </CardHeader>
               <CardContent>
                 {trainerMembers.length > 0 ? (
@@ -245,7 +245,7 @@ export default function BranchAdminDashboard() {
           </Button>
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">All Students - {profile?.branch}</CardTitle>
+              <CardTitle className="text-2xl">All Students - {profile?.branch} ({stats?.allStudents?.length || 0})</CardTitle>
             </CardHeader>
             <CardContent>
               {stats?.allStudents && stats.allStudents.length > 0 ? (
