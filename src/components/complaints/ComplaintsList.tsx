@@ -15,6 +15,8 @@ interface ComplaintsListProps {
   filterByStudentType?: 'brocamp' | 'exclusive' | 'none';
   filterByCategory?: string;
   filterByHighAlertStaff?: boolean;
+  filterByStatus?: string;
+  filterByToday?: boolean;
   onComplaintClick?: (complaint: Complaint) => void;
 }
 
@@ -25,6 +27,8 @@ export function ComplaintsList({
   filterByStudentType,
   filterByCategory,
   filterByHighAlertStaff,
+  filterByStatus,
+  filterByToday,
   onComplaintClick 
 }: ComplaintsListProps) {
   const navigate = useNavigate();
@@ -54,7 +58,7 @@ export function ComplaintsList({
   }, [queryClient]);
 
   const { data: complaints, isLoading } = useQuery({
-    queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, filterByCategory, filterByHighAlertStaff, statusFilter],
+    queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, filterByCategory, filterByHighAlertStaff, filterByStatus, filterByToday, statusFilter],
     queryFn: async () => {
       let query = supabase
         .from('complaints')
@@ -65,12 +69,26 @@ export function ComplaintsList({
         query = query.eq('branch', filterByBranch);
       }
 
+      if (filterByToday) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        query = query.gte('created_at', today.toISOString());
+      }
+
       if (filterByStudentType) {
         query = query.eq('student_type', filterByStudentType);
       }
 
       if (filterByCategory) {
         query = query.eq('category', filterByCategory as any);
+      }
+      
+      if (filterByStatus) {
+        if (filterByStatus === 'open') {
+          query = query.in('status', ['logged', 'noted', 'in_process']);
+        } else {
+          query = query.eq('status', filterByStatus as ComplaintStatus);
+        }
       }
 
       if (filterByHighAlertStaff) {
