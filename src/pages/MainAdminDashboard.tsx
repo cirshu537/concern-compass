@@ -15,9 +15,10 @@ export default function MainAdminDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { profile, signOut } = useAuth();
-  const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail' | 'branch'>('dashboard');
+  const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail' | 'branch' | 'filtered'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<'total' | 'open' | 'fixed' | 'brocamp' | 'online' | null>(null);
   const [timeRange, setTimeRange] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime'>('today');
 
   // Redirect if not main admin
@@ -127,6 +128,36 @@ export default function MainAdminDashboard() {
     enabled: !!selectedBranch,
   });
 
+  // Filtered complaints for main admin cards
+  const { data: filteredComplaints } = useQuery({
+    queryKey: ['filtered-complaints', selectedFilter],
+    queryFn: async () => {
+      if (!selectedFilter) return null;
+      
+      const todayStart = getDateRange();
+      
+      let query = supabase
+        .from('complaints')
+        .select('id, title, category, status, student_type, branch, created_at')
+        .gte('created_at', todayStart)
+        .order('created_at', { ascending: false });
+
+      if (selectedFilter === 'open') {
+        query = query.in('status', ['logged', 'noted', 'in_process']);
+      } else if (selectedFilter === 'fixed') {
+        query = query.eq('status', 'fixed');
+      } else if (selectedFilter === 'brocamp') {
+        query = query.eq('student_type', 'brocamp');
+      } else if (selectedFilter === 'online') {
+        query = query.eq('branch', 'Online');
+      }
+
+      const { data } = await query;
+      return data || [];
+    },
+    enabled: !!selectedFilter,
+  });
+
   const { data: branchStats } = useQuery({
     queryKey: ['branch-breakdown'],
     queryFn: async () => {
@@ -149,18 +180,20 @@ export default function MainAdminDashboard() {
 
   const renderContent = () => {
     if (selectedView === 'detail' && selectedComplaintId) {
-      return (
-        <ComplaintDetails 
-          complaintId={selectedComplaintId}
-          onBack={() => {
-            if (selectedBranch) {
-              setSelectedView('branch');
-            } else {
-              setSelectedView('complaints');
-            }
-          }}
-        />
-      );
+          return (
+            <ComplaintDetails 
+              complaintId={selectedComplaintId}
+              onBack={() => {
+                if (selectedBranch) {
+                  setSelectedView('branch');
+                } else if (selectedFilter) {
+                  setSelectedView('filtered');
+                } else {
+                  setSelectedView('complaints');
+                }
+              }}
+            />
+          );
     }
 
     if (selectedView === 'complaints') {
@@ -180,6 +213,67 @@ export default function MainAdminDashboard() {
               setSelectedView('detail');
             }}
           />
+        </div>
+      );
+    }
+
+    if (selectedView === 'filtered' && selectedFilter) {
+      const filterTitles = {
+        total: 'All Concerns',
+        open: 'Open Concerns',
+        fixed: 'Fixed Concerns',
+        brocamp: 'BroCamp Concerns',
+        online: 'Online Concerns',
+      };
+
+      return (
+        <div>
+          <Button 
+            variant="default" 
+            onClick={() => {
+              setSelectedView('dashboard');
+              setSelectedFilter(null);
+            }}
+            className="mb-4"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold mb-2">{filterTitles[selectedFilter]}</h2>
+            <p className="text-muted-foreground">Today's complaints</p>
+          </div>
+
+          <div className="space-y-2">
+            {filteredComplaints?.map((complaint) => (
+              <Card 
+                key={complaint.id} 
+                className="p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => {
+                  setSelectedComplaintId(complaint.id);
+                  setSelectedView('detail');
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-sm">{complaint.title}</h4>
+                    <p className="text-xs text-muted-foreground">
+                      {complaint.category.replace(/_/g, ' ')} • {complaint.branch}
+                    </p>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {new Date(complaint.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+              </Card>
+            ))}
+            {(!filteredComplaints || filteredComplaints.length === 0) && (
+              <div className="text-center py-8 text-muted-foreground">
+                No concerns found
+              </div>
+            )}
+          </div>
         </div>
       );
     }
@@ -342,52 +436,82 @@ export default function MainAdminDashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
+          <Card 
+            className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 cursor-pointer hover:border-primary/50 transition-all group"
+            onClick={() => {
+              setSelectedFilter('total');
+              setSelectedView('filtered');
+            }}
+          >
             <CardHeader>
               <CardTitle className="text-sm text-muted-foreground">Total Concerns</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{stats?.total || 0}</div>
+              <div className="text-3xl font-bold text-primary group-hover:scale-105 transition-transform">{stats?.total || 0}</div>
               <p className="text-xs text-muted-foreground mt-1">Today</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/30">
+          <Card 
+            className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/30 cursor-pointer hover:border-secondary/50 transition-all group"
+            onClick={() => {
+              setSelectedFilter('open');
+              setSelectedView('filtered');
+            }}
+          >
             <CardHeader>
               <CardTitle className="text-sm text-muted-foreground">Open</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-secondary">{stats?.open || 0}</div>
+              <div className="text-3xl font-bold text-secondary group-hover:scale-105 transition-transform">{stats?.open || 0}</div>
               <p className="text-xs text-muted-foreground mt-1">Today</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-status-fixed/10 to-status-fixed/5 border-status-fixed/30">
+          <Card 
+            className="bg-gradient-to-br from-status-fixed/10 to-status-fixed/5 border-status-fixed/30 cursor-pointer hover:border-status-fixed/50 transition-all group"
+            onClick={() => {
+              setSelectedFilter('fixed');
+              setSelectedView('filtered');
+            }}
+          >
             <CardHeader>
               <CardTitle className="text-sm text-muted-foreground">Fixed</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-status-fixed">{stats?.fixed || 0}</div>
+              <div className="text-3xl font-bold text-status-fixed group-hover:scale-105 transition-transform">{stats?.fixed || 0}</div>
               <p className="text-xs text-muted-foreground mt-1">Today</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/30">
+          <Card 
+            className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/30 cursor-pointer hover:border-accent/50 transition-all group"
+            onClick={() => {
+              setSelectedFilter('brocamp');
+              setSelectedView('filtered');
+            }}
+          >
             <CardHeader>
               <CardTitle className="text-sm text-muted-foreground">BroCamp</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-accent">{stats?.brocamp || 0}</div>
+              <div className="text-3xl font-bold text-accent group-hover:scale-105 transition-transform">{stats?.brocamp || 0}</div>
               <p className="text-xs text-muted-foreground mt-1">Today</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/30">
+          <Card 
+            className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/30 cursor-pointer hover:border-blue-500/50 transition-all group"
+            onClick={() => {
+              setSelectedFilter('online');
+              setSelectedView('filtered');
+            }}
+          >
             <CardHeader>
               <CardTitle className="text-sm text-muted-foreground">Online</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-500">{stats?.online || 0}</div>
+              <div className="text-3xl font-bold text-blue-500 group-hover:scale-105 transition-transform">{stats?.online || 0}</div>
               <p className="text-xs text-muted-foreground mt-1">Today</p>
             </CardContent>
           </Card>
