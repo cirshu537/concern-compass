@@ -200,8 +200,8 @@ export default function BranchAdminDashboard() {
                             </div>
                             <p className="text-sm text-muted-foreground capitalize">{member.role}</p>
                             <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
-                              <span>Credits: {member.credits}</span>
-                              <span>Negatives: {member.negative_count_lifetime}</span>
+                              <span>Credits: {member.credits ?? 0}</span>
+                              <span>Negatives: {member.negative_count_lifetime ?? 0}</span>
                             </div>
                           </div>
                         </CardContent>
