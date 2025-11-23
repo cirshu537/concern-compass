@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ComplaintsList } from '@/components/complaints/ComplaintsList';
 import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
+import { StaffProfile } from '@/components/StaffProfile';
+import { StudentProfile } from '@/components/StudentProfile';
 import { FileText, AlertTriangle, BarChart3, LogOut, ChevronLeft, BookOpen } from 'lucide-react';
 import { DashboardNav } from '@/components/DashboardNav';
 
@@ -14,8 +16,10 @@ export default function BranchAdminDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { profile, signOut } = useAuth();
-  const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail'>('dashboard');
+  const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail' | 'staff-profile' | 'student-profile'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
+  const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [filterCategory, setFilterCategory] = useState<string | undefined>(undefined);
   const [filterHighAlertStaff, setFilterHighAlertStaff] = useState<boolean>(false);
   const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
@@ -90,6 +94,24 @@ export default function BranchAdminDashboard() {
   };
 
   const renderContent = () => {
+    if (selectedView === 'staff-profile' && selectedStaffId) {
+      return (
+        <StaffProfile 
+          staffId={selectedStaffId}
+          onBack={() => setSelectedView('dashboard')}
+        />
+      );
+    }
+
+    if (selectedView === 'student-profile' && selectedStudentId) {
+      return (
+        <StudentProfile 
+          studentId={selectedStudentId}
+          onBack={() => setSelectedView('dashboard')}
+        />
+      );
+    }
+
     if (selectedView === 'detail' && selectedComplaintId) {
       return (
         <ComplaintDetails 
@@ -247,7 +269,14 @@ export default function BranchAdminDashboard() {
               {stats?.allStaff && stats.allStaff.length > 0 ? (
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {stats.allStaff.map((member: any) => (
-                    <div key={member.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/50 border border-border">
+                    <div 
+                      key={member.id} 
+                      className="flex items-center justify-between p-2 rounded-lg bg-muted/50 border border-border hover:bg-muted hover:border-primary/50 cursor-pointer transition-all"
+                      onClick={() => {
+                        setSelectedStaffId(member.id);
+                        setSelectedView('staff-profile');
+                      }}
+                    >
                       <div className="flex flex-col">
                         <span className="text-sm font-medium">{member.full_name}</span>
                         <span className="text-xs text-muted-foreground capitalize">{member.role}</span>
@@ -278,7 +307,14 @@ export default function BranchAdminDashboard() {
               {stats?.allStudents && stats.allStudents.length > 0 ? (
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {stats.allStudents.slice(0, 10).map((student: any) => (
-                    <div key={student.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/50 border border-border">
+                    <div 
+                      key={student.id} 
+                      className="flex items-center justify-between p-2 rounded-lg bg-muted/50 border border-border hover:bg-muted hover:border-secondary/50 cursor-pointer transition-all"
+                      onClick={() => {
+                        setSelectedStudentId(student.id);
+                        setSelectedView('student-profile');
+                      }}
+                    >
                       <div className="flex flex-col">
                         <span className="text-sm font-medium">{student.full_name}</span>
                         <span className="text-xs text-muted-foreground capitalize">{student.student_type}</span>
