@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ComplaintsList } from '@/components/complaints/ComplaintsList';
 import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
 import { StaffProfile } from '@/components/StaffProfile';
+import { StudentProfile } from '@/components/StudentProfile';
 import { FileText, MessageSquare, Building, LogOut, ChevronLeft, Calendar, BookOpen, Users } from 'lucide-react';
 import { DashboardNav } from '@/components/DashboardNav';
 
@@ -16,11 +17,12 @@ export default function MainAdminDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { profile, signOut } = useAuth();
-  const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail' | 'branch' | 'filtered' | 'staff-list' | 'staff-profile'>('dashboard');
+  const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail' | 'branch' | 'filtered' | 'staff-list' | 'staff-profile' | 'student-list' | 'student-profile'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<'total' | 'open' | 'fixed' | 'brocamp' | 'online' | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime'>('today');
 
   // Redirect if not main admin
@@ -229,6 +231,20 @@ export default function MainAdminDashboard() {
     },
   });
 
+  // Fetch all students
+  const { data: allStudentsData } = useQuery({
+    queryKey: ['all-students'],
+    queryFn: async () => {
+      const { data: students } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('role', 'student')
+        .order('branch', { ascending: true });
+
+      return students || [];
+    },
+  });
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
@@ -250,6 +266,106 @@ export default function MainAdminDashboard() {
             staffId={selectedStaffId}
             onBack={() => setSelectedView('staff-list')}
           />
+        </div>
+      );
+    }
+
+    if (selectedView === 'student-profile' && selectedStudentId) {
+      return (
+        <div>
+          <Button 
+            variant="default" 
+            onClick={() => setSelectedView('student-list')}
+            className="mb-4"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back to Student List
+          </Button>
+          <StudentProfile 
+            studentId={selectedStudentId}
+            onBack={() => setSelectedView('student-list')}
+          />
+        </div>
+      );
+    }
+
+    if (selectedView === 'student-list') {
+      // Group students by branch
+      const branches = ['Kochi', 'Calicut - Kakkanchery', 'Trivandrum', 'Online'];
+      const studentsByBranch = branches.reduce((acc, branch) => {
+        acc[branch] = allStudentsData?.filter((s: any) => s.branch === branch) || [];
+        return acc;
+      }, {} as Record<string, any[]>);
+
+      return (
+        <div>
+          <Button 
+            variant="default" 
+            onClick={() => setSelectedView('dashboard')}
+            className="mb-4"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold mb-2">All Students</h2>
+            <p className="text-muted-foreground">Complete overview of all students across branches</p>
+          </div>
+          
+          <div className="space-y-6">
+            {/* Individual Branches */}
+            {branches.map((branchName) => {
+              const branchStudents = studentsByBranch[branchName] || [];
+              if (branchStudents.length === 0) return null;
+              
+              return (
+                <Card key={branchName}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-2xl flex items-center gap-2">
+                        <Building className="w-5 h-5" />
+                        {branchName}
+                      </CardTitle>
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground">Total:</span>
+                        <span className="font-bold text-xl">{branchStudents.length}</span>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {branchStudents.map((student: any) => (
+                        <Card 
+                          key={student.id} 
+                          className="cursor-pointer hover:border-secondary/50 transition-all"
+                          onClick={() => {
+                            setSelectedStudentId(student.id);
+                            setSelectedView('student-profile');
+                          }}
+                        >
+                          <CardContent className="pt-6">
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <h3 className="font-semibold text-lg">{student.full_name}</h3>
+                                {student.banned_from_raise && (
+                                  <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">Banned</span>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground">Credits: {student.credits ?? 0}</p>
+                              <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                                <span>Program: {student.program || 'Not Assigned'}</span>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         </div>
       );
     }
@@ -862,17 +978,17 @@ export default function MainAdminDashboard() {
 
           <Card 
             className="bg-card border-border hover:border-accent/50 transition-all cursor-pointer group"
-            onClick={() => navigate('/chat')}
+            onClick={() => setSelectedView('student-list')}
           >
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                <Building className="w-6 h-6 text-accent" />
+                <Users className="w-6 h-6 text-accent" />
               </div>
-              <CardTitle className="text-xl">System Management</CardTitle>
+              <CardTitle className="text-xl">All Students</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Configure system settings and policies
+                View all students • Total: {allStudentsData?.length || 0}
               </p>
             </CardContent>
           </Card>
