@@ -60,7 +60,7 @@ export default function BranchAdminDashboard() {
 
       const { data: staff } = await supabase
         .from('profiles')
-        .select('id, full_name, role, high_alert, negative_count_lifetime')
+        .select('id, full_name, role, high_alert, negative_count_lifetime, credits')
         .eq('branch', profile!.branch)
         .in('role', ['staff', 'trainer']);
 
@@ -69,6 +69,20 @@ export default function BranchAdminDashboard() {
         .select('id, full_name, email, student_type, banned_from_raise, program, credits')
         .eq('branch', profile!.branch)
         .eq('role', 'student');
+
+      // Get complaint counts for trainers
+      const trainerIds = staff?.filter(s => s.role === 'trainer').map(s => s.id) || [];
+      const { data: trainerComplaints } = await supabase
+        .from('complaints')
+        .select('assigned_trainer_id')
+        .in('assigned_trainer_id', trainerIds);
+
+      const trainerComplaintCounts = trainerComplaints?.reduce((acc, c) => {
+        if (c.assigned_trainer_id) {
+          acc[c.assigned_trainer_id] = (acc[c.assigned_trainer_id] || 0) + 1;
+        }
+        return acc;
+      }, {} as Record<string, number>) || {};
 
       // Calculate category breakdown
       const categoryBreakdown = complaints?.reduce((acc, c) => {
@@ -84,6 +98,7 @@ export default function BranchAdminDashboard() {
         allStaff: staff || [],
         allStudents: students || [],
         categoryBreakdown,
+        trainerComplaintCounts,
       };
     },
   });
@@ -181,6 +196,7 @@ export default function BranchAdminDashboard() {
                             </div>
                             <p className="text-sm text-muted-foreground capitalize">{member.role}</p>
                             <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                              <span>Credits: {member.credits}</span>
                               <span>Negatives: {member.negative_count_lifetime}</span>
                             </div>
                           </div>
@@ -227,7 +243,7 @@ export default function BranchAdminDashboard() {
                             </div>
                             <p className="text-sm text-muted-foreground capitalize">{member.role}</p>
                             <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
-                              <span>Negatives: {member.negative_count_lifetime}</span>
+                              <span>Concerns Dealt: {stats?.trainerComplaintCounts?.[member.id] || 0}</span>
                             </div>
                           </div>
                         </CardContent>
