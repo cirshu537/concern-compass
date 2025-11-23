@@ -18,6 +18,8 @@ export default function BranchAdminDashboard() {
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
   const [filterCategory, setFilterCategory] = useState<string | undefined>(undefined);
   const [filterHighAlertStaff, setFilterHighAlertStaff] = useState<boolean>(false);
+  const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
+  const [filterToday, setFilterToday] = useState<boolean>(false);
 
   // Redirect if not branch admin
   useEffect(() => {
@@ -43,10 +45,14 @@ export default function BranchAdminDashboard() {
     queryKey: ['branch-stats', profile?.branch],
     enabled: !!profile?.branch,
     queryFn: async () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
       const { data: complaints } = await supabase
         .from('complaints')
-        .select('id, status, category')
-        .eq('branch', profile!.branch);
+        .select('id, status, category, created_at')
+        .eq('branch', profile!.branch)
+        .gte('created_at', today.toISOString());
 
       const { data: staff } = await supabase
         .from('profiles')
@@ -95,6 +101,8 @@ export default function BranchAdminDashboard() {
               setSelectedView('dashboard');
               setFilterCategory(undefined);
               setFilterHighAlertStaff(false);
+              setFilterStatus(undefined);
+              setFilterToday(false);
             }}
             className="mb-4"
           >
@@ -105,6 +113,8 @@ export default function BranchAdminDashboard() {
             filterByBranch={profile?.branch || ''}
             filterByCategory={filterCategory}
             filterByHighAlertStaff={filterHighAlertStaff}
+            filterByStatus={filterStatus}
+            filterByToday={filterToday}
             onComplaintClick={(complaint) => {
               setSelectedComplaintId(complaint.id);
               setSelectedView('detail');
@@ -122,37 +132,73 @@ export default function BranchAdminDashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
+          <Card 
+            className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 cursor-pointer hover:border-primary/50 transition-all"
+            onClick={() => {
+              setFilterCategory(undefined);
+              setFilterHighAlertStaff(false);
+              setFilterStatus(undefined);
+              setFilterToday(true);
+              setSelectedView('complaints');
+            }}
+          >
             <CardHeader>
               <CardTitle className="text-sm text-muted-foreground">Total Concerns</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary">{stats?.total || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">All time</p>
+              <p className="text-xs text-muted-foreground mt-1">Today</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/30">
+          <Card 
+            className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/30 cursor-pointer hover:border-secondary/50 transition-all"
+            onClick={() => {
+              setFilterCategory(undefined);
+              setFilterHighAlertStaff(false);
+              setFilterStatus('open');
+              setFilterToday(true);
+              setSelectedView('complaints');
+            }}
+          >
             <CardHeader>
               <CardTitle className="text-sm text-muted-foreground">Open Concerns</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-secondary">{stats?.open || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Pending resolution</p>
+              <p className="text-xs text-muted-foreground mt-1">Today</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-status-fixed/10 to-status-fixed/5 border-status-fixed/30">
+          <Card 
+            className="bg-gradient-to-br from-status-fixed/10 to-status-fixed/5 border-status-fixed/30 cursor-pointer hover:border-status-fixed/50 transition-all"
+            onClick={() => {
+              setFilterCategory(undefined);
+              setFilterHighAlertStaff(false);
+              setFilterStatus('fixed');
+              setFilterToday(true);
+              setSelectedView('complaints');
+            }}
+          >
             <CardHeader>
               <CardTitle className="text-sm text-muted-foreground">Resolved</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-status-fixed">{stats?.fixed || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Fixed</p>
+              <p className="text-xs text-muted-foreground mt-1">Today</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/30">
+          <Card 
+            className="bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/30 cursor-pointer hover:border-destructive/50 transition-all"
+            onClick={() => {
+              setFilterCategory(undefined);
+              setFilterHighAlertStaff(true);
+              setFilterStatus(undefined);
+              setFilterToday(true);
+              setSelectedView('complaints');
+            }}
+          >
             <CardHeader>
               <CardTitle className="text-sm text-muted-foreground">High Alert Staff</CardTitle>
             </CardHeader>
@@ -186,6 +232,8 @@ export default function BranchAdminDashboard() {
             onClick={() => {
               setFilterHighAlertStaff(true);
               setFilterCategory(undefined);
+              setFilterStatus(undefined);
+              setFilterToday(false);
               setSelectedView('complaints');
             }}
           >
@@ -219,6 +267,8 @@ export default function BranchAdminDashboard() {
             onClick={() => {
               setFilterCategory(undefined);
               setFilterHighAlertStaff(false);
+              setFilterStatus(undefined);
+              setFilterToday(false);
               setSelectedView('complaints');
             }}
           >
@@ -242,6 +292,8 @@ export default function BranchAdminDashboard() {
                           e.stopPropagation();
                           setFilterCategory(category);
                           setFilterHighAlertStaff(false);
+                          setFilterStatus(undefined);
+                          setFilterToday(false);
                           setSelectedView('complaints');
                         }}
                       >
