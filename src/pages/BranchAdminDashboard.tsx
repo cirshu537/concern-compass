@@ -16,7 +16,7 @@ export default function BranchAdminDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { profile, signOut } = useAuth();
-  const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail'>('dashboard');
+  const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail' | 'staff-list' | 'student-list' | 'staff-profile' | 'student-profile'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
@@ -94,6 +94,150 @@ export default function BranchAdminDashboard() {
   };
 
   const renderContent = () => {
+    if (selectedView === 'staff-profile' && selectedStaffId) {
+      return (
+        <div>
+          <Button 
+            variant="default" 
+            onClick={() => setSelectedView('staff-list')}
+            className="mb-4"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back to Staff List
+          </Button>
+          <StaffProfile 
+            staffId={selectedStaffId}
+            onBack={() => setSelectedView('staff-list')}
+          />
+        </div>
+      );
+    }
+
+    if (selectedView === 'student-profile' && selectedStudentId) {
+      return (
+        <div>
+          <Button 
+            variant="default" 
+            onClick={() => setSelectedView('student-list')}
+            className="mb-4"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back to Student List
+          </Button>
+          <StudentProfile 
+            studentId={selectedStudentId}
+            onBack={() => setSelectedView('student-list')}
+          />
+        </div>
+      );
+    }
+
+    if (selectedView === 'staff-list') {
+      return (
+        <div>
+          <Button 
+            variant="default" 
+            onClick={() => setSelectedView('dashboard')}
+            className="mb-4"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl">All Staff and Trainers - {profile?.branch}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {stats?.allStaff && stats.allStaff.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {stats.allStaff.map((member: any) => (
+                    <Card 
+                      key={member.id} 
+                      className="cursor-pointer hover:border-primary/50 transition-all"
+                      onClick={() => {
+                        setSelectedStaffId(member.id);
+                        setSelectedView('staff-profile');
+                      }}
+                    >
+                      <CardContent className="pt-6">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold text-lg">{member.full_name}</h3>
+                            {member.high_alert && (
+                              <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">High Alert</span>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground capitalize">{member.role}</p>
+                          <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                            <span>Negatives: {member.negative_count_lifetime}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No staff or trainers found</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    if (selectedView === 'student-list') {
+      return (
+        <div>
+          <Button 
+            variant="default" 
+            onClick={() => setSelectedView('dashboard')}
+            className="mb-4"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl">All Students - {profile?.branch}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {stats?.allStudents && stats.allStudents.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {stats.allStudents.map((student: any) => (
+                    <Card 
+                      key={student.id} 
+                      className="cursor-pointer hover:border-secondary/50 transition-all"
+                      onClick={() => {
+                        setSelectedStudentId(student.id);
+                        setSelectedView('student-profile');
+                      }}
+                    >
+                      <CardContent className="pt-6">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold text-lg">{student.full_name}</h3>
+                            {student.banned_from_raise && (
+                              <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">Banned</span>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground capitalize">{student.student_type}</p>
+                          <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                            <span>Program: {student.program || 'N/A'}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No students found</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
     if (selectedView === 'detail' && selectedComplaintId) {
       return (
         <ComplaintDetails 
@@ -239,127 +383,42 @@ export default function BranchAdminDashboard() {
           </Card>
 
           <Card 
-            className="bg-card border-border hover:border-primary/50 transition-all"
+            className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group"
+            onClick={() => setSelectedView('staff-list')}
           >
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <AlertTriangle className="w-6 h-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-xl">All Staff and Trainers</CardTitle>
-                </div>
-                {selectedStaffId && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => setSelectedStaffId(null)}
-                  >
-                    <ChevronLeft className="w-4 h-4 mr-1" />
-                    Back to List
-                  </Button>
-                )}
+              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <AlertTriangle className="w-6 h-6 text-primary" />
               </div>
+              <CardTitle className="text-xl">All Staff and Trainers</CardTitle>
             </CardHeader>
             <CardContent>
-              {selectedStaffId ? (
-                <div className="min-h-[400px]">
-                  <StaffProfile 
-                    staffId={selectedStaffId}
-                    onBack={() => setSelectedStaffId(null)}
-                  />
-                </div>
-              ) : (
-                <>
-                  {stats?.allStaff && stats.allStaff.length > 0 ? (
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {stats.allStaff.map((member: any) => (
-                        <div 
-                          key={member.id} 
-                          className="flex items-center justify-between p-2 rounded-lg bg-muted/50 border border-border hover:bg-muted hover:border-primary/50 cursor-pointer transition-all"
-                          onClick={() => setSelectedStaffId(member.id)}
-                        >
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium">{member.full_name}</span>
-                            <span className="text-xs text-muted-foreground capitalize">{member.role}</span>
-                          </div>
-                          {member.high_alert && (
-                            <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">High Alert</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No staff or trainers found</p>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-4">All staff and trainers in {profile?.branch}</p>
-                </>
-              )}
+              <p className="text-sm text-muted-foreground">
+                View all staff and trainers in {profile?.branch}
+              </p>
+              <div className="mt-4 text-2xl font-bold text-primary">
+                {stats?.allStaff?.length || 0} Members
+              </div>
             </CardContent>
           </Card>
 
           <Card 
-            className="bg-card border-border hover:border-secondary/50 transition-all"
+            className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group"
+            onClick={() => setSelectedView('student-list')}
           >
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
-                    <BarChart3 className="w-6 h-6 text-secondary" />
-                  </div>
-                  <CardTitle className="text-xl">All Students</CardTitle>
-                </div>
-                {selectedStudentId && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => setSelectedStudentId(null)}
-                  >
-                    <ChevronLeft className="w-4 h-4 mr-1" />
-                    Back to List
-                  </Button>
-                )}
+              <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
+                <BarChart3 className="w-6 h-6 text-secondary" />
               </div>
+              <CardTitle className="text-xl">All Students</CardTitle>
             </CardHeader>
             <CardContent>
-              {selectedStudentId ? (
-                <div className="min-h-[400px]">
-                  <StudentProfile 
-                    studentId={selectedStudentId}
-                    onBack={() => setSelectedStudentId(null)}
-                  />
-                </div>
-              ) : (
-                <>
-                  {stats?.allStudents && stats.allStudents.length > 0 ? (
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {stats.allStudents.slice(0, 10).map((student: any) => (
-                        <div 
-                          key={student.id} 
-                          className="flex items-center justify-between p-2 rounded-lg bg-muted/50 border border-border hover:bg-muted hover:border-secondary/50 cursor-pointer transition-all"
-                          onClick={() => setSelectedStudentId(student.id)}
-                        >
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium">{student.full_name}</span>
-                            <span className="text-xs text-muted-foreground capitalize">{student.student_type}</span>
-                          </div>
-                          {student.banned_from_raise && (
-                            <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">Banned</span>
-                          )}
-                        </div>
-                      ))}
-                      {stats.allStudents.length > 10 && (
-                        <p className="text-xs text-muted-foreground text-center pt-2">
-                          +{stats.allStudents.length - 10} more students
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No students found</p>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-4">All students in {profile?.branch}</p>
-                </>
-              )}
+              <p className="text-sm text-muted-foreground">
+                View all students in {profile?.branch}
+              </p>
+              <div className="mt-4 text-2xl font-bold text-secondary">
+                {stats?.allStudents?.length || 0} Students
+              </div>
             </CardContent>
           </Card>
         </div>
