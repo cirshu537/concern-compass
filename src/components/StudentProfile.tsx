@@ -2,8 +2,20 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, AlertTriangle, Award, FileText, Ban } from 'lucide-react';
+import { ChevronLeft, AlertTriangle, Award, FileText, Ban, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from 'sonner';
 
 interface StudentProfileProps {
   studentId: string;
@@ -60,23 +72,64 @@ export function StudentProfile({ studentId, onBack }: StudentProfileProps) {
     c.status === 'logged' || c.status === 'noted' || c.status === 'in_process'
   ).length || 0;
 
+  const handleDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', studentId);
+
+      if (error) throw error;
+
+      toast.success('Profile deleted successfully');
+      onBack();
+    } catch (error) {
+      console.error('Error deleting profile:', error);
+      toast.error('Failed to delete profile');
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="bg-gradient-to-br from-secondary/10 to-secondary/5 border border-secondary/30 rounded-lg p-4">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="flex-1">
               <h3 className="text-2xl font-bold">{profile.full_name}</h3>
               <p className="text-sm text-muted-foreground mt-1 capitalize">
                 {profile.student_type} Student
               </p>
             </div>
-            {profile.banned_from_raise && (
-              <Badge variant="destructive" className="gap-1">
-                <Ban className="w-3 h-3" />
-                Banned from Raising
-              </Badge>
-            )}
+            <div className="flex items-center gap-2">
+              {profile.banned_from_raise && (
+                <Badge variant="destructive" className="gap-1">
+                  <Ban className="w-3 h-3" />
+                  Banned from Raising
+                </Badge>
+              )}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Profile</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete {profile.full_name}'s profile? This action cannot be undone and will remove all associated data.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="flex flex-col">
