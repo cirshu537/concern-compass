@@ -66,7 +66,7 @@ export default function BranchAdminDashboard() {
 
       const { data: students } = await supabase
         .from('profiles')
-        .select('id, full_name, email, student_type, banned_from_raise')
+        .select('id, full_name, email, student_type, banned_from_raise, program')
         .eq('branch', profile!.branch)
         .eq('role', 'student');
 
@@ -287,7 +287,7 @@ export default function BranchAdminDashboard() {
                           </div>
                           <p className="text-sm text-muted-foreground capitalize">{student.student_type}</p>
                           <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
-                            <span>Program: {student.program || 'N/A'}</span>
+                            <span>Program: {student.program || 'Not Assigned'}</span>
                           </div>
                         </div>
                       </CardContent>
