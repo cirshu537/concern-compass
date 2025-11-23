@@ -62,11 +62,6 @@ export function StaffProfile({ staffId, onBack }: StaffProfileProps) {
 
   return (
     <div className="space-y-6">
-      <Button variant="default" onClick={onBack}>
-        <ChevronLeft className="w-4 h-4 mr-2" />
-        Back
-      </Button>
-
       <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
         <CardHeader>
           <div className="flex items-center justify-between">
