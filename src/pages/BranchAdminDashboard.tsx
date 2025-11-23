@@ -133,6 +133,9 @@ export default function BranchAdminDashboard() {
     }
 
     if (selectedView === 'staff-list') {
+      const staffMembers = stats?.allStaff?.filter((m: any) => m.role === 'staff') || [];
+      const trainerMembers = stats?.allStaff?.filter((m: any) => m.role === 'trainer') || [];
+      
       return (
         <div>
           <Button 
@@ -143,44 +146,88 @@ export default function BranchAdminDashboard() {
             <ChevronLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">All Staff and Trainers - {profile?.branch}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {stats?.allStaff && stats.allStaff.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {stats.allStaff.map((member: any) => (
-                    <Card 
-                      key={member.id} 
-                      className="cursor-pointer hover:border-primary/50 transition-all"
-                      onClick={() => {
-                        setSelectedStaffId(member.id);
-                        setSelectedView('staff-profile');
-                      }}
-                    >
-                      <CardContent className="pt-6">
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-semibold text-lg">{member.full_name}</h3>
-                            {member.high_alert && (
-                              <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">High Alert</span>
-                            )}
+          
+          <div className="space-y-6">
+            {/* Staff Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl">Staff - {profile?.branch}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {staffMembers.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {staffMembers.map((member: any) => (
+                      <Card 
+                        key={member.id} 
+                        className="cursor-pointer hover:border-primary/50 transition-all"
+                        onClick={() => {
+                          setSelectedStaffId(member.id);
+                          setSelectedView('staff-profile');
+                        }}
+                      >
+                        <CardContent className="pt-6">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-lg">{member.full_name}</h3>
+                              {member.high_alert && (
+                                <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">High Alert</span>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground capitalize">{member.role}</p>
+                            <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                              <span>Negatives: {member.negative_count_lifetime}</span>
+                            </div>
                           </div>
-                          <p className="text-sm text-muted-foreground capitalize">{member.role}</p>
-                          <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
-                            <span>Negatives: {member.negative_count_lifetime}</span>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No staff members found</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Trainers Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl">Trainers - {profile?.branch}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {trainerMembers.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {trainerMembers.map((member: any) => (
+                      <Card 
+                        key={member.id} 
+                        className="cursor-pointer hover:border-primary/50 transition-all"
+                        onClick={() => {
+                          setSelectedStaffId(member.id);
+                          setSelectedView('staff-profile');
+                        }}
+                      >
+                        <CardContent className="pt-6">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-lg">{member.full_name}</h3>
+                              {member.high_alert && (
+                                <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">High Alert</span>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground capitalize">{member.role}</p>
+                            <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                              <span>Negatives: {member.negative_count_lifetime}</span>
+                            </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">No staff or trainers found</p>
-              )}
-            </CardContent>
-          </Card>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No trainers found</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       );
     }
