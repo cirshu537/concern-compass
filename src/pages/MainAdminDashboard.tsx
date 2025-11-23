@@ -257,9 +257,15 @@ export default function MainAdminDashboard() {
     if (selectedView === 'staff-list') {
       const onlineStaff = allStaffData?.allStaff?.filter((s: any) => s.branch === 'Online') || [];
       const exclusiveHandlers = allStaffData?.allStaff?.filter((s: any) => s.handles_exclusive) || [];
-      const otherStaff = allStaffData?.allStaff?.filter((s: any) => 
-        s.branch !== 'Online' && !s.handles_exclusive
-      ) || [];
+      
+      // Group staff by each BroCamp branch
+      const branches = ['Kochi', 'Calicut - Kakkanchery', 'Trivandrum'];
+      const staffByBranch = branches.reduce((acc, branch) => {
+        acc[branch] = allStaffData?.allStaff?.filter((s: any) => 
+          s.branch === branch && !s.handles_exclusive
+        ) || [];
+        return acc;
+      }, {} as Record<string, any[]>);
 
       return (
         <div>
@@ -390,59 +396,64 @@ export default function MainAdminDashboard() {
               </CardContent>
             </Card>
 
-            {/* Other Branch Staff and Trainers */}
-            {otherStaff.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-2xl flex items-center gap-2">
-                      <Building className="w-5 h-5" />
-                      Other Branches
-                    </CardTitle>
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="text-muted-foreground">Total:</span>
-                      <span className="font-bold text-xl">{otherStaff.length}</span>
+            {/* Individual BroCamp Branches */}
+            {branches.map((branchName) => {
+              const branchStaff = staffByBranch[branchName] || [];
+              if (branchStaff.length === 0) return null;
+              
+              return (
+                <Card key={branchName}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-2xl flex items-center gap-2">
+                        <Building className="w-5 h-5" />
+                        {branchName}
+                      </CardTitle>
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground">Total:</span>
+                        <span className="font-bold text-xl">{branchStaff.length}</span>
+                      </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {otherStaff.map((member: any) => (
-                      <Card 
-                        key={member.id} 
-                        className="cursor-pointer hover:border-primary/50 transition-all"
-                        onClick={() => {
-                          setSelectedStaffId(member.id);
-                          setSelectedView('staff-profile');
-                        }}
-                      >
-                        <CardContent className="pt-6">
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <h3 className="font-semibold text-lg">{member.full_name}</h3>
-                              {member.high_alert && (
-                                <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">High Alert</span>
-                              )}
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {branchStaff.map((member: any) => (
+                        <Card 
+                          key={member.id} 
+                          className="cursor-pointer hover:border-primary/50 transition-all"
+                          onClick={() => {
+                            setSelectedStaffId(member.id);
+                            setSelectedView('staff-profile');
+                          }}
+                        >
+                          <CardContent className="pt-6">
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <h3 className="font-semibold text-lg">{member.full_name}</h3>
+                                {member.high_alert && (
+                                  <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">High Alert</span>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground capitalize">{member.role}</p>
+                              <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                                <span>Credits: {member.credits ?? 0}</span>
+                                <span>Negatives: {member.negative_count_lifetime ?? 0}</span>
+                                {member.role === 'trainer' && (
+                                  <span>Concerns: {allStaffData?.trainerComplaintCounts?.[member.id] || 0}</span>
+                                )}
+                                {member.role === 'staff' && (
+                                  <span>Concerns: {allStaffData?.staffComplaintCounts?.[member.id] || 0}</span>
+                                )}
+                              </div>
                             </div>
-                            <p className="text-sm text-muted-foreground capitalize">{member.role} • {member.branch}</p>
-                            <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
-                              <span>Credits: {member.credits ?? 0}</span>
-                              <span>Negatives: {member.negative_count_lifetime ?? 0}</span>
-                              {member.role === 'trainer' && (
-                                <span>Concerns: {allStaffData?.trainerComplaintCounts?.[member.id] || 0}</span>
-                              )}
-                              {member.role === 'staff' && (
-                                <span>Concerns: {allStaffData?.staffComplaintCounts?.[member.id] || 0}</span>
-                              )}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       );
