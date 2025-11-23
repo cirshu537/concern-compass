@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,6 +16,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
 import { toast } from 'sonner';
 
 interface StudentProfileProps {
@@ -23,6 +31,8 @@ interface StudentProfileProps {
 }
 
 export function StudentProfile({ studentId, onBack }: StudentProfileProps) {
+  const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
+  
   const { data: profile } = useQuery({
     queryKey: ['student-profile', studentId],
     queryFn: async () => {
@@ -212,7 +222,11 @@ export function StudentProfile({ studentId, onBack }: StudentProfileProps) {
           </div>
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {complaints.map((complaint: any) => (
-              <div key={complaint.id} className="p-2 rounded-lg bg-muted/50 border border-border">
+              <div 
+                key={complaint.id} 
+                className="p-2 rounded-lg bg-muted/50 border border-border hover:bg-muted cursor-pointer transition-colors"
+                onClick={() => setSelectedComplaintId(complaint.id)}
+              >
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
                     <p className="text-xs font-medium">{complaint.title}</p>
@@ -232,6 +246,20 @@ export function StudentProfile({ studentId, onBack }: StudentProfileProps) {
           </div>
         </div>
       )}
+
+      <Dialog open={!!selectedComplaintId} onOpenChange={(open) => !open && setSelectedComplaintId(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Complaint Details</DialogTitle>
+          </DialogHeader>
+          {selectedComplaintId && (
+            <ComplaintDetails 
+              complaintId={selectedComplaintId}
+              onBack={() => setSelectedComplaintId(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
