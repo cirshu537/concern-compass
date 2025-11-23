@@ -8,17 +8,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ComplaintsList } from '@/components/complaints/ComplaintsList';
 import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
-import { FileText, MessageSquare, Building, LogOut, ChevronLeft, Calendar, BookOpen } from 'lucide-react';
+import { StaffProfile } from '@/components/StaffProfile';
+import { FileText, MessageSquare, Building, LogOut, ChevronLeft, Calendar, BookOpen, Users } from 'lucide-react';
 import { DashboardNav } from '@/components/DashboardNav';
 
 export default function MainAdminDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { profile, signOut } = useAuth();
-  const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail' | 'branch' | 'filtered'>('dashboard');
+  const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail' | 'branch' | 'filtered' | 'staff-list' | 'staff-profile'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<'total' | 'open' | 'fixed' | 'brocamp' | 'online' | null>(null);
+  const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime'>('today');
 
   // Redirect if not main admin
@@ -173,12 +175,279 @@ export default function MainAdminDashboard() {
     },
   });
 
+  // Fetch all staff and trainers
+  const { data: allStaffData } = useQuery({
+    queryKey: ['all-staff-trainers'],
+    queryFn: async () => {
+      const { data: staff } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('role', ['staff', 'trainer'])
+        .order('branch', { ascending: true });
+
+      // Get complaint counts for trainers
+      const trainerIds = staff?.filter(s => s.role === 'trainer').map(s => s.id) || [];
+      let trainerComplaintCounts: Record<string, number> = {};
+      
+      if (trainerIds.length > 0) {
+        const { data: trainerComplaints } = await supabase
+          .from('complaints')
+          .select('assigned_trainer_id')
+          .in('assigned_trainer_id', trainerIds);
+
+        trainerComplaintCounts = trainerComplaints?.reduce((acc, c) => {
+          if (c.assigned_trainer_id) {
+            acc[c.assigned_trainer_id] = (acc[c.assigned_trainer_id] || 0) + 1;
+          }
+          return acc;
+        }, {} as Record<string, number>) || {};
+      }
+
+      // Get complaint counts for staff
+      const staffIds = staff?.filter(s => s.role === 'staff').map(s => s.id) || [];
+      let staffComplaintCounts: Record<string, number> = {};
+      
+      if (staffIds.length > 0) {
+        const { data: staffComplaints } = await supabase
+          .from('complaints')
+          .select('assigned_staff_id')
+          .in('assigned_staff_id', staffIds);
+
+        staffComplaintCounts = staffComplaints?.reduce((acc, c) => {
+          if (c.assigned_staff_id) {
+            acc[c.assigned_staff_id] = (acc[c.assigned_staff_id] || 0) + 1;
+          }
+          return acc;
+        }, {} as Record<string, number>) || {};
+      }
+
+      return {
+        allStaff: staff || [],
+        trainerComplaintCounts,
+        staffComplaintCounts,
+      };
+    },
+  });
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
   };
 
   const renderContent = () => {
+    if (selectedView === 'staff-profile' && selectedStaffId) {
+      return (
+        <div>
+          <Button 
+            variant="default" 
+            onClick={() => setSelectedView('staff-list')}
+            className="mb-4"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back to Staff List
+          </Button>
+          <StaffProfile 
+            staffId={selectedStaffId}
+            onBack={() => setSelectedView('staff-list')}
+          />
+        </div>
+      );
+    }
+
+    if (selectedView === 'staff-list') {
+      const onlineStaff = allStaffData?.allStaff?.filter((s: any) => s.branch === 'Online') || [];
+      const exclusiveHandlers = allStaffData?.allStaff?.filter((s: any) => s.handles_exclusive) || [];
+      const otherStaff = allStaffData?.allStaff?.filter((s: any) => 
+        s.branch !== 'Online' && !s.handles_exclusive
+      ) || [];
+
+      return (
+        <div>
+          <Button 
+            variant="default" 
+            onClick={() => setSelectedView('dashboard')}
+            className="mb-4"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold mb-2">All Branch Staff and Trainers</h2>
+            <p className="text-muted-foreground">Complete overview of all team members across branches</p>
+          </div>
+          
+          <div className="space-y-6">
+            {/* Online Branch Staff and Trainers */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    <Building className="w-5 h-5 text-primary" />
+                    Online Branch
+                  </CardTitle>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">Total:</span>
+                    <span className="font-bold text-xl text-primary">{onlineStaff.length}</span>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {onlineStaff.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {onlineStaff.map((member: any) => (
+                      <Card 
+                        key={member.id} 
+                        className="cursor-pointer hover:border-primary/50 transition-all"
+                        onClick={() => {
+                          setSelectedStaffId(member.id);
+                          setSelectedView('staff-profile');
+                        }}
+                      >
+                        <CardContent className="pt-6">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-lg">{member.full_name}</h3>
+                              {member.high_alert && (
+                                <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">High Alert</span>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground capitalize">{member.role}</p>
+                            <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                              <span>Credits: {member.credits ?? 0}</span>
+                              <span>Negatives: {member.negative_count_lifetime ?? 0}</span>
+                              {member.role === 'trainer' && (
+                                <span>Concerns: {allStaffData?.trainerComplaintCounts?.[member.id] || 0}</span>
+                              )}
+                              {member.role === 'staff' && (
+                                <span>Concerns: {allStaffData?.staffComplaintCounts?.[member.id] || 0}</span>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No online staff or trainers found</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Exclusive Handlers */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    <Users className="w-5 h-5 text-secondary" />
+                    Exclusive Handlers
+                  </CardTitle>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">Total:</span>
+                    <span className="font-bold text-xl text-secondary">{exclusiveHandlers.length}</span>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {exclusiveHandlers.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {exclusiveHandlers.map((member: any) => (
+                      <Card 
+                        key={member.id} 
+                        className="cursor-pointer hover:border-secondary/50 transition-all"
+                        onClick={() => {
+                          setSelectedStaffId(member.id);
+                          setSelectedView('staff-profile');
+                        }}
+                      >
+                        <CardContent className="pt-6">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-lg">{member.full_name}</h3>
+                              {member.high_alert && (
+                                <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">High Alert</span>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground capitalize">{member.role} • {member.branch}</p>
+                            <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                              <span>Credits: {member.credits ?? 0}</span>
+                              <span>Negatives: {member.negative_count_lifetime ?? 0}</span>
+                              {member.role === 'trainer' && (
+                                <span>Concerns: {allStaffData?.trainerComplaintCounts?.[member.id] || 0}</span>
+                              )}
+                              {member.role === 'staff' && (
+                                <span>Concerns: {allStaffData?.staffComplaintCounts?.[member.id] || 0}</span>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No exclusive handlers found</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Other Branch Staff and Trainers */}
+            {otherStaff.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-2xl flex items-center gap-2">
+                      <Building className="w-5 h-5" />
+                      Other Branches
+                    </CardTitle>
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-muted-foreground">Total:</span>
+                      <span className="font-bold text-xl">{otherStaff.length}</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {otherStaff.map((member: any) => (
+                      <Card 
+                        key={member.id} 
+                        className="cursor-pointer hover:border-primary/50 transition-all"
+                        onClick={() => {
+                          setSelectedStaffId(member.id);
+                          setSelectedView('staff-profile');
+                        }}
+                      >
+                        <CardContent className="pt-6">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-lg">{member.full_name}</h3>
+                              {member.high_alert && (
+                                <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">High Alert</span>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground capitalize">{member.role} • {member.branch}</p>
+                            <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                              <span>Credits: {member.credits ?? 0}</span>
+                              <span>Negatives: {member.negative_count_lifetime ?? 0}</span>
+                              {member.role === 'trainer' && (
+                                <span>Concerns: {allStaffData?.trainerComplaintCounts?.[member.id] || 0}</span>
+                              )}
+                              {member.role === 'staff' && (
+                                <span>Concerns: {allStaffData?.staffComplaintCounts?.[member.id] || 0}</span>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      );
+    }
+
     if (selectedView === 'detail' && selectedComplaintId) {
           return (
             <ComplaintDetails 
@@ -565,17 +834,17 @@ export default function MainAdminDashboard() {
 
           <Card 
             className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group"
-            onClick={() => navigate('/chat')}
+            onClick={() => setSelectedView('staff-list')}
           >
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
-                <MessageSquare className="w-6 h-6 text-secondary" />
+                <Users className="w-6 h-6 text-secondary" />
               </div>
-              <CardTitle className="text-xl">Branch Communications</CardTitle>
+              <CardTitle className="text-xl">All Branch Staff and Trainers</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Chat with branch administrators
+                View all team members • Total: {allStaffData?.allStaff?.length || 0}
               </p>
             </CardContent>
           </Card>
