@@ -263,10 +263,12 @@ export default function BranchAdminDashboard() {
             </CardHeader>
             <CardContent>
               {selectedStaffId ? (
-                <StaffProfile 
-                  staffId={selectedStaffId}
-                  onBack={() => setSelectedStaffId(null)}
-                />
+                <div className="min-h-[400px]">
+                  <StaffProfile 
+                    staffId={selectedStaffId}
+                    onBack={() => setSelectedStaffId(null)}
+                  />
+                </div>
               ) : (
                 <>
                   {stats?.allStaff && stats.allStaff.length > 0 ? (
@@ -321,10 +323,12 @@ export default function BranchAdminDashboard() {
             </CardHeader>
             <CardContent>
               {selectedStudentId ? (
-                <StudentProfile 
-                  studentId={selectedStudentId}
-                  onBack={() => setSelectedStudentId(null)}
-                />
+                <div className="min-h-[400px]">
+                  <StudentProfile 
+                    studentId={selectedStudentId}
+                    onBack={() => setSelectedStudentId(null)}
+                  />
+                </div>
               ) : (
                 <>
                   {stats?.allStudents && stats.allStudents.length > 0 ? (
