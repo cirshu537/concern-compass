@@ -218,7 +218,7 @@ export default function BranchAdminDashboard() {
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                 <FileText className="w-6 h-6 text-primary" />
               </div>
-              <CardTitle className="text-xl">Manage Complaints</CardTitle>
+              <CardTitle className="text-xl">All Complaints</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
