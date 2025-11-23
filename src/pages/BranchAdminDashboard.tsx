@@ -443,9 +443,6 @@ export default function BranchAdminDashboard() {
               <p className="text-sm text-muted-foreground">
                 View all staff and trainers in {profile?.branch}
               </p>
-              <div className="mt-4 text-2xl font-bold text-primary">
-                {stats?.allStaff?.length || 0} Members
-              </div>
             </CardContent>
           </Card>
 
@@ -463,9 +460,6 @@ export default function BranchAdminDashboard() {
               <p className="text-sm text-muted-foreground">
                 View all students in {profile?.branch}
               </p>
-              <div className="mt-4 text-2xl font-bold text-secondary">
-                {stats?.allStudents?.length || 0} Students
-              </div>
             </CardContent>
           </Card>
         </div>
