@@ -151,7 +151,13 @@ export default function BranchAdminDashboard() {
             {/* Staff Section */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">Staff - {profile?.branch} ({staffMembers.length})</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-2xl">Staff - {profile?.branch}</CardTitle>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">Total:</span>
+                    <span className="font-bold text-xl text-primary">{staffMembers.length}</span>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {staffMembers.length > 0 ? (
@@ -191,7 +197,13 @@ export default function BranchAdminDashboard() {
             {/* Trainers Section */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">Trainers - {profile?.branch} ({trainerMembers.length})</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-2xl">Trainers - {profile?.branch}</CardTitle>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">Total:</span>
+                    <span className="font-bold text-xl text-primary">{trainerMembers.length}</span>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {trainerMembers.length > 0 ? (
@@ -245,7 +257,13 @@ export default function BranchAdminDashboard() {
           </Button>
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">All Students - {profile?.branch} ({stats?.allStudents?.length || 0})</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-2xl">All Students - {profile?.branch}</CardTitle>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-muted-foreground">Total:</span>
+                  <span className="font-bold text-xl text-secondary">{stats?.allStudents?.length || 0}</span>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               {stats?.allStudents && stats.allStudents.length > 0 ? (
