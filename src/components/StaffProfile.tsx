@@ -61,12 +61,12 @@ export function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   ).length || 0;
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
-        <CardHeader>
+    <div className="space-y-4">
+      <div className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/30 rounded-lg p-4">
+        <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-2xl">{profile.full_name}</CardTitle>
+              <h3 className="text-2xl font-bold">{profile.full_name}</h3>
               <p className="text-sm text-muted-foreground mt-1 capitalize">{profile.role}</p>
             </div>
             {profile.high_alert && (
@@ -76,8 +76,6 @@ export function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               </Badge>
             )}
           </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground">Email</span>
@@ -99,100 +97,77 @@ export function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               <span className="text-sm font-medium">{profile.negative_count_lifetime}</span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Total Assigned</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-primary">{complaints?.length || 0}</div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="p-3 rounded-lg bg-muted/50 border border-border">
+          <p className="text-xs text-muted-foreground mb-1">Total Assigned</p>
+          <p className="text-2xl font-bold text-primary">{complaints?.length || 0}</p>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Resolved</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-status-fixed">{resolvedComplaints}</div>
-          </CardContent>
-        </Card>
+        <div className="p-3 rounded-lg bg-muted/50 border border-border">
+          <p className="text-xs text-muted-foreground mb-1">Resolved</p>
+          <p className="text-2xl font-bold text-status-fixed">{resolvedComplaints}</p>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Open</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-secondary">{openComplaints}</div>
-          </CardContent>
-        </Card>
+        <div className="p-3 rounded-lg bg-muted/50 border border-border">
+          <p className="text-xs text-muted-foreground mb-1">Open</p>
+          <p className="text-2xl font-bold text-secondary">{openComplaints}</p>
+        </div>
       </div>
 
       {negativeEvents && negativeEvents.length > 0 && (
-        <Card className="border-destructive/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-destructive" />
-              Negative Reviews ({negativeEvents.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {negativeEvents.map((event: any) => (
-                <div key={event.id} className="p-3 rounded-lg bg-destructive/5 border border-destructive/20">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">{event.complaints?.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(event.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <Badge variant="destructive" className="text-xs">Negative</Badge>
+        <div className="border border-destructive/50 rounded-lg p-4 bg-destructive/5">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle className="w-4 h-4 text-destructive" />
+            <h4 className="font-semibold text-sm">Negative Reviews ({negativeEvents.length})</h4>
+          </div>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {negativeEvents.map((event: any) => (
+              <div key={event.id} className="p-2 rounded-lg bg-background/50 border border-destructive/20">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium">{event.complaints?.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(event.created_at).toLocaleDateString()}
+                    </p>
                   </div>
+                  <Badge variant="destructive" className="text-xs h-5">Negative</Badge>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {complaints && complaints.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              Assigned Complaints ({complaints.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {complaints.map((complaint: any) => (
-                <div key={complaint.id} className="p-3 rounded-lg bg-muted/50 border border-border">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">{complaint.title}</p>
-                      <p className="text-xs text-muted-foreground capitalize">
-                        {complaint.category.replace(/_/g, ' ')}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(complaint.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <Badge variant={
-                      complaint.status === 'fixed' ? 'default' : 
-                      complaint.status === 'in_process' ? 'secondary' : 'outline'
-                    }>
-                      {complaint.status.replace(/_/g, ' ')}
-                    </Badge>
+        <div className="border border-border rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <FileText className="w-4 h-4" />
+            <h4 className="font-semibold text-sm">Assigned Complaints ({complaints.length})</h4>
+          </div>
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {complaints.map((complaint: any) => (
+              <div key={complaint.id} className="p-2 rounded-lg bg-muted/50 border border-border">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium">{complaint.title}</p>
+                    <p className="text-xs text-muted-foreground capitalize">
+                      {complaint.category.replace(/_/g, ' ')} • {new Date(complaint.created_at).toLocaleDateString()}
+                    </p>
                   </div>
+                  <Badge className="text-xs h-5" variant={
+                    complaint.status === 'fixed' ? 'default' : 
+                    complaint.status === 'in_process' ? 'secondary' : 'outline'
+                  }>
+                    {complaint.status.replace(/_/g, ' ')}
+                  </Badge>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
