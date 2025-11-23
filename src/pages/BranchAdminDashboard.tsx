@@ -72,17 +72,21 @@ export default function BranchAdminDashboard() {
 
       // Get complaint counts for trainers
       const trainerIds = staff?.filter(s => s.role === 'trainer').map(s => s.id) || [];
-      const { data: trainerComplaints } = await supabase
-        .from('complaints')
-        .select('assigned_trainer_id')
-        .in('assigned_trainer_id', trainerIds);
+      let trainerComplaintCounts: Record<string, number> = {};
+      
+      if (trainerIds.length > 0) {
+        const { data: trainerComplaints } = await supabase
+          .from('complaints')
+          .select('assigned_trainer_id')
+          .in('assigned_trainer_id', trainerIds);
 
-      const trainerComplaintCounts = trainerComplaints?.reduce((acc, c) => {
-        if (c.assigned_trainer_id) {
-          acc[c.assigned_trainer_id] = (acc[c.assigned_trainer_id] || 0) + 1;
-        }
-        return acc;
-      }, {} as Record<string, number>) || {};
+        trainerComplaintCounts = trainerComplaints?.reduce((acc, c) => {
+          if (c.assigned_trainer_id) {
+            acc[c.assigned_trainer_id] = (acc[c.assigned_trainer_id] || 0) + 1;
+          }
+          return acc;
+        }, {} as Record<string, number>) || {};
+      }
 
       // Calculate category breakdown
       const categoryBreakdown = complaints?.reduce((acc, c) => {
