@@ -97,6 +97,17 @@ export default function AdminDocs() {
                 <li>Reassign if staff member is overwhelmed</li>
               </ul>
 
+              <p className="mt-4"><strong className="text-foreground">Understanding Trainer Workflow:</strong></p>
+              <div className="bg-secondary/10 p-3 rounded-lg border border-secondary/20 mt-2">
+                <ul className="list-disc list-inside space-y-2 ml-4">
+                  <li><strong>Logged:</strong> Trainer-related concerns start here (viewable in "Student Concerns")</li>
+                  <li><strong>Noted:</strong> After trainer replies, automatically changes to this status</li>
+                  <li><strong>"Handling Concerns":</strong> Trainers track their replied concerns in this section</li>
+                  <li>Trainers do NOT rate students or mark as Fixed/Cancelled</li>
+                  <li>One-way feedback: Students give feedback, trainers provide responses only</li>
+                </ul>
+              </div>
+
               <p className="mt-4"><strong className="text-foreground">Monitoring Staff Performance:</strong></p>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>View staff credits and ratings</li>
