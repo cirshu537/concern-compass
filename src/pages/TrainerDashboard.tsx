@@ -88,6 +88,22 @@ export default function TrainerDashboard() {
     },
   });
 
+  const { data: assignedComplaints } = useQuery({
+    queryKey: ['assigned-complaints', profile?.id],
+    enabled: !!profile?.id && !profile?.handles_exclusive,
+    queryFn: async () => {
+      // Fetch complaints assigned to this trainer
+      const { data, error } = await supabase
+        .from('complaints')
+        .select('*')
+        .eq('assigned_trainer_id', profile!.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
@@ -215,6 +231,61 @@ export default function TrainerDashboard() {
             <Card>
               <CardContent className="py-8 text-center">
                 <p className="text-muted-foreground">No concerns found</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      );
+    }
+
+    // Regular Trainer Assigned View
+    if (selectedView === 'assigned') {
+      return (
+        <div>
+          <Button 
+            variant="default" 
+            onClick={() => setSelectedView('dashboard')}
+            className="mb-4"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-2">Assigned Concerns</h2>
+            <p className="text-muted-foreground">
+              Concerns assigned to you for resolution
+            </p>
+          </div>
+          {assignedComplaints && assignedComplaints.length > 0 ? (
+            <div className="space-y-4">
+              {assignedComplaints.map((complaint) => (
+                <Card 
+                  key={complaint.id}
+                  className="cursor-pointer hover:border-primary/50 transition-all"
+                  onClick={() => {
+                    setPreviousView('assigned');
+                    setSelectedComplaintId(complaint.id);
+                    setSelectedView('detail');
+                  }}
+                >
+                  <CardHeader>
+                    <CardTitle>{complaint.title}</CardTitle>
+                    <CardDescription>
+                      {new Date(complaint.created_at).toLocaleDateString()} • Status: {complaint.status}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {complaint.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <p className="text-muted-foreground">No assigned concerns</p>
               </CardContent>
             </Card>
           )}
@@ -361,22 +432,35 @@ export default function TrainerDashboard() {
             </Card>
 
             <Card 
-              className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group"
-              onClick={() => {
-                // Show concerns assigned to this trainer
-                navigate('/trainer/dashboard?view=complaints');
-              }}
+              className="bg-card border-border hover:border-secondary/50 transition-all cursor-pointer group relative"
+              onClick={() => setSelectedView('assigned')}
             >
               <CardHeader>
                 <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
                   <FileText className="w-6 h-6 text-secondary" />
                 </div>
-                <CardTitle className="text-xl">Assigned Concerns</CardTitle>
-                <CardDescription>Concerns assigned to you</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl">Assigned Concerns</CardTitle>
+                    <CardDescription>Concerns assigned to you</CardDescription>
+                  </div>
+                  {assignedComplaints?.filter(c => c.status === 'in_process').length ? (
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive"></span>
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
               </CardHeader>
               <CardContent>
+                <div className="text-3xl font-bold text-secondary mb-2">
+                  {assignedComplaints?.length || 0}
+                </div>
                 <p className="text-sm text-muted-foreground">
-                  View and manage trainer-related concerns you need to address
+                  View and manage concerns you need to address
+                  {assignedComplaints?.filter(c => c.status === 'in_process').length ? ` (${assignedComplaints.filter(c => c.status === 'in_process').length} in progress)` : ''}
                 </p>
               </CardContent>
             </Card>
