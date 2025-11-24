@@ -20,7 +20,7 @@ export default function MainAdminDashboard() {
   const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail' | 'branch' | 'filtered' | 'staff-list' | 'staff-profile' | 'student-list' | 'student-profile'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState<'total' | 'open' | 'fixed' | 'brocamp' | 'online' | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<'total' | 'open' | 'fixed' | 'brocamp' | 'online' | 'cancelled' | 'exclusive' | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime'>('today');
@@ -92,6 +92,8 @@ export default function MainAdminDashboard() {
         fixed: complaints?.filter(c => c.status === 'fixed').length || 0,
         brocamp: complaints?.filter(c => c.student_type === 'brocamp').length || 0,
         online: complaints?.filter(c => c.branch === 'Online').length || 0,
+        cancelled: complaints?.filter(c => c.status === 'cancelled').length || 0,
+        exclusive: complaints?.filter(c => c.student_type === 'exclusive').length || 0,
       };
     },
   });
@@ -154,6 +156,10 @@ export default function MainAdminDashboard() {
         query = query.eq('student_type', 'brocamp');
       } else if (selectedFilter === 'online') {
         query = query.eq('branch', 'Online');
+      } else if (selectedFilter === 'cancelled') {
+        query = query.eq('status', 'cancelled');
+      } else if (selectedFilter === 'exclusive') {
+        query = query.eq('student_type', 'exclusive');
       }
 
       const { data } = await query;
@@ -620,6 +626,8 @@ export default function MainAdminDashboard() {
         fixed: 'Fixed Concerns',
         brocamp: 'BroCamp Concerns',
         online: 'Online Concerns',
+        cancelled: 'Cancelled Concerns',
+        exclusive: 'Exclusive Member Concerns',
       };
 
       return (
@@ -831,7 +839,7 @@ export default function MainAdminDashboard() {
           <p className="text-muted-foreground">Monitor all branches and manage the entire system</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-4 mb-8">
           <Card 
             className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 cursor-pointer hover:border-primary/50 transition-all group"
             onClick={() => {
@@ -908,6 +916,38 @@ export default function MainAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-blue-500 group-hover:scale-105 transition-transform">{stats?.online || 0}</div>
+              <p className="text-xs text-muted-foreground mt-1">Today</p>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="bg-gradient-to-br from-status-cancelled/10 to-status-cancelled/5 border-status-cancelled/30 cursor-pointer hover:border-status-cancelled/50 transition-all group"
+            onClick={() => {
+              setSelectedFilter('cancelled');
+              setSelectedView('filtered');
+            }}
+          >
+            <CardHeader>
+              <CardTitle className="text-sm text-muted-foreground">Cancelled</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-status-cancelled group-hover:scale-105 transition-transform">{stats?.cancelled || 0}</div>
+              <p className="text-xs text-muted-foreground mt-1">Today</p>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/30 cursor-pointer hover:border-purple-500/50 transition-all group"
+            onClick={() => {
+              setSelectedFilter('exclusive');
+              setSelectedView('filtered');
+            }}
+          >
+            <CardHeader>
+              <CardTitle className="text-sm text-muted-foreground">Exclusive</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-purple-500 group-hover:scale-105 transition-transform">{stats?.exclusive || 0}</div>
               <p className="text-xs text-muted-foreground mt-1">Today</p>
             </CardContent>
           </Card>
