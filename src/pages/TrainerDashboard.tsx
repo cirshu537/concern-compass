@@ -88,15 +88,17 @@ export default function TrainerDashboard() {
     },
   });
 
-  const { data: assignedComplaints } = useQuery({
-    queryKey: ['assigned-complaints', profile?.id],
-    enabled: !!profile?.id && !profile?.handles_exclusive,
+  const { data: notedComplaints } = useQuery({
+    queryKey: ['noted-complaints', profile?.branch],
+    enabled: !!profile?.branch && !profile?.handles_exclusive,
     queryFn: async () => {
-      // Fetch complaints assigned to this trainer
+      // Fetch trainer-related complaints that have been noted (replied to)
       const { data, error } = await supabase
         .from('complaints')
         .select('*')
-        .eq('assigned_trainer_id', profile!.id)
+        .eq('category', 'trainer_related')
+        .eq('branch', profile!.branch)
+        .eq('status', 'noted')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -238,7 +240,7 @@ export default function TrainerDashboard() {
       );
     }
 
-    // Regular Trainer Assigned View
+    // Regular Trainer Handling View (Noted concerns)
     if (selectedView === 'assigned') {
       return (
         <div>
@@ -251,14 +253,14 @@ export default function TrainerDashboard() {
             Back to Dashboard
           </Button>
           <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-2">Assigned Concerns</h2>
+            <h2 className="text-2xl font-bold mb-2">Handling Concerns</h2>
             <p className="text-muted-foreground">
-              Concerns assigned to you for resolution
+              Concerns you have replied to and are handling
             </p>
           </div>
-          {assignedComplaints && assignedComplaints.length > 0 ? (
+          {notedComplaints && notedComplaints.length > 0 ? (
             <div className="space-y-4">
-              {assignedComplaints.map((complaint) => (
+              {notedComplaints.map((complaint) => (
                 <Card 
                   key={complaint.id}
                   className="cursor-pointer hover:border-primary/50 transition-all"
@@ -285,7 +287,7 @@ export default function TrainerDashboard() {
           ) : (
             <Card>
               <CardContent className="py-8 text-center">
-                <p className="text-muted-foreground">No assigned concerns</p>
+                <p className="text-muted-foreground">No handled concerns yet</p>
               </CardContent>
             </Card>
           )}
@@ -439,28 +441,17 @@ export default function TrainerDashboard() {
                 <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
                   <FileText className="w-6 h-6 text-secondary" />
                 </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-xl">Assigned Concerns</CardTitle>
-                    <CardDescription>Concerns assigned to you</CardDescription>
-                  </div>
-                  {assignedComplaints?.filter(c => c.status === 'in_process').length ? (
-                    <div className="flex items-center gap-2">
-                      <span className="relative flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive"></span>
-                      </span>
-                    </div>
-                  ) : null}
+                <div>
+                  <CardTitle className="text-xl">Handling Concerns</CardTitle>
+                  <CardDescription>Concerns you've replied to</CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-secondary mb-2">
-                  {assignedComplaints?.length || 0}
+                  {notedComplaints?.length || 0}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  View and manage concerns you need to address
-                  {assignedComplaints?.filter(c => c.status === 'in_process').length ? ` (${assignedComplaints.filter(c => c.status === 'in_process').length} in progress)` : ''}
+                  View concerns you are actively handling
                 </p>
               </CardContent>
             </Card>
