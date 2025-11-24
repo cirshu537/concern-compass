@@ -25,6 +25,12 @@ export default function TrainerDocs() {
           <p className="text-muted-foreground">Complete guide to managing trainer-related concerns</p>
         </div>
 
+        <div className="bg-gradient-to-br from-primary/10 to-secondary/10 border-l-4 border-primary p-6 rounded-lg mb-8">
+          <p className="text-foreground leading-relaxed">
+            The Brocamp Student Concern System is built to give every student a safe, anonymous, and respectful space to share their concerns. Unlike normal complaint apps, this system focuses on human behavior — encouraging kindness, responsibility, and honest communication between students, staff, and trainers. With smart credit scoring, fair negative tracking, and transparent branch-level monitoring, it ensures issues are handled quickly while also improving the culture inside Brocamp. This is not just a complaint tool — it's a system designed to make the entire learning environment better, one concern at a time.
+          </p>
+        </div>
+
         <div className="space-y-6">
           <Card className="bg-card border-border">
             <CardHeader>
