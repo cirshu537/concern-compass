@@ -59,10 +59,11 @@ export default function TrainerDocs() {
               <p><strong className="text-foreground">Workflow Overview:</strong></p>
               <ol className="list-decimal list-inside space-y-2 ml-4">
                 <li><strong>Notification:</strong> You'll be notified when a trainer-related concern is raised</li>
-                <li><strong>Review:</strong> Access "Student Concerns" on your dashboard to view details</li>
+                <li><strong>Review:</strong> Access "Student Concerns" on your dashboard to view new concerns</li>
                 <li><strong>Student Identity:</strong> Protected - you cannot see who raised the concern</li>
                 <li><strong>Respond:</strong> Provide thoughtful, professional response addressing the issue</li>
-                <li><strong>Auto-Fix:</strong> When you submit your reply, concern is automatically marked as Fixed</li>
+                <li><strong>Status Change:</strong> When you submit your reply, concern is automatically marked as Noted</li>
+                <li><strong>Track:</strong> View your replied concerns in "Handling Concerns" section</li>
               </ol>
               <p className="mt-4 bg-secondary/10 p-3 rounded-lg border border-secondary/20">
                 <strong className="text-foreground">Important:</strong> Your reply is visible to the student in the Reviews section, but students CANNOT rate or review your response back (no positive/negative/neutral buttons). Trainers also do NOT rate students - you only provide text explanations. This ensures fair, one-way feedback focused on improvement.
@@ -73,24 +74,39 @@ export default function TrainerDocs() {
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-status-fixed" />
-                Auto-Fix System
+                <CheckCircle className="w-5 h-5 text-status-noted" />
+                Dashboard Sections
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-muted-foreground">
-              <p><strong className="text-foreground">How It Works:</strong></p>
+              <p><strong className="text-foreground">Your Dashboard Has Two Main Sections:</strong></p>
+              
+              <div className="bg-status-logged/10 p-3 rounded-lg border border-status-logged/20 mt-3">
+                <p className="font-semibold text-foreground">Student Concerns (New & Pending)</p>
+                <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
+                  <li>Shows trainer-related concerns in "logged" status</li>
+                  <li>These are new concerns waiting for your response</li>
+                  <li>Red dot indicates count of pending concerns</li>
+                  <li>Click to view and reply to these concerns</li>
+                </ul>
+              </div>
+
+              <div className="bg-status-noted/10 p-3 rounded-lg border border-status-noted/20 mt-3">
+                <p className="font-semibold text-foreground">Handling Concerns (Replied)</p>
+                <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
+                  <li>Shows concerns in "noted" status</li>
+                  <li>These are concerns you've already replied to</li>
+                  <li>System automatically moves concerns here after you reply</li>
+                  <li>Track and review your past responses</li>
+                </ul>
+              </div>
+
+              <p className="mt-4"><strong className="text-foreground">Status Flow:</strong></p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>When you submit a reply to a trainer-related concern, it's automatically marked as Fixed</li>
-                <li>No manual status update needed</li>
-                <li>Student receives notification of your response</li>
-                <li>Concern appears in your "Resolved" list</li>
-              </ul>
-              <p className="mt-4"><strong className="text-foreground">Why This System?</strong></p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>Streamlines the resolution process</li>
-                <li>Ensures students get timely feedback</li>
-                <li>Recognizes that acknowledgment and explanation = resolution</li>
-                <li>Reduces administrative overhead</li>
+                <li><strong>Logged →</strong> New concern appears in "Student Concerns"</li>
+                <li><strong>You Reply →</strong> Automatically changes to "Noted" status</li>
+                <li><strong>Noted →</strong> Moves to "Handling Concerns" section</li>
+                <li>Student receives notification and can view your response</li>
               </ul>
             </CardContent>
           </Card>

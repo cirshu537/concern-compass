@@ -99,7 +99,7 @@ export default function StudentDocs() {
               <p className="mt-4"><strong className="text-foreground">Trainer-Related Concerns:</strong></p>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>Automatically assigned to trainers in your branch</li>
-                <li>When trainer replies, concern is marked as Fixed</li>
+                <li>When trainer replies, concern is marked as Noted</li>
                 <li><strong>You CAN:</strong> View trainer's response in the Reviews section</li>
                 <li><strong>You CANNOT:</strong> Rate or review the trainer's response back</li>
                 <li>Read-only access to trainer feedback - no scoring allowed</li>
