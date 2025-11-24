@@ -33,6 +33,15 @@ export function ReviewForm({
   isTrainerReply = false 
 }: ReviewFormProps) {
   const { profile } = useAuth();
+  
+  // Determine appropriate description based on user role
+  const getCardDescription = () => {
+    if (isTrainerReply) return 'Provide your response to this concern';
+    if (profile?.role === 'staff' || profile?.role === 'branch_admin') {
+      return 'Provide your assessment of how this concern was handled';
+    }
+    return 'Your feedback helps us improve our service quality';
+  };
   const [rating, setRating] = useState<-1 | 0 | 1 | null>(null);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -119,11 +128,7 @@ export function ReviewForm({
     <Card className="bg-card border-border">
       <CardHeader>
         <CardTitle>{isTrainerReply ? 'Reply to Student' : 'Rate this Concern'}</CardTitle>
-        <CardDescription>
-          {isTrainerReply 
-            ? 'Provide your response to this concern' 
-            : 'Your feedback helps us improve our service quality'}
-        </CardDescription>
+        <CardDescription>{getCardDescription()}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {!isTrainerReply && (
