@@ -17,6 +17,7 @@ interface ComplaintsListProps {
   filterByHighAlertStaff?: boolean;
   filterByStatus?: string;
   filterByToday?: boolean;
+  filterByTimeRange?: 'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime';
   onComplaintClick?: (complaint: Complaint) => void;
 }
 
@@ -29,6 +30,7 @@ export function ComplaintsList({
   filterByHighAlertStaff,
   filterByStatus,
   filterByToday,
+  filterByTimeRange,
   onComplaintClick 
 }: ComplaintsListProps) {
   const navigate = useNavigate();
@@ -58,7 +60,7 @@ export function ComplaintsList({
   }, [queryClient]);
 
   const { data: complaints, isLoading } = useQuery({
-    queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, filterByCategory, filterByHighAlertStaff, filterByStatus, filterByToday, statusFilter],
+    queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, filterByCategory, filterByHighAlertStaff, filterByStatus, filterByToday, filterByTimeRange, statusFilter],
     queryFn: async () => {
       let query = supabase
         .from('complaints')
@@ -69,7 +71,30 @@ export function ComplaintsList({
         query = query.eq('branch', filterByBranch);
       }
 
-      if (filterByToday) {
+      // Apply time range filter
+      if (filterByTimeRange && filterByTimeRange !== 'lifetime') {
+        const now = new Date();
+        let rangeStart: Date;
+        
+        switch (filterByTimeRange) {
+          case 'today':
+            rangeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            break;
+          case 'weekly':
+            rangeStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            break;
+          case 'monthly':
+            rangeStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            break;
+          case 'yearly':
+            rangeStart = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+            break;
+          default:
+            rangeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        }
+        
+        query = query.gte('created_at', rangeStart.toISOString());
+      } else if (filterByToday) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         query = query.gte('created_at', today.toISOString());

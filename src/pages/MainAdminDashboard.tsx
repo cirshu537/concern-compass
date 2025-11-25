@@ -142,17 +142,21 @@ export default function MainAdminDashboard() {
 
   // Filtered complaints for main admin cards
   const { data: filteredComplaints } = useQuery({
-    queryKey: ['filtered-complaints', selectedFilter],
+    queryKey: ['filtered-complaints', selectedFilter, timeRange],
     queryFn: async () => {
       if (!selectedFilter) return null;
       
-      const todayStart = getDateRange();
+      const rangeStart = getTimeRangeDate();
       
       let query = supabase
         .from('complaints')
         .select('id, title, category, status, student_type, branch, created_at')
-        .gte('created_at', todayStart)
         .order('created_at', { ascending: false });
+
+      // Apply time range filter (unless lifetime)
+      if (timeRange !== 'lifetime') {
+        query = query.gte('created_at', rangeStart);
+      }
 
       if (selectedFilter === 'open') {
         query = query.in('status', ['logged', 'noted', 'in_process']);
