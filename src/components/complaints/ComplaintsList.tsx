@@ -77,13 +77,12 @@ export function ComplaintsList({
         query = query.eq('branch', filterByBranch);
       }
 
-      // Apply time range filter (prioritize local filter over props)
-      const activeTimeRange = filterByTimeRange || timeRangeFilter;
-      if (activeTimeRange !== 'lifetime') {
+      // Apply time range filter - use prop if provided, otherwise use local state
+      if (filterByTimeRange && filterByTimeRange !== 'lifetime') {
         const now = new Date();
         let rangeStart: Date;
         
-        switch (activeTimeRange) {
+        switch (filterByTimeRange) {
           case 'today':
             rangeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             break;
@@ -105,6 +104,29 @@ export function ComplaintsList({
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         query = query.gte('created_at', today.toISOString());
+      } else if (timeRangeFilter !== 'lifetime') {
+        // Use local time range filter
+        const now = new Date();
+        let rangeStart: Date;
+        
+        switch (timeRangeFilter) {
+          case 'today':
+            rangeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            break;
+          case 'weekly':
+            rangeStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            break;
+          case 'monthly':
+            rangeStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            break;
+          case 'yearly':
+            rangeStart = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+            break;
+          default:
+            rangeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        }
+        
+        query = query.gte('created_at', rangeStart.toISOString());
       }
 
       if (filterByStudentType) {
