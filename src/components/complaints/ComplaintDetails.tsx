@@ -77,6 +77,22 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
     },
   });
 
+  // Fetch student profile for admins
+  const { data: studentProfile } = useQuery({
+    queryKey: ['student-profile', complaint?.student_id],
+    enabled: !!complaint?.student_id && (profile?.role === 'main_admin' || profile?.role === 'branch_admin'),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, branch, program, credits, negative_count_lifetime, banned_from_raise')
+        .eq('id', complaint!.student_id)
+        .single();
+      
+      if (error) throw error;
+      return data as Profile;
+    },
+  });
+
   const { data: staff } = useQuery({
     queryKey: ['staff', complaint?.branch],
     enabled: !!complaint?.branch && (profile?.role === 'branch_admin' || profile?.role === 'main_admin'),
@@ -419,6 +435,31 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
               <span className="font-medium">{format(new Date(complaint.created_at), 'PPP')}</span>
             </div>
           </div>
+
+          {/* Student Info for Admins */}
+          {(profile?.role === 'main_admin' || profile?.role === 'branch_admin') && studentProfile && (
+            <div className="pt-4 border-t">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold mb-1">Student Information</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {studentProfile.full_name} • {studentProfile.email}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/student-profile/${studentProfile.id}`);
+                  }}
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  View Profile
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Exclusive Handler Actions - Working on Concern Button when Logged or Noted */}
           {isExclusiveHandler && complaint.student_type === 'exclusive' && (complaint.status === 'logged' || complaint.status === 'noted') && !complaint.assigned_trainer_id && (
