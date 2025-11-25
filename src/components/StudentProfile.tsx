@@ -99,6 +99,23 @@ export function StudentProfile({ studentId, onBack }: StudentProfileProps) {
     }
   };
 
+  const handleUnban = async () => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ banned_from_raise: false })
+        .eq('id', studentId);
+
+      if (error) throw error;
+
+      toast.success('Student unbanned successfully');
+      window.location.reload();
+    } catch (error) {
+      console.error('Error unbanning student:', error);
+      toast.error('Failed to unban student');
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="bg-gradient-to-br from-secondary/10 to-secondary/5 border border-secondary/30 rounded-lg p-4">
@@ -112,10 +129,33 @@ export function StudentProfile({ studentId, onBack }: StudentProfileProps) {
             </div>
             <div className="flex items-center gap-2">
               {profile.banned_from_raise && (
-                <Badge variant="destructive" className="gap-1">
-                  <Ban className="w-3 h-3" />
-                  Banned from Raising
-                </Badge>
+                <>
+                  <Badge variant="destructive" className="gap-1">
+                    <Ban className="w-3 h-3" />
+                    Banned from Raising
+                  </Badge>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white">
+                        Unban Student
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Unban Student</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to remove the ban from {profile.full_name}? They will be able to raise concerns again.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleUnban} className="bg-green-500 hover:bg-green-600">
+                          Unban
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
               )}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
