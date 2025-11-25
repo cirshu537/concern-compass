@@ -198,20 +198,25 @@ export function ComplaintsList({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">
-          Complaints ({complaints?.length || 0})
-        </h2>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-4 pb-4 border-b border-border/50">
+        <div>
+          <h2 className="text-3xl font-bold text-foreground">
+            Complaints
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            {complaints?.length || 0} {complaints?.length === 1 ? 'complaint' : 'complaints'} found
+          </p>
+        </div>
         <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as ComplaintStatus | 'all')}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[200px] h-11">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -227,7 +232,7 @@ export function ComplaintsList({
       </div>
 
       {complaints && complaints.length > 0 ? (
-        <div className="grid gap-4">
+        <div className="grid gap-5">
           {complaints.map((complaint) => (
             <ComplaintCard
               key={complaint.id}
@@ -238,8 +243,14 @@ export function ComplaintsList({
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 text-muted-foreground">
-          No complaints found
+        <div className="flex flex-col items-center justify-center py-16 px-4">
+          <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+            <Loader2 className="w-8 h-8 text-muted-foreground/50" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground mb-2">No complaints found</h3>
+          <p className="text-sm text-muted-foreground text-center max-w-sm">
+            There are no complaints matching your current filters. Try adjusting the filters or check back later.
+          </p>
         </div>
       )}
     </div>
