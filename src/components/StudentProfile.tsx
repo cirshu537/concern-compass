@@ -198,7 +198,11 @@ export function StudentProfile({ studentId, onBack }: StudentProfileProps) {
           </div>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {negativeEvents.map((event: any) => (
-              <div key={event.id} className="p-2 rounded-lg bg-background/50 border border-destructive/20">
+              <div 
+                key={event.id} 
+                className="p-2 rounded-lg bg-background/50 border border-destructive/20 hover:bg-background/80 cursor-pointer transition-colors"
+                onClick={() => setSelectedComplaintId(event.complaints?.id)}
+              >
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
                     <p className="text-xs font-medium">{event.complaints?.title}</p>
