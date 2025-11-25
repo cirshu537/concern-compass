@@ -395,6 +395,7 @@ export default function BranchAdminDashboard() {
             filterByHighAlertStaff={filterHighAlertStaff}
             filterByStatus={filterStatus}
             filterByTimeRange={timeRange}
+            hideInternalFilters={filterCategory !== undefined || filterHighAlertStaff || filterStatus !== undefined}
             onComplaintClick={(complaint) => {
               setSelectedComplaintId(complaint.id);
               setSelectedView('detail');
