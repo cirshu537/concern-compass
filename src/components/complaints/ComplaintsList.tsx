@@ -41,7 +41,7 @@ export function ComplaintsList({
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<ComplaintStatus | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'trainer_related' | 'staff_handled'>('all');
-  const [timeRangeFilter, setTimeRangeFilter] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime'>('today');
+  const [timeRangeFilter, setTimeRangeFilter] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime'>(filterByTimeRange || 'today');
 
   // Subscribe to real-time updates
   useEffect(() => {
