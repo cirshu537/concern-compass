@@ -11,6 +11,7 @@ import { StaffProfile } from '@/components/StaffProfile';
 import { StudentProfile } from '@/components/StudentProfile';
 import { FileText, AlertTriangle, BarChart3, LogOut, ChevronLeft, BookOpen } from 'lucide-react';
 import { DashboardNav } from '@/components/DashboardNav';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function BranchAdminDashboard() {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ export default function BranchAdminDashboard() {
   const [filterHighAlertStaff, setFilterHighAlertStaff] = useState<boolean>(false);
   const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
   const [filterToday, setFilterToday] = useState<boolean>(false);
+  const [timeRange, setTimeRange] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime'>('today');
 
   // Redirect if not branch admin
   useEffect(() => {
@@ -45,18 +47,55 @@ export default function BranchAdminDashboard() {
     }
   }, [searchParams]);
 
+  const getTimeRangeDate = () => {
+    const now = new Date();
+    switch (timeRange) {
+      case 'today':
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+      case 'weekly':
+        return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      case 'monthly':
+        return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      case 'yearly':
+        return new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString();
+      default:
+        return '1970-01-01';
+    }
+  };
+
+  const getTimeRangeLabel = () => {
+    switch (timeRange) {
+      case 'today':
+        return 'Today';
+      case 'weekly':
+        return 'Last Week';
+      case 'monthly':
+        return 'Last Month';
+      case 'yearly':
+        return 'Last Year';
+      case 'lifetime':
+        return 'Lifetime';
+      default:
+        return 'Today';
+    }
+  };
+
   const { data: stats } = useQuery({
-    queryKey: ['branch-stats', profile?.branch],
+    queryKey: ['branch-stats', profile?.branch, timeRange],
     enabled: !!profile?.branch,
     queryFn: async () => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const rangeStart = getTimeRangeDate();
       
-      const { data: complaints } = await supabase
+      const query = supabase
         .from('complaints')
         .select('id, status, category, created_at')
-        .eq('branch', profile!.branch)
-        .gte('created_at', today.toISOString());
+        .eq('branch', profile!.branch);
+      
+      if (timeRange !== 'lifetime') {
+        query.gte('created_at', rangeStart);
+      }
+
+      const { data: complaints } = await query;
 
       const { data: staff } = await supabase
         .from('profiles')
@@ -372,6 +411,22 @@ export default function BranchAdminDashboard() {
           <p className="text-muted-foreground">Manage your branch operations and team performance</p>
         </div>
 
+        <div className="mb-6 flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Statistics Overview</h3>
+          <Select value={timeRange} onValueChange={(v) => setTimeRange(v as any)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select period" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="weekly">Last Week</SelectItem>
+              <SelectItem value="monthly">Last Month</SelectItem>
+              <SelectItem value="yearly">Last Year</SelectItem>
+              <SelectItem value="lifetime">Lifetime</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <Card 
             className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 cursor-pointer hover:border-primary/50 transition-all"
@@ -388,7 +443,7 @@ export default function BranchAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary">{stats?.total || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Today</p>
+              <p className="text-xs text-muted-foreground mt-1">{getTimeRangeLabel()}</p>
             </CardContent>
           </Card>
 
@@ -407,7 +462,7 @@ export default function BranchAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-secondary">{stats?.open || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Today</p>
+              <p className="text-xs text-muted-foreground mt-1">{getTimeRangeLabel()}</p>
             </CardContent>
           </Card>
 
@@ -426,7 +481,7 @@ export default function BranchAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-status-fixed">{stats?.fixed || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Today</p>
+              <p className="text-xs text-muted-foreground mt-1">{getTimeRangeLabel()}</p>
             </CardContent>
           </Card>
 
@@ -445,7 +500,7 @@ export default function BranchAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-status-cancelled">{stats?.cancelled || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Today</p>
+              <p className="text-xs text-muted-foreground mt-1">{getTimeRangeLabel()}</p>
             </CardContent>
           </Card>
 
