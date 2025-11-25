@@ -8,10 +8,13 @@ export default function AdminStudentProfile() {
   const { studentId } = useParams<{ studentId: string }>();
 
   const handleBack = () => {
-    // Navigate back in browser history, or to dashboard if no history
-    if (window.history.length > 1) {
+    // Use try-catch to handle any navigation errors
+    try {
+      // Simply go back - React Router will handle it
       navigate(-1);
-    } else {
+    } catch (error) {
+      // Fallback to dashboard if navigation fails
+      console.error('Navigation error:', error);
       navigate('/main-admin/dashboard');
     }
   };
