@@ -5,9 +5,10 @@ import { Complaint, ComplaintStatus, Profile } from '@/types/database';
 import { ComplaintCard } from './ComplaintCard';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Users, GraduationCap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { Badge } from '@/components/ui/badge';
 
 interface ComplaintsListProps {
   filterByBranch?: string;
@@ -39,6 +40,7 @@ export function ComplaintsList({
   const isAdmin = profile?.role === 'main_admin' || profile?.role === 'branch_admin';
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<ComplaintStatus | 'all'>('all');
+  const [categoryFilter, setCategoryFilter] = useState<'all' | 'trainer_related' | 'staff_handled'>('all');
 
   // Subscribe to real-time updates
   useEffect(() => {
@@ -63,7 +65,7 @@ export function ComplaintsList({
   }, [queryClient]);
 
   const { data: complaints, isLoading } = useQuery({
-    queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, filterByCategory, filterByHighAlertStaff, filterByStatus, filterByToday, filterByTimeRange, statusFilter],
+    queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, filterByCategory, filterByHighAlertStaff, filterByStatus, filterByToday, filterByTimeRange, statusFilter, categoryFilter],
     queryFn: async () => {
       let query = supabase
         .from('complaints')
@@ -109,6 +111,14 @@ export function ComplaintsList({
 
       if (filterByCategory) {
         query = query.eq('category', filterByCategory as any);
+      }
+      
+      // Apply local category filter
+      if (categoryFilter === 'trainer_related') {
+        query = query.eq('category', 'trainer_related');
+      } else if (categoryFilter === 'staff_handled') {
+        // Staff handle all non-trainer-related categories
+        query = query.neq('category', 'trainer_related');
       }
       
       if (filterByStatus) {
@@ -206,29 +216,61 @@ export function ComplaintsList({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4 pb-4 border-b border-border/50">
-        <div>
-          <h2 className="text-3xl font-bold text-foreground">
-            Complaints
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {complaints?.length || 0} {complaints?.length === 1 ? 'complaint' : 'complaints'} found
-          </p>
+      <div className="flex flex-col gap-4 pb-4 border-b border-border/50">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-foreground">
+              Complaints
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {complaints?.length || 0} {complaints?.length === 1 ? 'complaint' : 'complaints'} found
+            </p>
+          </div>
+          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as ComplaintStatus | 'all')}>
+            <SelectTrigger className="w-[200px] h-11">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="logged">Logged</SelectItem>
+              <SelectItem value="noted">Noted</SelectItem>
+              <SelectItem value="in_process">In Process</SelectItem>
+              <SelectItem value="fixed">Fixed</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as ComplaintStatus | 'all')}>
-          <SelectTrigger className="w-[200px] h-11">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="logged">Logged</SelectItem>
-            <SelectItem value="noted">Noted</SelectItem>
-            <SelectItem value="in_process">In Process</SelectItem>
-            <SelectItem value="fixed">Fixed</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-          </SelectContent>
-        </Select>
+        
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-sm font-medium text-muted-foreground">Quick Filters:</span>
+          <Button
+            variant={categoryFilter === 'all' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setCategoryFilter('all')}
+            className="h-9 gap-2"
+          >
+            All Categories
+          </Button>
+          <Button
+            variant={categoryFilter === 'trainer_related' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setCategoryFilter('trainer_related')}
+            className="h-9 gap-2"
+          >
+            <GraduationCap className="w-4 h-4" />
+            Trainer Related
+          </Button>
+          <Button
+            variant={categoryFilter === 'staff_handled' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setCategoryFilter('staff_handled')}
+            className="h-9 gap-2"
+          >
+            <Users className="w-4 h-4" />
+            Staff Handled
+          </Button>
+        </div>
       </div>
 
       {complaints && complaints.length > 0 ? (
