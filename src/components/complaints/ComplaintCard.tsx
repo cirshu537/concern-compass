@@ -19,57 +19,60 @@ export function ComplaintCard({ complaint, onClick, showStudentInfo = true, stud
   
   return (
     <Card 
-      className="cursor-pointer hover:border-primary/50 transition-all"
+      className="group cursor-pointer hover:shadow-lg hover:border-primary/30 transition-all duration-300 overflow-hidden"
       onClick={onClick}
     >
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-lg mb-2 truncate">{complaint.title}</h3>
-            {isAdmin && studentName && (
-              <div className="flex items-center gap-1 text-sm text-muted-foreground mb-1">
-                <UserCircle className="w-3 h-3" />
-                <span>Student: {studentName}</span>
-              </div>
-            )}
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {complaint.description}
-            </p>
-          </div>
+      <CardHeader className="pb-4">
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <h3 className="font-bold text-xl text-foreground group-hover:text-primary transition-colors line-clamp-1 flex-1">
+            {complaint.title}
+          </h3>
           <StatusBadge status={complaint.status} />
         </div>
+        
+        {isAdmin && studentName && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 px-3 py-1.5 bg-muted/50 rounded-md w-fit">
+            <UserCircle className="w-4 h-4 flex-shrink-0" />
+            <span className="font-medium">Student: {studentName}</span>
+          </div>
+        )}
+        
+        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+          {complaint.description}
+        </p>
       </CardHeader>
-      <CardContent className="space-y-2">
+      
+      <CardContent className="space-y-4 pt-0">
         <div className="flex flex-wrap gap-2">
-          <Badge variant="outline" className="text-xs">
+          <Badge variant="outline" className="text-xs font-medium capitalize px-3 py-1">
             {complaint.category.replace(/_/g, ' ')}
           </Badge>
           {complaint.student_type !== 'none' && (
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-xs font-medium capitalize px-3 py-1">
               {complaint.student_type}
             </Badge>
           )}
           {complaint.anonymous && (
-            <Badge variant="destructive" className="text-xs">
+            <Badge variant="destructive" className="text-xs font-medium px-3 py-1">
               Anonymous
             </Badge>
           )}
         </div>
         
-        <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2">
-          <div className="flex items-center gap-1">
-            <MapPin className="w-3 h-3" />
-            <span>{complaint.branch}</span>
+        <div className="flex items-center flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground pt-2 border-t border-border/50">
+          <div className="flex items-center gap-1.5">
+            <MapPin className="w-4 h-4 text-primary/70" />
+            <span className="font-medium">{complaint.branch}</span>
           </div>
           {complaint.program && (
-            <div className="flex items-center gap-1">
-              <User className="w-3 h-3" />
-              <span>{complaint.program}</span>
+            <div className="flex items-center gap-1.5">
+              <User className="w-4 h-4 text-primary/70" />
+              <span className="font-medium">{complaint.program}</span>
             </div>
           )}
-          <div className="flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            <span>{format(new Date(complaint.created_at), 'MMM dd, yyyy')}</span>
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-4 h-4 text-primary/70" />
+            <span className="font-medium">{format(new Date(complaint.created_at), 'MMM dd, yyyy')}</span>
           </div>
         </div>
       </CardContent>
