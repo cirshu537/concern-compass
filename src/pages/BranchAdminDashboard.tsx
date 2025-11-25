@@ -98,6 +98,7 @@ export default function BranchAdminDashboard() {
         total: complaints?.length || 0,
         open: complaints?.filter(c => c.status === 'logged' || c.status === 'noted' || c.status === 'in_process').length || 0,
         fixed: complaints?.filter(c => c.status === 'fixed').length || 0,
+        cancelled: complaints?.filter(c => c.status === 'cancelled').length || 0,
         highAlert: staff?.filter(s => s.high_alert).length || 0,
         allStaff: staff || [],
         allStudents: students || [],
@@ -371,7 +372,7 @@ export default function BranchAdminDashboard() {
           <p className="text-muted-foreground">Manage your branch operations and team performance</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <Card 
             className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 cursor-pointer hover:border-primary/50 transition-all"
             onClick={() => {
@@ -425,6 +426,25 @@ export default function BranchAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-status-fixed">{stats?.fixed || 0}</div>
+              <p className="text-xs text-muted-foreground mt-1">Today</p>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="bg-gradient-to-br from-status-cancelled/10 to-status-cancelled/5 border-status-cancelled/30 cursor-pointer hover:border-status-cancelled/50 transition-all"
+            onClick={() => {
+              setFilterCategory(undefined);
+              setFilterHighAlertStaff(false);
+              setFilterStatus('cancelled');
+              setFilterToday(true);
+              setSelectedView('complaints');
+            }}
+          >
+            <CardHeader>
+              <CardTitle className="text-sm text-muted-foreground">Cancelled</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-status-cancelled">{stats?.cancelled || 0}</div>
               <p className="text-xs text-muted-foreground mt-1">Today</p>
             </CardContent>
           </Card>
