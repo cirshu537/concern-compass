@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 export default function BranchAdminDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { profile, signOut, loading: authLoading } = useAuth();
+  const { profile, signOut } = useAuth();
   const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail' | 'staff-list' | 'student-list' | 'staff-profile' | 'student-profile'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
@@ -26,20 +26,13 @@ export default function BranchAdminDashboard() {
   const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
   const [filterToday, setFilterToday] = useState<boolean>(false);
   const [timeRange, setTimeRange] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime'>('today');
-  const [studentFilter, setStudentFilter] = useState<'all' | 'top-credit' | 'banned'>('all');
-  const [staffFilter, setStaffFilter] = useState<'all' | 'top-credit' | 'negative' | 'most-handled'>('all');
 
   // Redirect if not branch admin
   useEffect(() => {
-    console.log('Profile check:', profile, 'Auth loading:', authLoading);
-    if (!authLoading && !profile) {
-      console.log('No profile and not loading - redirecting to home');
-      navigate('/');
-    } else if (profile && profile.role !== 'branch_admin') {
-      console.log('Not branch admin - redirecting to home');
+    if (profile && profile.role !== 'branch_admin') {
       navigate('/');
     }
-  }, [profile, authLoading, navigate]);
+  }, [profile, navigate]);
 
   // Read URL parameters and set state
   useEffect(() => {
@@ -87,13 +80,10 @@ export default function BranchAdminDashboard() {
     }
   };
 
-  const { data: stats, error, isLoading } = useQuery({
+  const { data: stats } = useQuery({
     queryKey: ['branch-stats', profile?.branch, timeRange],
     enabled: !!profile?.branch,
     queryFn: async () => {
-      console.log('=== QUERY FUNCTION RUNNING ===');
-      console.log('Fetching stats for branch:', profile?.branch);
-      console.log('Profile:', profile);
       const rangeStart = getTimeRangeDate();
       
       const query = supabase
@@ -107,21 +97,17 @@ export default function BranchAdminDashboard() {
 
       const { data: complaints } = await query;
 
-      const { data: staff, error: staffError } = await supabase
+      const { data: staff } = await supabase
         .from('profiles')
         .select('id, full_name, role, high_alert, negative_count_lifetime, credits')
         .eq('branch', profile!.branch)
         .in('role', ['staff', 'trainer']);
 
-      console.log('Staff data:', staff, 'Error:', staffError);
-
-      const { data: students, error: studentsError } = await supabase
+      const { data: students } = await supabase
         .from('profiles')
         .select('id, full_name, email, student_type, banned_from_raise, program, credits')
         .eq('branch', profile!.branch)
         .eq('role', 'student');
-
-      console.log('Students data:', students, 'Error:', studentsError);
 
       // Get complaint counts for trainers
       const trainerIds = staff?.filter(s => s.role === 'trainer').map(s => s.id) || [];
@@ -147,7 +133,7 @@ export default function BranchAdminDashboard() {
         return acc;
       }, {} as Record<string, number>) || {};
 
-      const result = {
+      return {
         total: complaints?.length || 0,
         open: complaints?.filter(c => c.status === 'logged' || c.status === 'noted' || c.status === 'in_process').length || 0,
         fixed: complaints?.filter(c => c.status === 'fixed').length || 0,
@@ -158,35 +144,8 @@ export default function BranchAdminDashboard() {
         categoryBreakdown,
         trainerComplaintCounts,
       };
-
-      console.log('Stats result:', result);
-      return result;
     },
   });
-
-  console.log('Query state - isLoading:', isLoading, 'error:', error, 'stats:', stats);
-
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-destructive mb-4">Your session has expired. Please log in again.</p>
-          <Button onClick={() => navigate('/')}>Go to Home</Button>
-        </div>
-      </div>
-    );
-  }
 
   const handleSignOut = async () => {
     await signOut();
@@ -233,25 +192,8 @@ export default function BranchAdminDashboard() {
     }
 
     if (selectedView === 'staff-list') {
-      const allStaffAndTrainers = stats?.allStaff || [];
-      
-      let filteredStaff = [...allStaffAndTrainers];
-      
-      if (staffFilter === 'top-credit') {
-        filteredStaff = filteredStaff.sort((a: any, b: any) => (b.credits ?? 0) - (a.credits ?? 0));
-      } else if (staffFilter === 'negative') {
-        filteredStaff = filteredStaff.sort((a: any, b: any) => (b.negative_count_lifetime ?? 0) - (a.negative_count_lifetime ?? 0));
-      } else if (staffFilter === 'most-handled') {
-        filteredStaff = filteredStaff.sort((a: any, b: any) => {
-          const aCount = a.role === 'trainer' ? (stats?.trainerComplaintCounts?.[a.id] || 0) : 0;
-          const bCount = b.role === 'trainer' ? (stats?.trainerComplaintCounts?.[b.id] || 0) : 0;
-          return bCount - aCount;
-        });
-      }
-      
-      const staffMembers = filteredStaff.filter((m: any) => m.role === 'staff');
-      const trainerMembers = filteredStaff.filter((m: any) => m.role === 'trainer');
-      const showGrouped = staffFilter === 'all';
+      const staffMembers = stats?.allStaff?.filter((m: any) => m.role === 'staff') || [];
+      const trainerMembers = stats?.allStaff?.filter((m: any) => m.role === 'trainer') || [];
       
       return (
         <div>
@@ -264,108 +206,22 @@ export default function BranchAdminDashboard() {
             Back to Dashboard
           </Button>
           
-          <div className="mb-4 flex gap-2 flex-wrap">
-            <Button
-              variant={staffFilter === 'all' ? 'default' : 'outline'}
-              onClick={() => setStaffFilter('all')}
-            >
-              All
-            </Button>
-            <Button
-              variant={staffFilter === 'top-credit' ? 'default' : 'outline'}
-              onClick={() => setStaffFilter('top-credit')}
-            >
-              Top Credit Staff
-            </Button>
-            <Button
-              variant={staffFilter === 'negative' ? 'default' : 'outline'}
-              onClick={() => setStaffFilter('negative')}
-            >
-              Negative Staff
-            </Button>
-            <Button
-              variant={staffFilter === 'most-handled' ? 'default' : 'outline'}
-              onClick={() => setStaffFilter('most-handled')}
-            >
-              Most Handled
-            </Button>
-          </div>
-          
-          {!showGrouped && (
+          <div className="space-y-6">
+            {/* Staff Section */}
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-2xl">
-                    {staffFilter === 'top-credit' && 'Top Credit Staff & Trainers'}
-                    {staffFilter === 'negative' && 'Staff & Trainers by Negatives'}
-                    {staffFilter === 'most-handled' && 'Staff & Trainers by Concerns Handled'}
-                  </CardTitle>
+                  <CardTitle className="text-2xl">Staff - {profile?.branch}</CardTitle>
                   <div className="flex items-center gap-2 text-sm">
                     <span className="text-muted-foreground">Total:</span>
-                    <span className="font-bold text-xl text-primary">{filteredStaff.length}</span>
+                    <span className="font-bold text-xl text-primary">{staffMembers.length}</span>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                {filteredStaff.length > 0 ? (
+                {staffMembers.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredStaff.map((member: any) => (
-                      <Card 
-                        key={member.id} 
-                        className="cursor-pointer hover:border-primary/50 transition-all"
-                        onClick={() => {
-                          setSelectedStaffId(member.id);
-                          setSelectedView('staff-profile');
-                        }}
-                      >
-                        <CardContent className="pt-6">
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <h3 className="font-semibold text-lg">{member.full_name}</h3>
-                              {member.high_alert && (
-                                <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">High Alert</span>
-                              )}
-                            </div>
-                            <p className="text-sm text-muted-foreground capitalize">{member.role}</p>
-                            <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
-                              {member.role === 'trainer' ? (
-                                <span>Concerns Dealt: {stats?.trainerComplaintCounts?.[member.id] || 0}</span>
-                              ) : (
-                                <>
-                                  <span>Credits: {member.credits ?? 0}</span>
-                                  <span>Negatives: {member.negative_count_lifetime ?? 0}</span>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No staff or trainers found</p>
-                )}
-              </CardContent>
-            </Card>
-          )}
-          
-          {showGrouped && (
-            <div className="space-y-6">
-              {/* Staff Section */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-2xl">Staff - {profile?.branch}</CardTitle>
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="text-muted-foreground">Total:</span>
-                      <span className="font-bold text-xl text-primary">{staffMembers.length}</span>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {staffMembers.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {staffMembers.map((member: any) => (
+                    {staffMembers.map((member: any) => (
                       <Card 
                         key={member.id} 
                         className="cursor-pointer hover:border-primary/50 transition-all"
@@ -443,23 +299,12 @@ export default function BranchAdminDashboard() {
                 )}
               </CardContent>
             </Card>
-            </div>
-          )}
+          </div>
         </div>
       );
     }
 
     if (selectedView === 'student-list') {
-      let filteredStudents = [...(stats?.allStudents || [])];
-      
-      if (studentFilter === 'top-credit') {
-        filteredStudents = filteredStudents.sort((a: any, b: any) => (b.credits ?? 0) - (a.credits ?? 0));
-      } else if (studentFilter === 'banned') {
-        filteredStudents = filteredStudents.filter((s: any) => s.banned_from_raise);
-      }
-      
-      const showGrouped = studentFilter === 'all';
-      
       return (
         <div>
           <Button 
@@ -470,46 +315,20 @@ export default function BranchAdminDashboard() {
             <ChevronLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
-          
-          <div className="mb-4 flex gap-2 flex-wrap">
-            <Button
-              variant={studentFilter === 'all' ? 'default' : 'outline'}
-              onClick={() => setStudentFilter('all')}
-            >
-              All
-            </Button>
-            <Button
-              variant={studentFilter === 'top-credit' ? 'default' : 'outline'}
-              onClick={() => setStudentFilter('top-credit')}
-            >
-              Top Credit
-            </Button>
-            <Button
-              variant={studentFilter === 'banned' ? 'default' : 'outline'}
-              onClick={() => setStudentFilter('banned')}
-            >
-              Banned
-            </Button>
-          </div>
-          
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl">
-                  {studentFilter === 'all' && `All Students - ${profile?.branch}`}
-                  {studentFilter === 'top-credit' && 'Top Credit Students'}
-                  {studentFilter === 'banned' && 'Banned Students'}
-                </CardTitle>
+                <CardTitle className="text-2xl">All Students - {profile?.branch}</CardTitle>
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-muted-foreground">Total:</span>
-                  <span className="font-bold text-xl text-secondary">{filteredStudents.length}</span>
+                  <span className="font-bold text-xl text-secondary">{stats?.allStudents?.length || 0}</span>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              {filteredStudents.length > 0 ? (
+              {stats?.allStudents && stats.allStudents.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredStudents.map((student: any) => (
+                  {stats.allStudents.map((student: any) => (
                     <Card 
                       key={student.id} 
                       className="cursor-pointer hover:border-secondary/50 transition-all"
