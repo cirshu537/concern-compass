@@ -31,9 +31,44 @@ export function ComplaintCard({ complaint, onClick, showStudentInfo = true, stud
         </div>
         
         {isAdmin && studentName && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 px-3 py-1.5 bg-muted/50 rounded-md w-fit">
-            <UserCircle className="w-4 h-4 flex-shrink-0" />
-            <span className="font-medium">Student: {studentName}</span>
+          <div className="flex items-center gap-3 mb-3 flex-wrap">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground px-3 py-1.5 bg-muted/50 rounded-md">
+              <UserCircle className="w-4 h-4 flex-shrink-0" />
+              <span className="font-medium">Student: {studentName}</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="outline" className="text-xs font-medium capitalize px-3 py-1">
+                {complaint.category.replace(/_/g, ' ')}
+              </Badge>
+              {complaint.student_type !== 'none' && (
+                <Badge variant="secondary" className="text-xs font-medium capitalize px-3 py-1">
+                  {complaint.student_type}
+                </Badge>
+              )}
+              {complaint.anonymous && (
+                <Badge variant="destructive" className="text-xs font-medium px-3 py-1">
+                  Anonymous
+                </Badge>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {(!isAdmin || !studentName) && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            <Badge variant="outline" className="text-xs font-medium capitalize px-3 py-1">
+              {complaint.category.replace(/_/g, ' ')}
+            </Badge>
+            {complaint.student_type !== 'none' && (
+              <Badge variant="secondary" className="text-xs font-medium capitalize px-3 py-1">
+                {complaint.student_type}
+              </Badge>
+            )}
+            {complaint.anonymous && (
+              <Badge variant="destructive" className="text-xs font-medium px-3 py-1">
+                Anonymous
+              </Badge>
+            )}
           </div>
         )}
         
@@ -43,21 +78,6 @@ export function ComplaintCard({ complaint, onClick, showStudentInfo = true, stud
       </CardHeader>
       
       <CardContent className="space-y-4 pt-0">
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline" className="text-xs font-medium capitalize px-3 py-1">
-            {complaint.category.replace(/_/g, ' ')}
-          </Badge>
-          {complaint.student_type !== 'none' && (
-            <Badge variant="secondary" className="text-xs font-medium capitalize px-3 py-1">
-              {complaint.student_type}
-            </Badge>
-          )}
-          {complaint.anonymous && (
-            <Badge variant="destructive" className="text-xs font-medium px-3 py-1">
-              Anonymous
-            </Badge>
-          )}
-        </div>
         
         <div className="flex items-center flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground pt-2 border-t border-border/50">
           <div className="flex items-center gap-1.5">
