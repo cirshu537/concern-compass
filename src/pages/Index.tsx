@@ -120,14 +120,14 @@ const Index = () => {
                   </svg>
                 </span>
               </button>
-            ) : profile ? (
+            ) : (
               <button
                 onClick={() => {
-                  if (profile.role === 'student') navigate('/student/dashboard');
-                  else if (profile.role === 'trainer') navigate('/trainer/dashboard');
-                  else if (profile.role === 'staff') navigate('/staff/dashboard');
-                  else if (profile.role === 'branch_admin') navigate('/branch-admin/dashboard');
-                  else if (profile.role === 'main_admin') navigate('/main-admin/dashboard');
+                  if (profile?.role === 'student') navigate('/student/dashboard');
+                  else if (profile?.role === 'trainer') navigate('/trainer/dashboard');
+                  else if (profile?.role === 'staff') navigate('/staff/dashboard');
+                  else if (profile?.role === 'branch_admin') navigate('/branch-admin/dashboard');
+                  else if (profile?.role === 'main_admin') navigate('/main-admin/dashboard');
                 }}
                 className="group relative inline-flex items-center justify-center px-8 py-3.5 text-base font-medium text-white transition-all duration-300 ease-out rounded-xl overflow-hidden shadow-xl hover:shadow-2xl hover:-translate-y-1"
               >
@@ -151,21 +151,6 @@ const Index = () => {
                   </svg>
                 </span>
               </button>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-yellow-400 text-sm">Your session has expired. Please log out and log in again.</p>
-                <button
-                  onClick={async () => {
-                    await signOut();
-                    setAuthModalOpen(true);
-                  }}
-                  className="group relative inline-flex items-center justify-center px-8 py-3.5 text-base font-medium text-white transition-all duration-300 ease-out rounded-xl overflow-hidden shadow-xl hover:shadow-2xl hover:-translate-y-1"
-                >
-                  <span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 transition-all duration-300 group-hover:brightness-110"></span>
-                  <span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-300"></span>
-                  <span className="relative z-10">Log Out & Sign In Again</span>
-                </button>
-              </div>
             )}
           </div>
 
