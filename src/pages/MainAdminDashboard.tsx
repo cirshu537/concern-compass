@@ -337,6 +337,9 @@ export default function MainAdminDashboard() {
         filteredStudents = filteredStudents.filter(s => s.banned_from_raise);
       }
       
+      // If filtering, show all students in single sorted list; otherwise show by groups
+      const showGrouped = studentFilter === 'all';
+      
       const studentsByBranch = branches.reduce((acc, branch) => {
         acc[branch] = filteredStudents?.filter((s: any) => s.branch === branch) || [];
         return acc;
@@ -391,6 +394,57 @@ export default function MainAdminDashboard() {
           </div>
           
           <div className="space-y-6">
+            {/* When filtering, show all students in single sorted list */}
+            {!showGrouped && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-2xl">
+                      {studentFilter === 'top_credit' && 'Top Credit Students'}
+                      {studentFilter === 'banned' && 'Banned Students'}
+                    </CardTitle>
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-muted-foreground">Total:</span>
+                      <span className="font-bold text-xl">{filteredStudents.length}</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredStudents.map((student: any) => (
+                      <Card 
+                        key={student.id} 
+                        className="cursor-pointer hover:border-secondary/50 transition-all"
+                        onClick={() => {
+                          setSelectedStudentId(student.id);
+                          setSelectedView('student-profile');
+                        }}
+                      >
+                        <CardContent className="pt-6">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-lg">{student.full_name}</h3>
+                              {student.banned_from_raise && (
+                                <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">Banned</span>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground">{student.branch}</p>
+                            <div className="pt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                              <span className="font-medium">Credits: {student.credits ?? 0}</span>
+                              <span>Program: {student.program || 'Not Assigned'}</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* When not filtering, show grouped view */}
+            {showGrouped && (
+              <>
             {/* Individual Branches */}
             {branches.map((branchName) => {
               const branchStudents = studentsByBranch[branchName] || [];
@@ -442,6 +496,8 @@ export default function MainAdminDashboard() {
                 </Card>
               );
             })}
+            </>
+            )}
           </div>
         </div>
       );
@@ -466,6 +522,9 @@ export default function MainAdminDashboard() {
           return bCount - aCount;
         });
       }
+      
+      // If filtering, show all staff in single sorted list; otherwise show by groups
+      const showGrouped = staffFilter === 'all';
       
       const onlineStaff = filteredStaff?.filter((s: any) => s.branch === 'Online') || [];
       const exclusiveHandlers = filteredStaff?.filter((s: any) => s.handles_exclusive) || [];
@@ -537,6 +596,64 @@ export default function MainAdminDashboard() {
           </div>
           
           <div className="space-y-6">
+            {/* When filtering, show all staff in single sorted list */}
+            {!showGrouped && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-2xl">
+                      {staffFilter === 'top_credit' && 'Top Credit Staff & Trainers'}
+                      {staffFilter === 'negative' && 'Staff & Trainers by Negative Count'}
+                      {staffFilter === 'most_handled' && 'Most Handled Concerns'}
+                    </CardTitle>
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-muted-foreground">Total:</span>
+                      <span className="font-bold text-xl">{filteredStaff.length}</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredStaff.map((member: any) => (
+                      <Card 
+                        key={member.id} 
+                        className="cursor-pointer hover:border-primary/50 transition-all"
+                        onClick={() => {
+                          setSelectedStaffId(member.id);
+                          setSelectedView('staff-profile');
+                        }}
+                      >
+                        <CardContent className="pt-6">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-lg">{member.full_name}</h3>
+                              {member.high_alert && (
+                                <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">High Alert</span>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground capitalize">{member.role} • {member.branch}</p>
+                            <div className="pt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                              <span className="font-medium">Credits: {member.credits ?? 0}</span>
+                              <span>Negatives: {member.negative_count_lifetime ?? 0}</span>
+                              {member.role === 'trainer' && (
+                                <span>Concerns: {allStaffData?.trainerComplaintCounts?.[member.id] || 0}</span>
+                              )}
+                              {member.role === 'staff' && (
+                                <span>Concerns: {allStaffData?.staffComplaintCounts?.[member.id] || 0}</span>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* When not filtering, show grouped view */}
+            {showGrouped && (
+              <>
             {/* Online Branch Staff and Trainers */}
             <Card>
               <CardHeader>
@@ -707,6 +824,8 @@ export default function MainAdminDashboard() {
                 </Card>
               );
             })}
+            </>
+            )}
           </div>
         </div>
       );
