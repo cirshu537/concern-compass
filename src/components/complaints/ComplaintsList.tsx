@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Complaint, ComplaintStatus } from '@/types/database';
+import { Complaint, ComplaintStatus, Profile } from '@/types/database';
 import { ComplaintCard } from './ComplaintCard';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ComplaintsListProps {
   filterByBranch?: string;
@@ -21,9 +22,9 @@ interface ComplaintsListProps {
   onComplaintClick?: (complaint: Complaint) => void;
 }
 
-export function ComplaintsList({ 
-  filterByBranch, 
-  filterByTrainer, 
+export function ComplaintsList({
+  filterByBranch,
+  filterByTrainer,
   filterByAssigned,
   filterByStudentType,
   filterByCategory,
@@ -34,6 +35,8 @@ export function ComplaintsList({
   onComplaintClick 
 }: ComplaintsListProps) {
   const navigate = useNavigate();
+  const { profile } = useAuth();
+  const isAdmin = profile?.role === 'main_admin' || profile?.role === 'branch_admin';
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<ComplaintStatus | 'all'>('all');
 
@@ -165,6 +168,26 @@ export function ComplaintsList({
     },
   });
 
+  // Fetch student profiles for admins
+  const studentIds = complaints?.map(c => c.student_id) || [];
+  const { data: studentProfiles } = useQuery({
+    queryKey: ['student-profiles', studentIds],
+    enabled: isAdmin && studentIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', studentIds);
+      
+      if (error) throw error;
+      return data as Profile[];
+    },
+  });
+
+  const getStudentName = (studentId: string) => {
+    return studentProfiles?.find(p => p.id === studentId)?.full_name;
+  };
+
   const handleComplaintClick = (complaint: Complaint) => {
     if (onComplaintClick) {
       onComplaintClick(complaint);
@@ -210,6 +233,7 @@ export function ComplaintsList({
               key={complaint.id}
               complaint={complaint}
               onClick={() => handleComplaintClick(complaint)}
+              studentName={isAdmin ? getStudentName(complaint.student_id) : undefined}
             />
           ))}
         </div>

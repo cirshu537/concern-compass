@@ -2,16 +2,21 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Complaint } from '@/types/database';
-import { Clock, User, MapPin } from 'lucide-react';
+import { Clock, User, MapPin, UserCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ComplaintCardProps {
   complaint: Complaint;
   onClick: () => void;
   showStudentInfo?: boolean;
+  studentName?: string;
 }
 
-export function ComplaintCard({ complaint, onClick, showStudentInfo = true }: ComplaintCardProps) {
+export function ComplaintCard({ complaint, onClick, showStudentInfo = true, studentName }: ComplaintCardProps) {
+  const { profile } = useAuth();
+  const isAdmin = profile?.role === 'main_admin' || profile?.role === 'branch_admin';
+  
   return (
     <Card 
       className="cursor-pointer hover:border-primary/50 transition-all"
@@ -21,6 +26,12 @@ export function ComplaintCard({ complaint, onClick, showStudentInfo = true }: Co
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-lg mb-2 truncate">{complaint.title}</h3>
+            {isAdmin && studentName && (
+              <div className="flex items-center gap-1 text-sm text-muted-foreground mb-1">
+                <UserCircle className="w-3 h-3" />
+                <span>Student: {studentName}</span>
+              </div>
+            )}
             <p className="text-sm text-muted-foreground line-clamp-2">
               {complaint.description}
             </p>
