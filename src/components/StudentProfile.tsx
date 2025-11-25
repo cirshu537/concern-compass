@@ -136,8 +136,8 @@ export function StudentProfile({ studentId, onBack }: StudentProfileProps) {
                   </Badge>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white">
-                        Unban Student
+                      <Button variant="outline" size="sm" className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white h-7 text-xs px-2">
+                        Unban
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
@@ -159,8 +159,8 @@ export function StudentProfile({ studentId, onBack }: StudentProfileProps) {
               )}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="sm">
-                    <Trash2 className="w-4 h-4 mr-2" />
+                  <Button variant="destructive" size="sm" className="h-7 text-xs px-2">
+                    <Trash2 className="w-3 h-3 mr-1" />
                     Delete
                   </Button>
                 </AlertDialogTrigger>
