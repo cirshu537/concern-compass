@@ -451,7 +451,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                   size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigate(`/student-profile/${studentProfile.id}`);
+                    navigate(`/admin/student-profile/${studentProfile.id}`);
                   }}
                 >
                   <User className="w-4 h-4 mr-2" />
