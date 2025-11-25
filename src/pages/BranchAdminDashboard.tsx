@@ -394,7 +394,7 @@ export default function BranchAdminDashboard() {
             filterByCategory={filterCategory}
             filterByHighAlertStaff={filterHighAlertStaff}
             filterByStatus={filterStatus}
-            filterByToday={filterToday}
+            filterByTimeRange={timeRange}
             onComplaintClick={(complaint) => {
               setSelectedComplaintId(complaint.id);
               setSelectedView('detail');
@@ -434,7 +434,7 @@ export default function BranchAdminDashboard() {
               setFilterCategory(undefined);
               setFilterHighAlertStaff(false);
               setFilterStatus(undefined);
-              setFilterToday(true);
+              setFilterToday(false);
               setSelectedView('complaints');
             }}
           >
@@ -453,7 +453,7 @@ export default function BranchAdminDashboard() {
               setFilterCategory(undefined);
               setFilterHighAlertStaff(false);
               setFilterStatus('open');
-              setFilterToday(true);
+              setFilterToday(false);
               setSelectedView('complaints');
             }}
           >
@@ -472,7 +472,7 @@ export default function BranchAdminDashboard() {
               setFilterCategory(undefined);
               setFilterHighAlertStaff(false);
               setFilterStatus('fixed');
-              setFilterToday(true);
+              setFilterToday(false);
               setSelectedView('complaints');
             }}
           >
@@ -491,7 +491,7 @@ export default function BranchAdminDashboard() {
               setFilterCategory(undefined);
               setFilterHighAlertStaff(false);
               setFilterStatus('cancelled');
-              setFilterToday(true);
+              setFilterToday(false);
               setSelectedView('complaints');
             }}
           >
@@ -510,7 +510,7 @@ export default function BranchAdminDashboard() {
               setFilterCategory(undefined);
               setFilterHighAlertStaff(true);
               setFilterStatus(undefined);
-              setFilterToday(true);
+              setFilterToday(false);
               setSelectedView('complaints');
             }}
           >
