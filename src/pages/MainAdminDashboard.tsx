@@ -10,7 +10,7 @@ import { ComplaintsList } from '@/components/complaints/ComplaintsList';
 import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
 import { StaffProfile } from '@/components/StaffProfile';
 import { StudentProfile } from '@/components/StudentProfile';
-import { FileText, MessageSquare, Building, LogOut, ChevronLeft, Calendar, BookOpen, Users } from 'lucide-react';
+import { FileText, MessageSquare, Building, LogOut, ChevronLeft, Calendar, BookOpen, Users, TrendingUp, Ban, AlertTriangle, BarChart3 } from 'lucide-react';
 import { DashboardNav } from '@/components/DashboardNav';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -25,6 +25,8 @@ export default function MainAdminDashboard() {
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime'>('today');
+  const [studentFilter, setStudentFilter] = useState<'all' | 'top_credit' | 'banned'>('all');
+  const [staffFilter, setStaffFilter] = useState<'all' | 'top_credit' | 'negative' | 'most_handled'>('all');
 
   // Redirect if not main admin
   useEffect(() => {
@@ -325,8 +327,18 @@ export default function MainAdminDashboard() {
     if (selectedView === 'student-list') {
       // Group students by branch
       const branches = ['Kochi', 'Calicut - Kakkanchery', 'Trivandrum', 'Online'];
+      
+      // Apply filters
+      let filteredStudents = allStudentsData || [];
+      
+      if (studentFilter === 'top_credit') {
+        filteredStudents = [...filteredStudents].sort((a, b) => (b.credits ?? 0) - (a.credits ?? 0));
+      } else if (studentFilter === 'banned') {
+        filteredStudents = filteredStudents.filter(s => s.banned_from_raise);
+      }
+      
       const studentsByBranch = branches.reduce((acc, branch) => {
-        acc[branch] = allStudentsData?.filter((s: any) => s.branch === branch) || [];
+        acc[branch] = filteredStudents?.filter((s: any) => s.branch === branch) || [];
         return acc;
       }, {} as Record<string, any[]>);
 
@@ -344,6 +356,38 @@ export default function MainAdminDashboard() {
           <div className="mb-6">
             <h2 className="text-3xl font-bold mb-2">All Students</h2>
             <p className="text-muted-foreground">Complete overview of all students across branches</p>
+          </div>
+          
+          {/* Student Filters */}
+          <div className="mb-6 flex items-center gap-3 flex-wrap">
+            <span className="text-sm font-medium text-muted-foreground">Filter:</span>
+            <Button
+              variant={studentFilter === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStudentFilter('all')}
+              className="h-9 gap-2"
+            >
+              <Users className="w-4 h-4" />
+              All
+            </Button>
+            <Button
+              variant={studentFilter === 'top_credit' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStudentFilter('top_credit')}
+              className="h-9 gap-2"
+            >
+              <TrendingUp className="w-4 h-4" />
+              Top Credit
+            </Button>
+            <Button
+              variant={studentFilter === 'banned' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStudentFilter('banned')}
+              className="h-9 gap-2"
+            >
+              <Ban className="w-4 h-4" />
+              Banned
+            </Button>
           </div>
           
           <div className="space-y-6">
@@ -404,13 +448,32 @@ export default function MainAdminDashboard() {
     }
 
     if (selectedView === 'staff-list') {
-      const onlineStaff = allStaffData?.allStaff?.filter((s: any) => s.branch === 'Online') || [];
-      const exclusiveHandlers = allStaffData?.allStaff?.filter((s: any) => s.handles_exclusive) || [];
+      // Apply filters
+      let filteredStaff = allStaffData?.allStaff || [];
+      
+      if (staffFilter === 'top_credit') {
+        filteredStaff = [...filteredStaff].sort((a, b) => (b.credits ?? 0) - (a.credits ?? 0));
+      } else if (staffFilter === 'negative') {
+        filteredStaff = [...filteredStaff].sort((a, b) => (b.negative_count_lifetime ?? 0) - (a.negative_count_lifetime ?? 0));
+      } else if (staffFilter === 'most_handled') {
+        filteredStaff = [...filteredStaff].sort((a, b) => {
+          const aCount = a.role === 'trainer' 
+            ? (allStaffData?.trainerComplaintCounts?.[a.id] || 0)
+            : (allStaffData?.staffComplaintCounts?.[a.id] || 0);
+          const bCount = b.role === 'trainer'
+            ? (allStaffData?.trainerComplaintCounts?.[b.id] || 0)
+            : (allStaffData?.staffComplaintCounts?.[b.id] || 0);
+          return bCount - aCount;
+        });
+      }
+      
+      const onlineStaff = filteredStaff?.filter((s: any) => s.branch === 'Online') || [];
+      const exclusiveHandlers = filteredStaff?.filter((s: any) => s.handles_exclusive) || [];
       
       // Group staff by each BroCamp branch
       const branches = ['Kochi', 'Calicut - Kakkanchery', 'Trivandrum'];
       const staffByBranch = branches.reduce((acc, branch) => {
-        acc[branch] = allStaffData?.allStaff?.filter((s: any) => 
+        acc[branch] = filteredStaff?.filter((s: any) => 
           s.branch === branch && !s.handles_exclusive
         ) || [];
         return acc;
@@ -430,6 +493,47 @@ export default function MainAdminDashboard() {
           <div className="mb-6">
             <h2 className="text-3xl font-bold mb-2">All Branch Staff and Trainers</h2>
             <p className="text-muted-foreground">Complete overview of all team members across branches</p>
+          </div>
+          
+          {/* Staff/Trainer Filters */}
+          <div className="mb-6 flex items-center gap-3 flex-wrap">
+            <span className="text-sm font-medium text-muted-foreground">Filter:</span>
+            <Button
+              variant={staffFilter === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStaffFilter('all')}
+              className="h-9 gap-2"
+            >
+              <Users className="w-4 h-4" />
+              All
+            </Button>
+            <Button
+              variant={staffFilter === 'top_credit' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStaffFilter('top_credit')}
+              className="h-9 gap-2"
+            >
+              <TrendingUp className="w-4 h-4" />
+              Top Credit Staff
+            </Button>
+            <Button
+              variant={staffFilter === 'negative' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStaffFilter('negative')}
+              className="h-9 gap-2"
+            >
+              <AlertTriangle className="w-4 h-4" />
+              Negative Staff
+            </Button>
+            <Button
+              variant={staffFilter === 'most_handled' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStaffFilter('most_handled')}
+              className="h-9 gap-2"
+            >
+              <BarChart3 className="w-4 h-4" />
+              Most Handled
+            </Button>
           </div>
           
           <div className="space-y-6">
