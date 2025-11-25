@@ -41,6 +41,7 @@ export function ComplaintsList({
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<ComplaintStatus | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'trainer_related' | 'staff_handled'>('all');
+  const [timeRangeFilter, setTimeRangeFilter] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime'>('today');
 
   // Subscribe to real-time updates
   useEffect(() => {
@@ -65,7 +66,7 @@ export function ComplaintsList({
   }, [queryClient]);
 
   const { data: complaints, isLoading } = useQuery({
-    queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, filterByCategory, filterByHighAlertStaff, filterByStatus, filterByToday, filterByTimeRange, statusFilter, categoryFilter],
+    queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, filterByCategory, filterByHighAlertStaff, filterByStatus, filterByToday, filterByTimeRange, statusFilter, categoryFilter, timeRangeFilter],
     queryFn: async () => {
       let query = supabase
         .from('complaints')
@@ -76,12 +77,13 @@ export function ComplaintsList({
         query = query.eq('branch', filterByBranch);
       }
 
-      // Apply time range filter
-      if (filterByTimeRange && filterByTimeRange !== 'lifetime') {
+      // Apply time range filter (prioritize local filter over props)
+      const activeTimeRange = filterByTimeRange || timeRangeFilter;
+      if (activeTimeRange !== 'lifetime') {
         const now = new Date();
         let rangeStart: Date;
         
-        switch (filterByTimeRange) {
+        switch (activeTimeRange) {
           case 'today':
             rangeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             break;
@@ -226,20 +228,34 @@ export function ComplaintsList({
               {complaints?.length || 0} {complaints?.length === 1 ? 'complaint' : 'complaints'} found
             </p>
           </div>
-          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as ComplaintStatus | 'all')}>
-            <SelectTrigger className="w-[200px] h-11">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="logged">Logged</SelectItem>
-              <SelectItem value="noted">Noted</SelectItem>
-              <SelectItem value="in_process">In Process</SelectItem>
-              <SelectItem value="fixed">Fixed</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-3">
+            <Select value={timeRangeFilter} onValueChange={(value) => setTimeRangeFilter(value as typeof timeRangeFilter)}>
+              <SelectTrigger className="w-[160px] h-11">
+                <SelectValue placeholder="Time range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="weekly">Last Week</SelectItem>
+                <SelectItem value="monthly">Last Month</SelectItem>
+                <SelectItem value="yearly">Last Year</SelectItem>
+                <SelectItem value="lifetime">Lifetime</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as ComplaintStatus | 'all')}>
+              <SelectTrigger className="w-[160px] h-11">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="logged">Logged</SelectItem>
+                <SelectItem value="noted">Noted</SelectItem>
+                <SelectItem value="in_process">In Process</SelectItem>
+                <SelectItem value="fixed">Fixed</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         
         <div className="flex items-center gap-3 flex-wrap">
