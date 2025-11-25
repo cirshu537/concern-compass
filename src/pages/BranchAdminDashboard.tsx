@@ -26,6 +26,8 @@ export default function BranchAdminDashboard() {
   const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
   const [filterToday, setFilterToday] = useState<boolean>(false);
   const [timeRange, setTimeRange] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime'>('today');
+  const [studentFilter, setStudentFilter] = useState<'all' | 'top-credit' | 'banned'>('all');
+  const [staffFilter, setStaffFilter] = useState<'all' | 'top-credit' | 'negative' | 'most-handled'>('all');
 
   // Redirect if not branch admin
   useEffect(() => {
@@ -192,8 +194,25 @@ export default function BranchAdminDashboard() {
     }
 
     if (selectedView === 'staff-list') {
-      const staffMembers = stats?.allStaff?.filter((m: any) => m.role === 'staff') || [];
-      const trainerMembers = stats?.allStaff?.filter((m: any) => m.role === 'trainer') || [];
+      const allStaffAndTrainers = stats?.allStaff || [];
+      
+      let filteredStaff = [...allStaffAndTrainers];
+      
+      if (staffFilter === 'top-credit') {
+        filteredStaff = filteredStaff.sort((a: any, b: any) => (b.credits ?? 0) - (a.credits ?? 0));
+      } else if (staffFilter === 'negative') {
+        filteredStaff = filteredStaff.sort((a: any, b: any) => (b.negative_count_lifetime ?? 0) - (a.negative_count_lifetime ?? 0));
+      } else if (staffFilter === 'most-handled') {
+        filteredStaff = filteredStaff.sort((a: any, b: any) => {
+          const aCount = a.role === 'trainer' ? (stats?.trainerComplaintCounts?.[a.id] || 0) : 0;
+          const bCount = b.role === 'trainer' ? (stats?.trainerComplaintCounts?.[b.id] || 0) : 0;
+          return bCount - aCount;
+        });
+      }
+      
+      const staffMembers = filteredStaff.filter((m: any) => m.role === 'staff');
+      const trainerMembers = filteredStaff.filter((m: any) => m.role === 'trainer');
+      const showGrouped = staffFilter === 'all';
       
       return (
         <div>
@@ -206,22 +225,108 @@ export default function BranchAdminDashboard() {
             Back to Dashboard
           </Button>
           
-          <div className="space-y-6">
-            {/* Staff Section */}
+          <div className="mb-4 flex gap-2 flex-wrap">
+            <Button
+              variant={staffFilter === 'all' ? 'default' : 'outline'}
+              onClick={() => setStaffFilter('all')}
+            >
+              All
+            </Button>
+            <Button
+              variant={staffFilter === 'top-credit' ? 'default' : 'outline'}
+              onClick={() => setStaffFilter('top-credit')}
+            >
+              Top Credit Staff
+            </Button>
+            <Button
+              variant={staffFilter === 'negative' ? 'default' : 'outline'}
+              onClick={() => setStaffFilter('negative')}
+            >
+              Negative Staff
+            </Button>
+            <Button
+              variant={staffFilter === 'most-handled' ? 'default' : 'outline'}
+              onClick={() => setStaffFilter('most-handled')}
+            >
+              Most Handled
+            </Button>
+          </div>
+          
+          {!showGrouped && (
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-2xl">Staff - {profile?.branch}</CardTitle>
+                  <CardTitle className="text-2xl">
+                    {staffFilter === 'top-credit' && 'Top Credit Staff & Trainers'}
+                    {staffFilter === 'negative' && 'Staff & Trainers by Negatives'}
+                    {staffFilter === 'most-handled' && 'Staff & Trainers by Concerns Handled'}
+                  </CardTitle>
                   <div className="flex items-center gap-2 text-sm">
                     <span className="text-muted-foreground">Total:</span>
-                    <span className="font-bold text-xl text-primary">{staffMembers.length}</span>
+                    <span className="font-bold text-xl text-primary">{filteredStaff.length}</span>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                {staffMembers.length > 0 ? (
+                {filteredStaff.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {staffMembers.map((member: any) => (
+                    {filteredStaff.map((member: any) => (
+                      <Card 
+                        key={member.id} 
+                        className="cursor-pointer hover:border-primary/50 transition-all"
+                        onClick={() => {
+                          setSelectedStaffId(member.id);
+                          setSelectedView('staff-profile');
+                        }}
+                      >
+                        <CardContent className="pt-6">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-lg">{member.full_name}</h3>
+                              {member.high_alert && (
+                                <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">High Alert</span>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground capitalize">{member.role}</p>
+                            <div className="pt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                              {member.role === 'trainer' ? (
+                                <span>Concerns Dealt: {stats?.trainerComplaintCounts?.[member.id] || 0}</span>
+                              ) : (
+                                <>
+                                  <span>Credits: {member.credits ?? 0}</span>
+                                  <span>Negatives: {member.negative_count_lifetime ?? 0}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No staff or trainers found</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+          
+          {showGrouped && (
+            <div className="space-y-6">
+              {/* Staff Section */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-2xl">Staff - {profile?.branch}</CardTitle>
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-muted-foreground">Total:</span>
+                      <span className="font-bold text-xl text-primary">{staffMembers.length}</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {staffMembers.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {staffMembers.map((member: any) => (
                       <Card 
                         key={member.id} 
                         className="cursor-pointer hover:border-primary/50 transition-all"
@@ -299,12 +404,23 @@ export default function BranchAdminDashboard() {
                 )}
               </CardContent>
             </Card>
-          </div>
+            </div>
+          )}
         </div>
       );
     }
 
     if (selectedView === 'student-list') {
+      let filteredStudents = [...(stats?.allStudents || [])];
+      
+      if (studentFilter === 'top-credit') {
+        filteredStudents = filteredStudents.sort((a: any, b: any) => (b.credits ?? 0) - (a.credits ?? 0));
+      } else if (studentFilter === 'banned') {
+        filteredStudents = filteredStudents.filter((s: any) => s.banned_from_raise);
+      }
+      
+      const showGrouped = studentFilter === 'all';
+      
       return (
         <div>
           <Button 
@@ -315,20 +431,46 @@ export default function BranchAdminDashboard() {
             <ChevronLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
+          
+          <div className="mb-4 flex gap-2 flex-wrap">
+            <Button
+              variant={studentFilter === 'all' ? 'default' : 'outline'}
+              onClick={() => setStudentFilter('all')}
+            >
+              All
+            </Button>
+            <Button
+              variant={studentFilter === 'top-credit' ? 'default' : 'outline'}
+              onClick={() => setStudentFilter('top-credit')}
+            >
+              Top Credit
+            </Button>
+            <Button
+              variant={studentFilter === 'banned' ? 'default' : 'outline'}
+              onClick={() => setStudentFilter('banned')}
+            >
+              Banned
+            </Button>
+          </div>
+          
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl">All Students - {profile?.branch}</CardTitle>
+                <CardTitle className="text-2xl">
+                  {studentFilter === 'all' && `All Students - ${profile?.branch}`}
+                  {studentFilter === 'top-credit' && 'Top Credit Students'}
+                  {studentFilter === 'banned' && 'Banned Students'}
+                </CardTitle>
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-muted-foreground">Total:</span>
-                  <span className="font-bold text-xl text-secondary">{stats?.allStudents?.length || 0}</span>
+                  <span className="font-bold text-xl text-secondary">{filteredStudents.length}</span>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              {stats?.allStudents && stats.allStudents.length > 0 ? (
+              {filteredStudents.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {stats.allStudents.map((student: any) => (
+                  {filteredStudents.map((student: any) => (
                     <Card 
                       key={student.id} 
                       className="cursor-pointer hover:border-secondary/50 transition-all"
