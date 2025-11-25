@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 export default function BranchAdminDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, loading: authLoading } = useAuth();
   const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail' | 'staff-list' | 'student-list' | 'staff-profile' | 'student-profile'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
@@ -31,11 +31,15 @@ export default function BranchAdminDashboard() {
 
   // Redirect if not branch admin
   useEffect(() => {
-    console.log('Profile check:', profile);
-    if (profile && profile.role !== 'branch_admin') {
+    console.log('Profile check:', profile, 'Auth loading:', authLoading);
+    if (!authLoading && !profile) {
+      console.log('No profile and not loading - redirecting to home');
+      navigate('/');
+    } else if (profile && profile.role !== 'branch_admin') {
+      console.log('Not branch admin - redirecting to home');
       navigate('/');
     }
-  }, [profile, navigate]);
+  }, [profile, authLoading, navigate]);
 
   // Read URL parameters and set state
   useEffect(() => {
@@ -161,6 +165,28 @@ export default function BranchAdminDashboard() {
   });
 
   console.log('Query state - isLoading:', isLoading, 'error:', error, 'stats:', stats);
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-destructive mb-4">Your session has expired. Please log in again.</p>
+          <Button onClick={() => navigate('/')}>Go to Home</Button>
+        </div>
+      </div>
+    );
+  }
 
   const handleSignOut = async () => {
     await signOut();
