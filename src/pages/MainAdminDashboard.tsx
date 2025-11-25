@@ -12,6 +12,7 @@ import { StaffProfile } from '@/components/StaffProfile';
 import { StudentProfile } from '@/components/StudentProfile';
 import { FileText, MessageSquare, Building, LogOut, ChevronLeft, Calendar, BookOpen, Users } from 'lucide-react';
 import { DashboardNav } from '@/components/DashboardNav';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function MainAdminDashboard() {
   const navigate = useNavigate();
@@ -75,16 +76,21 @@ export default function MainAdminDashboard() {
     }
   };
 
-  // Today's stats
+  // Stats based on time range
   const { data: stats } = useQuery({
-    queryKey: ['main-admin-stats-today'],
+    queryKey: ['main-admin-stats', timeRange],
     queryFn: async () => {
-      const todayStart = getDateRange();
+      const rangeStart = getTimeRangeDate();
       
-      const { data: complaints } = await supabase
+      const query = supabase
         .from('complaints')
-        .select('id, status, student_type, branch')
-        .gte('created_at', todayStart);
+        .select('id, status, student_type, branch');
+      
+      if (timeRange !== 'lifetime') {
+        query.gte('created_at', rangeStart);
+      }
+
+      const { data: complaints } = await query;
 
       return {
         total: complaints?.length || 0,
@@ -254,6 +260,23 @@ export default function MainAdminDashboard() {
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const getTimeRangeLabel = () => {
+    switch (timeRange) {
+      case 'today':
+        return 'Today';
+      case 'weekly':
+        return 'Last Week';
+      case 'monthly':
+        return 'Last Month';
+      case 'yearly':
+        return 'Last Year';
+      case 'lifetime':
+        return 'Lifetime';
+      default:
+        return 'Today';
+    }
   };
 
   const renderContent = () => {
@@ -839,6 +862,22 @@ export default function MainAdminDashboard() {
           <p className="text-muted-foreground">Monitor all branches and manage the entire system</p>
         </div>
 
+        <div className="mb-6 flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Statistics Overview</h3>
+          <Select value={timeRange} onValueChange={(v) => setTimeRange(v as any)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select period" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="weekly">Last Week</SelectItem>
+              <SelectItem value="monthly">Last Month</SelectItem>
+              <SelectItem value="yearly">Last Year</SelectItem>
+              <SelectItem value="lifetime">Lifetime</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-7 gap-4 mb-8">
           <Card 
             className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 cursor-pointer hover:border-primary/50 transition-all group"
@@ -852,7 +891,7 @@ export default function MainAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary group-hover:scale-105 transition-transform">{stats?.total || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Today</p>
+              <p className="text-xs text-muted-foreground mt-1">{getTimeRangeLabel()}</p>
             </CardContent>
           </Card>
 
@@ -868,7 +907,7 @@ export default function MainAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-secondary group-hover:scale-105 transition-transform">{stats?.open || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Today</p>
+              <p className="text-xs text-muted-foreground mt-1">{getTimeRangeLabel()}</p>
             </CardContent>
           </Card>
 
@@ -884,7 +923,7 @@ export default function MainAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-status-fixed group-hover:scale-105 transition-transform">{stats?.fixed || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Today</p>
+              <p className="text-xs text-muted-foreground mt-1">{getTimeRangeLabel()}</p>
             </CardContent>
           </Card>
 
@@ -900,7 +939,7 @@ export default function MainAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-accent group-hover:scale-105 transition-transform">{stats?.brocamp || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Today</p>
+              <p className="text-xs text-muted-foreground mt-1">{getTimeRangeLabel()}</p>
             </CardContent>
           </Card>
 
@@ -916,7 +955,7 @@ export default function MainAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-blue-500 group-hover:scale-105 transition-transform">{stats?.online || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Today</p>
+              <p className="text-xs text-muted-foreground mt-1">{getTimeRangeLabel()}</p>
             </CardContent>
           </Card>
 
@@ -932,7 +971,7 @@ export default function MainAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-status-cancelled group-hover:scale-105 transition-transform">{stats?.cancelled || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Today</p>
+              <p className="text-xs text-muted-foreground mt-1">{getTimeRangeLabel()}</p>
             </CardContent>
           </Card>
 
@@ -948,7 +987,7 @@ export default function MainAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-purple-500 group-hover:scale-105 transition-transform">{stats?.exclusive || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Today</p>
+              <p className="text-xs text-muted-foreground mt-1">{getTimeRangeLabel()}</p>
             </CardContent>
           </Card>
         </div>
