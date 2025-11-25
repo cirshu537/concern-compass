@@ -239,74 +239,66 @@ export function ComplaintsList({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 pb-4 border-b border-border/50">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-3xl font-bold text-foreground">
-              Complaints
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              {complaints?.length || 0} {complaints?.length === 1 ? 'complaint' : 'complaints'} found
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Select value={timeRangeFilter} onValueChange={(value) => setTimeRangeFilter(value as typeof timeRangeFilter)}>
-              <SelectTrigger className="w-[160px] h-11">
-                <SelectValue placeholder="Time range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="weekly">Last Week</SelectItem>
-                <SelectItem value="monthly">Last Month</SelectItem>
-                <SelectItem value="yearly">Last Year</SelectItem>
-                <SelectItem value="lifetime">Lifetime</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as ComplaintStatus | 'all')}>
-              <SelectTrigger className="w-[160px] h-11">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="logged">Logged</SelectItem>
-                <SelectItem value="noted">Noted</SelectItem>
-                <SelectItem value="in_process">In Process</SelectItem>
-                <SelectItem value="fixed">Fixed</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-border/30">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground">
+            Complaints
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {complaints?.length || 0} {complaints?.length === 1 ? 'complaint' : 'complaints'} found
+          </p>
         </div>
-        
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-sm font-medium text-muted-foreground">Quick Filters:</span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Select value={timeRangeFilter} onValueChange={(value) => setTimeRangeFilter(value as typeof timeRangeFilter)}>
+            <SelectTrigger className="w-[130px] h-9">
+              <SelectValue placeholder="Time range" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="weekly">Last Week</SelectItem>
+              <SelectItem value="monthly">Last Month</SelectItem>
+              <SelectItem value="yearly">Last Year</SelectItem>
+              <SelectItem value="lifetime">Lifetime</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as ComplaintStatus | 'all')}>
+            <SelectTrigger className="w-[130px] h-9">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="logged">Logged</SelectItem>
+              <SelectItem value="noted">Noted</SelectItem>
+              <SelectItem value="in_process">In Process</SelectItem>
+              <SelectItem value="fixed">Fixed</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
           <Button
             variant={categoryFilter === 'all' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setCategoryFilter('all')}
-            className="h-9 gap-2"
+            className="h-9"
           >
-            All Categories
+            All
           </Button>
           <Button
             variant={categoryFilter === 'trainer_related' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setCategoryFilter('trainer_related')}
-            className="h-9 gap-2"
+            className="h-9"
           >
-            <GraduationCap className="w-4 h-4" />
-            Trainer Related
+            Trainer
           </Button>
           <Button
             variant={categoryFilter === 'staff_handled' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setCategoryFilter('staff_handled')}
-            className="h-9 gap-2"
+            className="h-9"
           >
-            <Users className="w-4 h-4" />
-            Staff Handled
+            Staff
           </Button>
         </div>
       </div>
