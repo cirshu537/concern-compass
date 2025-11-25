@@ -31,6 +31,7 @@ export default function BranchAdminDashboard() {
 
   // Redirect if not branch admin
   useEffect(() => {
+    console.log('Profile check:', profile);
     if (profile && profile.role !== 'branch_admin') {
       navigate('/');
     }
@@ -86,7 +87,9 @@ export default function BranchAdminDashboard() {
     queryKey: ['branch-stats', profile?.branch, timeRange],
     enabled: !!profile?.branch,
     queryFn: async () => {
+      console.log('=== QUERY FUNCTION RUNNING ===');
       console.log('Fetching stats for branch:', profile?.branch);
+      console.log('Profile:', profile);
       const rangeStart = getTimeRangeDate();
       
       const query = supabase
