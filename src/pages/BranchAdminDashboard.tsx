@@ -82,10 +82,11 @@ export default function BranchAdminDashboard() {
     }
   };
 
-  const { data: stats } = useQuery({
+  const { data: stats, error, isLoading } = useQuery({
     queryKey: ['branch-stats', profile?.branch, timeRange],
     enabled: !!profile?.branch,
     queryFn: async () => {
+      console.log('Fetching stats for branch:', profile?.branch);
       const rangeStart = getTimeRangeDate();
       
       const query = supabase
@@ -99,17 +100,21 @@ export default function BranchAdminDashboard() {
 
       const { data: complaints } = await query;
 
-      const { data: staff } = await supabase
+      const { data: staff, error: staffError } = await supabase
         .from('profiles')
         .select('id, full_name, role, high_alert, negative_count_lifetime, credits')
         .eq('branch', profile!.branch)
         .in('role', ['staff', 'trainer']);
 
-      const { data: students } = await supabase
+      console.log('Staff data:', staff, 'Error:', staffError);
+
+      const { data: students, error: studentsError } = await supabase
         .from('profiles')
         .select('id, full_name, email, student_type, banned_from_raise, program, credits')
         .eq('branch', profile!.branch)
         .eq('role', 'student');
+
+      console.log('Students data:', students, 'Error:', studentsError);
 
       // Get complaint counts for trainers
       const trainerIds = staff?.filter(s => s.role === 'trainer').map(s => s.id) || [];
@@ -135,7 +140,7 @@ export default function BranchAdminDashboard() {
         return acc;
       }, {} as Record<string, number>) || {};
 
-      return {
+      const result = {
         total: complaints?.length || 0,
         open: complaints?.filter(c => c.status === 'logged' || c.status === 'noted' || c.status === 'in_process').length || 0,
         fixed: complaints?.filter(c => c.status === 'fixed').length || 0,
@@ -146,8 +151,13 @@ export default function BranchAdminDashboard() {
         categoryBreakdown,
         trainerComplaintCounts,
       };
+
+      console.log('Stats result:', result);
+      return result;
     },
   });
+
+  console.log('Query state - isLoading:', isLoading, 'error:', error, 'stats:', stats);
 
   const handleSignOut = async () => {
     await signOut();
