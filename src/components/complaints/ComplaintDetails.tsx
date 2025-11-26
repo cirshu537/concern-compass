@@ -329,7 +329,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
         <div className="lg:col-span-2 space-y-6">
           {/* Title and Description Card */}
           <Card className="border shadow-lg">
-            <CardHeader className="pb-6">
+            <CardHeader className="pb-4">
               <div className="space-y-4">
                 <CardTitle className="text-3xl font-bold tracking-tight">{complaint.title}</CardTitle>
                 
@@ -351,9 +351,9 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4 pt-6">
-              
-              {complaint.attachment_url && (
+            
+            {complaint.attachment_url && (
+              <CardContent className="pt-0 pb-4">
                 <Button
                   variant="outline"
                   onClick={handleViewAttachment}
@@ -362,28 +362,28 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                   <FileText className="w-4 h-4 mr-2" />
                   View Attachment
                 </Button>
-              )}
 
-              {showAttachment && attachmentUrl && (
-                <div className="border rounded-lg p-4 bg-muted/20">
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-sm font-semibold">Attachment</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowAttachment(false)}
-                    >
-                      Close
-                    </Button>
+                {showAttachment && attachmentUrl && (
+                  <div className="border rounded-lg p-4 bg-muted/20 mt-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-sm font-semibold">Attachment</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowAttachment(false)}
+                      >
+                        Close
+                      </Button>
+                    </div>
+                    <img 
+                      src={attachmentUrl} 
+                      alt="Complaint attachment" 
+                      className="max-w-full rounded border"
+                    />
                   </div>
-                  <img 
-                    src={attachmentUrl} 
-                    alt="Complaint attachment" 
-                    className="max-w-full rounded border"
-                  />
-                </div>
-              )}
-            </CardContent>
+                )}
+              </CardContent>
+            )}
           </Card>
 
           {/* Reviews Timeline */}
