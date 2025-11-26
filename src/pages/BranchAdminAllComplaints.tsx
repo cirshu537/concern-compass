@@ -1,25 +1,17 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardNav } from '@/components/DashboardNav';
 import { ComplaintsList } from '@/components/complaints/ComplaintsList';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { Complaint } from '@/types/database';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function BranchAdminAllComplaints() {
   const navigate = useNavigate();
-  const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
-  const [selectedView, setSelectedView] = useState<'list' | 'detail'>('list');
+  const { profile } = useAuth();
 
-  const handleComplaintClick = (complaint: Complaint) => {
-    setSelectedComplaintId(complaint.id);
-    setSelectedView('detail');
+  const handleComplaintClick = (complaintId: string) => {
+    navigate(`/complaint/${complaintId}?from=branch-all-complaints&returnView=complaints`);
   };
-
-  if (selectedView === 'detail' && selectedComplaintId) {
-    navigate(`/complaint/${selectedComplaintId}`);
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,8 +28,9 @@ export default function BranchAdminAllComplaints() {
         </Button>
 
         <ComplaintsList
+          filterByBranch={profile?.branch || ''}
           hideInternalFilters={false}
-          onComplaintClick={handleComplaintClick}
+          onComplaintClick={(complaint) => handleComplaintClick(complaint.id)}
         />
       </div>
     </div>
