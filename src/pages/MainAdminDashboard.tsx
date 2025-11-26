@@ -836,7 +836,10 @@ export default function MainAdminDashboard() {
             <ComplaintDetails 
               complaintId={selectedComplaintId}
               onBack={() => {
-                if (selectedBranch) {
+                const from = searchParams.get('from');
+                if (from === 'chat') {
+                  navigate('/chat');
+                } else if (selectedBranch) {
                   setSelectedView('branch');
                 } else if (selectedFilter) {
                   setSelectedView('filtered');

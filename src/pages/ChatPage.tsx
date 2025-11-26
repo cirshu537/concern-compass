@@ -390,13 +390,13 @@ export default function ChatPage() {
     if (!currentComplaint) return;
     
     if (profile?.role === 'main_admin') {
-      navigate(`/main-admin/dashboard?view=detail&id=${currentComplaint.id}`);
+      navigate(`/main-admin/dashboard?view=detail&id=${currentComplaint.id}&from=chat`);
     } else if (profile?.role === 'branch_admin') {
-      navigate(`/branch-admin/dashboard?view=detail&id=${currentComplaint.id}`);
+      navigate(`/branch-admin/dashboard?view=detail&id=${currentComplaint.id}&from=chat`);
     } else if (profile?.role === 'staff') {
-      navigate(`/staff/dashboard?view=detail&id=${currentComplaint.id}`);
+      navigate(`/staff/dashboard?view=detail&id=${currentComplaint.id}&from=chat`);
     } else if (profile?.role === 'trainer') {
-      navigate(`/trainer/dashboard?view=detail&id=${currentComplaint.id}`);
+      navigate(`/trainer/dashboard?view=detail&id=${currentComplaint.id}&from=chat`);
     }
   };
 
