@@ -351,7 +351,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4 border-t pt-6">
+            <CardContent className="space-y-4 pt-6">
               
               {complaint.attachment_url && (
                 <Button
