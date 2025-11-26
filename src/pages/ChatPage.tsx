@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ArrowLeft, Send, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { DashboardNav } from '@/components/DashboardNav';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
+import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
 
 interface Conversation {
   id: string;
@@ -47,6 +49,7 @@ export default function ChatPage() {
   const [messageInput, setMessageInput] = useState('');
   const [loading, setLoading] = useState(true);
   const [currentComplaint, setCurrentComplaint] = useState<any>(null);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Removed global markAsRead on page load - now tracked per conversation
@@ -386,18 +389,9 @@ export default function ChatPage() {
     }
   };
 
-  const navigateToConcernDetails = () => {
+  const openDetailsDialog = () => {
     if (!currentComplaint) return;
-    
-    if (profile?.role === 'main_admin') {
-      navigate(`/main-admin/dashboard?view=detail&id=${currentComplaint.id}&from=chat`);
-    } else if (profile?.role === 'branch_admin') {
-      navigate(`/branch-admin/dashboard?view=detail&id=${currentComplaint.id}&from=chat`);
-    } else if (profile?.role === 'staff') {
-      navigate(`/staff/dashboard?view=detail&id=${currentComplaint.id}&from=chat`);
-    } else if (profile?.role === 'trainer') {
-      navigate(`/trainer/dashboard?view=detail&id=${currentComplaint.id}&from=chat`);
-    }
+    setShowDetailsDialog(true);
   };
 
   const selectedConvData = conversations.find(c => c.id === selectedConversation);
@@ -505,7 +499,7 @@ export default function ChatPage() {
                     <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-border">
                       <p className="text-xs text-muted-foreground mb-1">Discussing Concern:</p>
                       <button
-                        onClick={navigateToConcernDetails}
+                        onClick={openDetailsDialog}
                         className="text-left hover:underline focus:outline-none w-full group"
                       >
                         <div className="flex items-start justify-between gap-2">
@@ -523,7 +517,7 @@ export default function ChatPage() {
                             className="flex-shrink-0"
                             onClick={(e) => {
                               e.stopPropagation();
-                              navigateToConcernDetails();
+                              openDetailsDialog();
                             }}
                           >
                             View Details
@@ -612,6 +606,21 @@ export default function ChatPage() {
           </Card>
         </div>
       </main>
+
+      {/* Complaint Details Dialog */}
+      <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Concern Details</DialogTitle>
+          </DialogHeader>
+          {currentComplaint && (
+            <ComplaintDetails 
+              complaintId={currentComplaint.id}
+              onBack={() => setShowDetailsDialog(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
