@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -91,6 +91,9 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
           <DialogTitle className="text-xl font-bold text-center bg-gradient-cyber bg-clip-text text-transparent">
             {isLogin ? 'Login' : 'Register'}
           </DialogTitle>
+          <DialogDescription className="text-center">
+            {isLogin ? 'Sign in to access your account' : 'Create a new student account to get started'}
+          </DialogDescription>
         </DialogHeader>
 
         {isLogin ? (

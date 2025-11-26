@@ -21,6 +21,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
 import { toast } from 'sonner';
@@ -295,6 +296,9 @@ export function StudentProfile({ studentId, onBack }: StudentProfileProps) {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Complaint Details</DialogTitle>
+            <DialogDescription>
+              View complete details and take actions on this complaint.
+            </DialogDescription>
           </DialogHeader>
           {selectedComplaintId && (
             <ComplaintDetails 
