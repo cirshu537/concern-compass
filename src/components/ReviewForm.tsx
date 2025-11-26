@@ -126,74 +126,76 @@ export function ReviewForm({
 
   return (
     <Card className="bg-card border-border">
-      <CardHeader>
-        <CardTitle>{isTrainerReply ? 'Reply to Student' : 'Rate this Concern'}</CardTitle>
-        <CardDescription>{getCardDescription()}</CardDescription>
+      <CardHeader className="pb-2 pt-3 px-3">
+        <CardTitle className="text-sm font-semibold">{isTrainerReply ? 'Reply to Student' : 'Rate this Concern'}</CardTitle>
+        <CardDescription className="text-xs">{getCardDescription()}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 px-3 pb-3">
         {!isTrainerReply && (
-          <div className="flex gap-3 justify-center items-center">
+          <div className="flex gap-2 justify-center items-center">
             <Button
               variant={rating === -1 ? 'destructive' : 'outline'}
-              size="lg"
+              size="sm"
               onClick={() => setRating(-1)}
-              className={`flex-1 ${rating !== -1 ? 'border-destructive/50 text-destructive hover:bg-destructive/10' : ''}`}
+              className={`flex-1 h-8 text-xs ${rating !== -1 ? 'border-destructive/50 text-destructive hover:bg-destructive/10' : ''}`}
             >
-              <ThumbsDown className="w-5 h-5 mr-2" />
+              <ThumbsDown className="w-3 h-3 mr-1" />
               Negative
             </Button>
             <Button
               variant={rating === 0 ? 'default' : 'outline'}
-              size="lg"
+              size="sm"
               onClick={() => setRating(0)}
-              className="flex-1"
+              className="flex-1 h-8 text-xs"
             >
-              — Neutral —
+              Neutral
             </Button>
             <Button
               variant={rating === 1 ? 'success' : 'outline'}
-              size="lg"
+              size="sm"
               onClick={() => setRating(1)}
-              className={`flex-1 ${rating !== 1 ? 'border-success/50 text-success hover:bg-success/10' : ''}`}
+              className={`flex-1 h-8 text-xs ${rating !== 1 ? 'border-success/50 text-success hover:bg-success/10' : ''}`}
             >
-              <ThumbsUp className="w-5 h-5 mr-2" />
+              <ThumbsUp className="w-3 h-3 mr-1" />
               Positive
             </Button>
           </div>
         )}
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">
+        <div className="space-y-1">
+          <label className="text-xs font-medium">
             {isTrainerReply ? 'Your Response' : 'Comment'} {!isTrainerReply && '(Optional)'}
           </label>
           <Textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder={isTrainerReply ? 'Write your response to the student...' : 'Share your thoughts...'}
-            rows={4}
-            className="bg-input border-border"
+            placeholder={isTrainerReply ? 'Write your response...' : 'Share your thoughts...'}
+            rows={3}
+            className="bg-input border-border text-sm"
           />
         </div>
 
         {allowStatusChange && (
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Action</label>
-            <div className="flex gap-3">
+          <div className="space-y-2">
+            <label className="text-xs font-medium">Action</label>
+            <div className="flex gap-2">
               <Button
                 variant={selectedAction === 'cancelled' ? 'destructive' : 'outline'}
                 onClick={() => {
                   setShowCancelConfirm(true);
                 }}
-                className={`flex-1 ${selectedAction !== 'cancelled' ? 'border-destructive/50 text-destructive hover:bg-destructive/10' : ''}`}
+                size="sm"
+                className={`flex-1 h-8 text-xs ${selectedAction !== 'cancelled' ? 'border-destructive/50 text-destructive hover:bg-destructive/10' : ''}`}
               >
-                Cancel Concern
+                Cancel
               </Button>
               <Button
                 variant={selectedAction === 'fixed' ? 'success' : 'outline'}
                 onClick={() => setSelectedAction('fixed')}
-                className={`flex-1 ${selectedAction !== 'fixed' ? 'border-success/50 text-success hover:bg-success/10' : ''}`}
+                size="sm"
+                className={`flex-1 h-8 text-xs ${selectedAction !== 'fixed' ? 'border-success/50 text-success hover:bg-success/10' : ''}`}
               >
-                Mark as Fixed
+                Fixed
               </Button>
             </div>
           </div>
@@ -206,7 +208,8 @@ export function ReviewForm({
             (allowStatusChange && !selectedAction) || 
             submitting
           }
-          className="w-full"
+          size="sm"
+          className="w-full h-8 text-xs"
         >
           {submitting ? 'Submitting...' : isTrainerReply ? 'Send Reply' : 'Submit Review'}
         </Button>
