@@ -528,7 +528,7 @@ export default function BranchAdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card 
             className="bg-card border-border hover:border-primary/50 transition-all cursor-pointer group"
-            onClick={() => setSelectedView('complaints')}
+            onClick={() => navigate('/branch-admin/all-complaints')}
           >
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">

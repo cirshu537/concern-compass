@@ -16,6 +16,7 @@ import TrainerDocs from "./pages/TrainerDocs";
 import StaffDashboard from "./pages/StaffDashboard";
 import StaffDocs from "./pages/StaffDocs";
 import BranchAdminDashboard from "./pages/BranchAdminDashboard";
+import BranchAdminAllComplaints from "./pages/BranchAdminAllComplaints";
 import MainAdminDashboard from "./pages/MainAdminDashboard";
 import AdminDocs from "./pages/AdminDocs";
 import AdminStudentProfile from "./pages/AdminStudentProfile";
@@ -43,7 +44,8 @@ const App = () => (
             <Route path="/staff/dashboard" element={<StaffDashboard />} />
             <Route path="/staff/profile" element={<StudentProfile />} />
             <Route path="/staff/docs" element={<StaffDocs />} />
-            <Route path="/branch-admin/dashboard" element={<BranchAdminDashboard />} />
+          <Route path="/branch-admin/dashboard" element={<BranchAdminDashboard />} />
+          <Route path="/branch-admin/all-complaints" element={<BranchAdminAllComplaints />} />
             <Route path="/main-admin/dashboard" element={<MainAdminDashboard />} />
             <Route path="/admin/docs" element={<AdminDocs />} />
             <Route path="/admin/student-profile/:studentId" element={<AdminStudentProfile />} />
