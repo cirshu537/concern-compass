@@ -330,10 +330,18 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
           {/* Title and Description Card */}
           <Card className="border shadow-lg">
             <CardHeader className="pb-4">
-              <div className="flex items-start justify-between gap-4 mb-3">
-                <CardTitle className="text-2xl font-bold flex-1">{complaint.title}</CardTitle>
+              <CardTitle className="text-2xl font-bold">{complaint.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Description
+                </h3>
+                <p className="text-base leading-relaxed whitespace-pre-wrap">{complaint.description}</p>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
+              
+              <div className="flex flex-wrap items-center gap-2 pt-2">
                 <StatusBadge status={complaint.status} />
                 {complaint.anonymous && (
                   <Badge variant="outline" className="text-xs">
@@ -344,15 +352,6 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                 <Badge variant="secondary" className="text-xs capitalize">
                   {complaint.student_type}
                 </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Description
-                </h3>
-                <p className="text-base leading-relaxed whitespace-pre-wrap">{complaint.description}</p>
               </div>
               
               {complaint.attachment_url && (
