@@ -228,7 +228,29 @@ export function ComplaintsList({
     if (onComplaintClick) {
       onComplaintClick(complaint);
     } else {
-      navigate(`/complaint/${complaint.id}`);
+      // Build context URL parameters based on current view
+      const params = new URLSearchParams();
+      params.set('view', 'detail');
+      params.set('id', complaint.id);
+      
+      // Add return context based on active filters
+      if (filterByBranch) params.set('returnView', 'branch');
+      else if (filterByStatus) params.set('returnView', 'filtered');
+      else params.set('returnView', 'complaints');
+      
+      if (statusFilter !== 'all') params.set('statusFilter', statusFilter);
+      if (categoryFilter !== 'all') params.set('categoryFilter', categoryFilter);
+      
+      // Navigate to appropriate dashboard with context
+      if (profile?.role === 'main_admin') {
+        navigate(`/main-admin/dashboard?${params.toString()}`);
+      } else if (profile?.role === 'branch_admin') {
+        navigate(`/branch-admin/dashboard?${params.toString()}`);
+      } else if (profile?.role === 'staff') {
+        navigate(`/staff/dashboard?${params.toString()}`);
+      } else if (profile?.role === 'trainer') {
+        navigate(`/trainer/dashboard?${params.toString()}`);
+      }
     }
   };
 

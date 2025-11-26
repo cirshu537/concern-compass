@@ -832,23 +832,28 @@ export default function MainAdminDashboard() {
     }
 
     if (selectedView === 'detail' && selectedComplaintId) {
-          return (
-            <ComplaintDetails 
-              complaintId={selectedComplaintId}
-              onBack={() => {
-                const from = searchParams.get('from');
-                if (from === 'chat') {
-                  navigate('/chat');
-                } else if (selectedBranch) {
-                  setSelectedView('branch');
-                } else if (selectedFilter) {
-                  setSelectedView('filtered');
-                } else {
-                  setSelectedView('complaints');
-                }
-              }}
-            />
-          );
+      // Build return context for back button
+      const returnContext = selectedBranch ? 'branch' : selectedFilter ? 'filtered' : 'complaints';
+      
+      return (
+        <ComplaintDetails 
+          complaintId={selectedComplaintId}
+          onBack={() => {
+            const from = searchParams.get('from');
+            const returnView = searchParams.get('returnView');
+            
+            if (from === 'chat') {
+              navigate('/chat');
+            } else if (returnView === 'branch' || selectedBranch) {
+              setSelectedView('branch');
+            } else if (returnView === 'filtered' || selectedFilter) {
+              setSelectedView('filtered');
+            } else {
+              setSelectedView('complaints');
+            }
+          }}
+        />
+      );
     }
 
     if (selectedView === 'complaints') {

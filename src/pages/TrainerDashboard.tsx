@@ -118,8 +118,12 @@ export default function TrainerDashboard() {
           complaintId={selectedComplaintId}
           onBack={() => {
             const from = searchParams.get('from');
+            const returnView = searchParams.get('returnView');
+            
             if (from === 'chat') {
               navigate('/chat');
+            } else if (returnView) {
+              setSelectedView(returnView as any);
             } else {
               setSelectedView(previousView);
             }
