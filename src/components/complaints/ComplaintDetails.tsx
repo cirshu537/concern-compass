@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { 
   User, MapPin, Calendar, FileText, MessageSquare, Tag, GraduationCap, 
-  EyeOff, Users, Info, Shield, UserPlus, CheckCircle, Clock, Eye 
+  EyeOff, Users, Info, Shield, UserPlus, CheckCircle, Clock, Eye, ArrowLeft
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { ReviewForm } from '@/components/ReviewForm';
@@ -323,6 +323,14 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-6">
+      {/* Back Button */}
+      {onBack && (
+        <Button variant="outline" onClick={onBack} size="sm" className="gap-2">
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </Button>
+      )}
+
       {/* Two-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Main Content (66%) */}
