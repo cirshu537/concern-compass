@@ -367,7 +367,14 @@ export default function BranchAdminDashboard() {
       return (
         <ComplaintDetails 
           complaintId={selectedComplaintId}
-          onBack={() => setSelectedView('complaints')}
+          onBack={() => {
+            const from = searchParams.get('from');
+            if (from === 'chat') {
+              navigate('/chat');
+            } else {
+              setSelectedView('complaints');
+            }
+          }}
         />
       );
     }
