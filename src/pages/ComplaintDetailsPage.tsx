@@ -36,7 +36,22 @@ export default function ComplaintDetailsPage() {
   };
 
   if (!complaintId) {
-    return null;
+    return (
+      <div className="min-h-screen bg-background">
+        <DashboardNav />
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+          <div className="text-center py-20">
+            <p className="text-muted-foreground text-lg">Invalid concern ID</p>
+            <button 
+              onClick={() => navigate('/')}
+              className="mt-4 text-primary hover:underline"
+            >
+              Return to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -324,12 +324,15 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
   return (
     <div className="max-w-[1400px] mx-auto space-y-6">
       {/* Back Button */}
-      {onBack && (
-        <Button variant="outline" onClick={onBack} size="sm" className="gap-2">
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </Button>
-      )}
+      <Button 
+        variant="outline" 
+        onClick={onBack || (() => navigate(-1))} 
+        size="sm" 
+        className="gap-2"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </Button>
 
       {/* Two-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ArrowLeft, Send, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -612,6 +612,9 @@ export default function ChatPage() {
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Concern Details</DialogTitle>
+            <DialogDescription>
+              View complete details, reviews, and take actions on this concern.
+            </DialogDescription>
           </DialogHeader>
           {currentComplaint && (
             <ComplaintDetails 
