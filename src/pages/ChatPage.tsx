@@ -88,41 +88,33 @@ export default function ChatPage() {
     }
   }, [profile]);
 
-  // Subscribe to new messages across all conversations for unread counts
+  // Subscribe to new messages only for selected conversation to reduce overhead
   useEffect(() => {
-    if (!profile || conversations.length === 0) return;
+    if (!profile || !selectedConversation) return;
 
-    const channels = conversations.map(conv => {
-      return supabase
-        .channel(`unread_updates:${conv.id}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'conversation_messages',
-            filter: `conversation_id=eq.${conv.id}`
-          },
-          (payload) => {
-            // Only increment unread if message is not from current user and conversation is not selected
-            if (payload.new.sender_id !== profile.id && conv.id !== selectedConversation) {
-              setConversations(prev =>
-                prev.map(c =>
-                  c.id === conv.id
-                    ? { ...c, unread_count: (c.unread_count || 0) + 1 }
-                    : c
-                )
-              );
-            }
+    const channel = supabase
+      .channel(`messages:${selectedConversation}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversation_messages',
+          filter: `conversation_id=eq.${selectedConversation}`
+        },
+        (payload) => {
+          // Add new message to the list
+          if (payload.new) {
+            fetchMessages(selectedConversation);
           }
-        )
-        .subscribe();
-    });
+        }
+      )
+      .subscribe();
 
     return () => {
-      channels.forEach(channel => supabase.removeChannel(channel));
+      supabase.removeChannel(channel);
     };
-  }, [profile, conversations.length, selectedConversation]);
+  }, [profile, selectedConversation]);
 
   useEffect(() => {
     if (selectedConversation) {
