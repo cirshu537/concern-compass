@@ -329,30 +329,29 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
         <div className="lg:col-span-2 space-y-6">
           {/* Title and Description Card */}
           <Card className="border shadow-lg">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-2xl font-bold">{complaint.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Description
-                </h3>
-                <p className="text-base leading-relaxed whitespace-pre-wrap">{complaint.description}</p>
-              </div>
-              
-              <div className="flex flex-wrap items-center gap-2 pt-2">
-                <StatusBadge status={complaint.status} />
-                {complaint.anonymous && (
-                  <Badge variant="outline" className="text-xs">
-                    <EyeOff className="w-3 h-3 mr-1" />
-                    Anonymous
+            <CardHeader className="pb-6">
+              <div className="space-y-4">
+                <CardTitle className="text-3xl font-bold tracking-tight">{complaint.title}</CardTitle>
+                
+                <p className="text-lg leading-relaxed text-muted-foreground/90 whitespace-pre-wrap">
+                  {complaint.description}
+                </p>
+                
+                <div className="flex flex-wrap items-center gap-2 pt-2">
+                  <StatusBadge status={complaint.status} />
+                  {complaint.anonymous && (
+                    <Badge variant="outline" className="text-xs">
+                      <EyeOff className="w-3 h-3 mr-1" />
+                      Anonymous
+                    </Badge>
+                  )}
+                  <Badge variant="secondary" className="text-xs capitalize">
+                    {complaint.student_type}
                   </Badge>
-                )}
-                <Badge variant="secondary" className="text-xs capitalize">
-                  {complaint.student_type}
-                </Badge>
+                </div>
               </div>
+            </CardHeader>
+            <CardContent className="space-y-4 border-t pt-6">
               
               {complaint.attachment_url && (
                 <Button
