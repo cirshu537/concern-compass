@@ -5,11 +5,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { Complaint, ComplaintStatus, Profile } from '@/types/database';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { ArrowLeft, User, MapPin, Calendar, Tag, Eye, MessageSquare, Users, Paperclip } from 'lucide-react';
+import { 
+  User, MapPin, Calendar, FileText, MessageSquare, Tag, GraduationCap, 
+  EyeOff, Users, Info, Shield, UserPlus, CheckCircle, Clock, Eye 
+} from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { ReviewForm } from '@/components/ReviewForm';
 import { ReviewsList } from '@/components/complaints/ReviewsList';
@@ -23,39 +27,30 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
   const navigate = useNavigate();
   const { profile } = useAuth();
   const queryClient = useQueryClient();
-  const [newStatus, setNewStatus] = useState<ComplaintStatus | null>(null);
   const [assignedStaffId, setAssignedStaffId] = useState<string | null>(null);
   const [showAttachment, setShowAttachment] = useState(false);
   const [attachmentUrl, setAttachmentUrl] = useState<string | null>(null);
 
-  // Subscribe to real-time updates for this complaint and its reviews
+  // Subscribe to real-time updates
   useEffect(() => {
     const channel = supabase
       .channel(`complaint-${complaintId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'complaints',
-          filter: `id=eq.${complaintId}`
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'complaint_reviews',
-          filter: `complaint_id=eq.${complaintId}`
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
-        }
-      )
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'complaints',
+        filter: `id=eq.${complaintId}`
+      }, () => {
+        queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'complaint_reviews',
+        filter: `complaint_id=eq.${complaintId}`
+      }, () => {
+        queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
+      })
       .subscribe();
 
     return () => {
@@ -77,7 +72,6 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
     },
   });
 
-  // Fetch student profile for admins
   const { data: studentProfile } = useQuery({
     queryKey: ['student-profile', complaint?.student_id],
     enabled: !!complaint?.student_id && (profile?.role === 'main_admin' || profile?.role === 'branch_admin'),
@@ -121,7 +115,6 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
     },
   });
 
-  // Check for existing conversations
   const { data: existingConversations } = useQuery({
     queryKey: ['conversations', complaintId],
     queryFn: async () => {
@@ -138,7 +131,6 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
 
   const startMainToBranchConversation = useMutation({
     mutationFn: async () => {
-      // Check if conversation already exists
       const existing = existingConversations?.find(c => c.type === 'main_to_branch');
       if (existing) {
         navigate(`/chat?conversation=${existing.id}`);
@@ -159,29 +151,22 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
       if (error) throw error;
       navigate(`/chat?conversation=${data.id}`);
     },
-    onError: () => {
-      toast.error('Failed to start conversation');
-    },
+    onError: () => toast.error('Failed to start conversation'),
   });
 
   const startBranchToStaffConversation = useMutation({
-    mutationFn: async (type: 'group' | 'direct') => {
-      const conversationType = type === 'group' ? 'branch_to_staff_group' : 'branch_to_staff_direct';
-      
-      // Check if group conversation already exists
-      if (type === 'group') {
-        const existing = existingConversations?.find(c => c.type === 'branch_to_staff_group');
-        if (existing) {
-          navigate(`/chat?conversation=${existing.id}`);
-          return;
-        }
+    mutationFn: async () => {
+      const existing = existingConversations?.find(c => c.type === 'branch_to_staff_group');
+      if (existing) {
+        navigate(`/chat?conversation=${existing.id}`);
+        return;
       }
 
       const { data, error } = await supabase
         .from('conversations')
         .insert({
           complaint_id: complaintId,
-          type: conversationType,
+          type: 'branch_to_staff_group',
           branch: complaint!.branch,
           started_by_id: profile!.id
         })
@@ -191,9 +176,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
       if (error) throw error;
       navigate(`/chat?conversation=${data.id}`);
     },
-    onError: () => {
-      toast.error('Failed to start conversation');
-    },
+    onError: () => toast.error('Failed to start conversation'),
   });
 
   const updateStatusMutation = useMutation({
@@ -203,14 +186,12 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
         updated_at: new Date().toISOString() 
       };
       
-      // If moving to in_process, assign to current staff or trainer
       if (status === 'in_process' && profile?.role === 'staff') {
         updateData.assigned_staff_id = profile.id;
       } else if (status === 'in_process' && profile?.role === 'trainer' && profile?.handles_exclusive) {
         updateData.assigned_trainer_id = profile.id;
       }
       
-      // Set resolved_at timestamp when marking as fixed
       if (status === 'fixed') {
         updateData.resolved_at = new Date().toISOString();
       }
@@ -222,25 +203,15 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
         .select()
         .single();
       
-      if (error) {
-        console.error('Status update error:', error);
-        throw error;
-      }
+      if (error) throw error;
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
       queryClient.invalidateQueries({ queryKey: ['complaints'] });
-      queryClient.invalidateQueries({ queryKey: ['exclusive-handler-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['trainer-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['staff-stats'] });
       toast.success('Status updated successfully');
-      setNewStatus(null);
     },
-    onError: (error: any) => {
-      console.error('Failed to update status:', error);
-      toast.error(error?.message || 'Failed to update status');
-    },
+    onError: () => toast.error('Failed to update status'),
   });
 
   const assignStaffMutation = useMutation({
@@ -258,45 +229,30 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
-      queryClient.invalidateQueries({ queryKey: ['complaints'] });
       toast.success('Staff assigned successfully');
       setAssignedStaffId(null);
     },
-    onError: () => {
-      toast.error('Failed to assign staff');
-    },
+    onError: () => toast.error('Failed to assign staff'),
   });
 
   const assignTrainerMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('complaints')
         .update({ 
           assigned_trainer_id: profile!.id,
           status: 'in_process',
           updated_at: new Date().toISOString()
         })
-        .eq('id', complaintId)
-        .select()
-        .single();
+        .eq('id', complaintId);
       
-      if (error) {
-        console.error('Assignment error:', error);
-        throw error;
-      }
-      return data;
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
-      queryClient.invalidateQueries({ queryKey: ['complaints'] });
-      queryClient.invalidateQueries({ queryKey: ['exclusive-handler-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['trainer-stats'] });
       toast.success('You are now working on this concern');
     },
-    onError: (error: any) => {
-      console.error('Failed to assign concern:', error);
-      toast.error(error?.message || 'Failed to assign concern');
-    },
+    onError: () => toast.error('Failed to assign concern'),
   });
 
   const revealIdentityMutation = useMutation({
@@ -315,21 +271,8 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
       queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
       toast.success('Identity revealed successfully');
     },
-    onError: () => {
-      toast.error('Failed to reveal identity');
-    },
+    onError: () => toast.error('Failed to reveal identity'),
   });
-
-  if (isLoading) {
-    return <div className="flex items-center justify-center py-12">Loading...</div>;
-  }
-
-  if (!complaint) {
-    return <div className="text-center py-12">Complaint not found</div>;
-  }
-
-  const canManage = profile?.role === 'staff' || profile?.role === 'branch_admin' || profile?.role === 'main_admin';
-  const isExclusiveHandler = profile?.role === 'trainer' && profile?.handles_exclusive;
 
   const handleViewAttachment = async () => {
     if (!complaint.attachment_url) return;
@@ -349,61 +292,88 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
     }
   };
 
-  return (
-    <div className="space-y-3">
-      {onBack && (
-        <Button variant="outline" onClick={onBack} size="sm">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
-      )}
+  const handleGoToConversation = () => {
+    const convo = existingConversations?.find(c => !c.is_closed);
+    if (convo) {
+      navigate(`/chat?conversation=${convo.id}`);
+    }
+  };
 
-      {/* Main Header Card */}
-      <Card className="border-border/50">
-        <CardHeader className="pb-2 pt-3 px-3">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
-              <CardTitle className="text-lg font-bold mb-2">{complaint.title}</CardTitle>
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!complaint) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-muted-foreground text-lg">Concern not found</p>
+      </div>
+    );
+  }
+
+  const isExclusiveHandler = profile?.role === 'trainer' && profile?.handles_exclusive;
+  const canReview = (
+    (profile?.role === 'student' && complaint.status === 'fixed') ||
+    (profile?.role === 'trainer' && profile?.handles_exclusive && complaint.status === 'fixed')
+  );
+
+  return (
+    <div className="max-w-[1400px] mx-auto space-y-6">
+      {/* Two-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Main Content (66%) */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Title and Description Card */}
+          <Card className="border shadow-lg">
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between gap-4 mb-3">
+                <CardTitle className="text-2xl font-bold flex-1">{complaint.title}</CardTitle>
+              </div>
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={complaint.status} />
                 {complaint.anonymous && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border/50">
+                  <Badge variant="outline" className="text-xs">
+                    <EyeOff className="w-3 h-3 mr-1" />
                     Anonymous
-                  </span>
+                  </Badge>
                 )}
+                <Badge variant="secondary" className="text-xs capitalize">
+                  {complaint.student_type}
+                </Badge>
               </div>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="space-y-2 px-3 pb-3">
-          {/* Description Section */}
-          <div className="bg-muted/20 rounded-lg p-2.5 border border-border/30">
-            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{complaint.description}</p>
-          </div>
-
-          {/* Attachment Section */}
-          {complaint.attachment_url && (
-            <div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleViewAttachment}
-                className="h-7 text-xs"
-              >
-                <Paperclip className="w-3 h-3 mr-1" />
-                View Attachment
-              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Description
+                </h3>
+                <p className="text-base leading-relaxed whitespace-pre-wrap">{complaint.description}</p>
+              </div>
               
+              {complaint.attachment_url && (
+                <Button
+                  variant="outline"
+                  onClick={handleViewAttachment}
+                  className="w-full sm:w-auto"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  View Attachment
+                </Button>
+              )}
+
               {showAttachment && attachmentUrl && (
-                <div className="mt-2 border border-border/50 rounded-lg p-2 bg-card">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-semibold">Attachment</span>
+                <div className="border rounded-lg p-4 bg-muted/20">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-sm font-semibold">Attachment</span>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setShowAttachment(false)}
-                      className="h-6 text-xs"
                     >
                       Close
                     </Button>
@@ -411,292 +381,275 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                   <img 
                     src={attachmentUrl} 
                     alt="Complaint attachment" 
-                    className="max-w-full rounded border border-border/30"
+                    className="max-w-full rounded border"
                   />
                 </div>
               )}
-            </div>
-          )}
+            </CardContent>
+          </Card>
 
-          {/* Metadata Single Line */}
-          <div className="flex flex-wrap gap-1.5">
-            <div className="flex items-center gap-1.5 px-2 py-1.5 bg-muted/10 rounded border border-border/20">
-              <Tag className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-              <div>
-                <p className="text-[10px] text-muted-foreground">Category</p>
-                <p className="font-medium text-xs capitalize whitespace-nowrap">{complaint.category.replace(/_/g, ' ')}</p>
-              </div>
-            </div>
+          {/* Reviews Timeline */}
+          <Card className="border shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <MessageSquare className="w-5 h-5" />
+                Reviews & Activity
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {canReview && (
+                <div className="mb-6 p-4 bg-muted/30 rounded-lg border">
+                  <ReviewForm complaintId={complaint.id} />
+                </div>
+              )}
+              <ReviewsList complaintId={complaintId} />
+            </CardContent>
+          </Card>
+        </div>
 
-            <div className="flex items-center gap-1.5 px-2 py-1.5 bg-muted/10 rounded border border-border/20">
-              <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-              <div>
-                <p className="text-[10px] text-muted-foreground">Branch</p>
-                <p className="font-medium text-xs whitespace-nowrap">{complaint.branch}</p>
-              </div>
-            </div>
-
-            {complaint.program && (
-              <div className="flex items-center gap-1.5 px-2 py-1.5 bg-muted/10 rounded border border-border/20">
-                <User className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                <div>
-                  <p className="text-[10px] text-muted-foreground">Program</p>
-                  <p className="font-medium text-xs whitespace-nowrap">{complaint.program}</p>
+        {/* Right Column - Metadata & Actions (33%) */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Metadata Card */}
+          <Card className="border shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <Info className="w-4 h-4" />
+                Concern Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Tag className="w-4 h-4 mt-0.5 text-primary" />
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">Category</p>
+                    <p className="text-sm font-medium">
+                      {complaint.category.split('_').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                      ).join(' ')}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-4 h-4 mt-0.5 text-primary" />
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">Branch</p>
+                    <p className="text-sm font-medium">{complaint.branch}</p>
+                  </div>
+                </div>
+                {complaint.program && (
+                  <div className="flex items-start gap-3">
+                    <GraduationCap className="w-4 h-4 mt-0.5 text-primary" />
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground">Program</p>
+                      <p className="text-sm font-medium">{complaint.program}</p>
+                    </div>
+                  </div>
+                )}
+                <div className="flex items-start gap-3">
+                  <Calendar className="w-4 h-4 mt-0.5 text-primary" />
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">Created</p>
+                    <p className="text-sm font-medium">{format(new Date(complaint.created_at), 'MMM d, yyyy h:mm a')}</p>
+                  </div>
                 </div>
               </div>
-            )}
+            </CardContent>
+          </Card>
 
-            <div className="flex items-center gap-1.5 px-2 py-1.5 bg-muted/10 rounded border border-border/20">
-              <Calendar className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-              <div>
-                <p className="text-[10px] text-muted-foreground">Created</p>
-                <p className="font-medium text-xs whitespace-nowrap">{format(new Date(complaint.created_at), 'MMM d, yyyy')}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Student Info Inline for Admins */}
+          {/* Reporter Card */}
           {(profile?.role === 'main_admin' || profile?.role === 'branch_admin') && studentProfile && (
-            <div className="flex items-center justify-between p-2 bg-primary/5 rounded border border-primary/20">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <User className="w-3.5 h-3.5 text-primary" />
+            <Card className="border shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Reporter Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Name</p>
+                    <p className="text-sm font-medium">{studentProfile.full_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Email</p>
+                    <p className="text-sm">{studentProfile.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Credits</p>
+                    <p className="text-sm font-medium">{studentProfile.credits}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold text-xs">{studentProfile.full_name}</p>
-                  <p className="text-[10px] text-muted-foreground">{studentProfile.email}</p>
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/admin/student-profile/${studentProfile.id}`);
-                }}
-                className="h-7 text-xs px-3"
-              >
-                Profile
-              </Button>
-            </div>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => navigate(`/admin/student-profile/${complaint.student_id}`)}
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  View Profile
+                </Button>
+              </CardContent>
+            </Card>
           )}
-        </CardContent>
-      </Card>
 
-      {/* Action Cards - Compact */}
-      {/* Exclusive Handler Actions - Working on Concern Button when Logged or Noted */}
-      {isExclusiveHandler && complaint.student_type === 'exclusive' && (complaint.status === 'logged' || complaint.status === 'noted') && !complaint.assigned_trainer_id && (
-        <Card className="border-border/50 bg-primary/5">
-          <CardContent className="p-2.5">
-            <Button 
-              onClick={() => assignTrainerMutation.mutate()}
-              disabled={assignTrainerMutation.isPending}
-              className="w-full h-9 font-semibold text-sm"
-            >
-              Working on Concern
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Staff Actions - Process Button when Logged or Noted */}
-      {(profile?.role === 'staff' || profile?.role === 'branch_admin') && (complaint.status === 'logged' || complaint.status === 'noted') && (
-        <Card className="border-border/50 bg-primary/5">
-          <CardContent className="p-2.5">
-            <Button 
-              onClick={() => updateStatusMutation.mutate('in_process')}
-              disabled={updateStatusMutation.isPending}
-              className="w-full h-9 font-semibold text-sm"
-            >
-              Process Concern
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Exclusive Handler Actions - Review & Complete when In Process */}
-      {isExclusiveHandler && 
-       complaint.student_type === 'exclusive' && 
-       complaint.status === 'in_process' && 
-       complaint.assigned_trainer_id === profile.id && (
-        <Card className="border-border/50">
-          <CardHeader className="pb-2 pt-2.5 px-3">
-            <CardTitle className="text-sm font-semibold">Review & Complete</CardTitle>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Provide rating and review</p>
-          </CardHeader>
-          <CardContent className="space-y-2 px-3 pb-3">
-            <ReviewForm 
-              complaintId={complaintId} 
-              allowStatusChange={true}
-              currentStatus={complaint.status}
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <Button 
-                onClick={() => updateStatusMutation.mutate('fixed')}
-                disabled={updateStatusMutation.isPending}
-                className="h-8 font-medium text-xs"
-                variant="default"
-              >
-                Mark Fixed
-              </Button>
-              <Button 
-                onClick={() => updateStatusMutation.mutate('cancelled')}
-                disabled={updateStatusMutation.isPending}
-                className="h-8 font-medium text-xs"
-                variant="outline"
-              >
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Staff Actions - Review & Complete when In Process */}
-      {(profile?.role === 'staff' || profile?.role === 'branch_admin') && 
-       complaint.status === 'in_process' && (
-        <Card className="border-border/50">
-          <CardHeader className="pb-2 pt-2.5 px-3">
-            <CardTitle className="text-sm font-semibold">Review & Complete</CardTitle>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Provide rating and review</p>
-          </CardHeader>
-          <CardContent className="space-y-2 px-3 pb-3">
-            <ReviewForm 
-              complaintId={complaintId} 
-              allowStatusChange={true}
-              currentStatus={complaint.status}
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <Button 
-                onClick={() => updateStatusMutation.mutate('fixed')}
-                disabled={updateStatusMutation.isPending}
-                className="h-8 font-medium text-xs"
-                variant="default"
-              >
-                Mark Fixed
-              </Button>
-              <Button 
-                onClick={() => updateStatusMutation.mutate('cancelled')}
-                disabled={updateStatusMutation.isPending}
-                className="h-8 font-medium text-xs"
-                variant="outline"
-              >
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Admin Actions Card - Horizontal Layout */}
-      {(profile?.role === 'main_admin' || profile?.role === 'branch_admin') && (
-        <Card className="border-border/50">
-          <CardHeader className="pb-2 pt-2.5 px-3">
-            <CardTitle className="text-sm font-semibold">Admin Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="space-y-2">
-              {/* Action Buttons in Grid */}
-              <div className="grid grid-cols-2 gap-2">
+          {/* Admin Actions Card */}
+          {(profile?.role === 'main_admin' || profile?.role === 'branch_admin') && (
+            <Card className="border shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <Shield className="w-4 h-4" />
+                  Admin Actions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
                 {complaint.anonymous && !complaint.identity_revealed && (
                   <Button
                     variant="destructive"
                     onClick={() => revealIdentityMutation.mutate()}
                     disabled={revealIdentityMutation.isPending}
-                    className="h-8 font-medium text-xs col-span-2"
-                    size="sm"
+                    className="w-full"
                   >
-                    <Eye className="w-3 h-3 mr-1.5" />
-                    Reveal Identity
+                    <Eye className="w-4 h-4 mr-2" />
+                    {revealIdentityMutation.isPending ? "Revealing..." : "Reveal Identity"}
                   </Button>
                 )}
-
+                
                 {profile?.role === 'main_admin' && (
                   <Button
                     variant="outline"
                     onClick={() => startMainToBranchConversation.mutate()}
                     disabled={startMainToBranchConversation.isPending}
-                    className="h-8 font-medium text-xs col-span-2"
-                    size="sm"
+                    className="w-full"
                   >
-                    <MessageSquare className="w-3 h-3 mr-1.5" />
-                    Contact Branch Admin
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    {startMainToBranchConversation.isPending ? "Starting..." : "Contact Branch Admin"}
                   </Button>
                 )}
 
                 {profile?.role === 'branch_admin' && (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => startBranchToStaffConversation.mutate()}
+                      disabled={startBranchToStaffConversation.isPending}
+                      className="w-full"
+                    >
+                      <Users className="w-4 h-4 mr-2" />
+                      {startBranchToStaffConversation.isPending ? "Starting..." : "Group Chat with Staff"}
+                    </Button>
+
+                    {staff && staff.length > 0 && (
+                      <div className="space-y-2 pt-3 border-t">
+                        <p className="text-xs font-semibold text-muted-foreground">Assign Staff Member</p>
+                        <Select value={assignedStaffId || undefined} onValueChange={setAssignedStaffId}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select staff member" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {staff.map((s) => (
+                              <SelectItem key={s.id} value={s.id}>
+                                {s.full_name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          onClick={() => assignedStaffId && assignStaffMutation.mutate(assignedStaffId)}
+                          disabled={!assignedStaffId || assignStaffMutation.isPending}
+                          className="w-full"
+                        >
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          {assignStaffMutation.isPending ? "Assigning..." : "Assign Staff"}
+                        </Button>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {existingConversations && existingConversations.length > 0 && (
                   <Button
                     variant="outline"
-                    onClick={() => startBranchToStaffConversation.mutate('group')}
-                    disabled={startBranchToStaffConversation.isPending}
-                    className="h-8 font-medium text-xs col-span-2"
-                    size="sm"
+                    onClick={handleGoToConversation}
+                    className="w-full"
                   >
-                    <Users className="w-3 h-3 mr-1.5" />
-                    Group Chat with Staff
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Go to Conversation
                   </Button>
                 )}
-              </div>
+              </CardContent>
+            </Card>
+          )}
 
-              {/* Staff Assignment - Compact */}
-              {profile?.role === 'branch_admin' && staff && staff.length > 0 && (
-                <div className="space-y-1.5 p-2 bg-muted/20 rounded border border-border/30">
-                  <label className="text-[10px] font-semibold text-foreground">Assign Staff</label>
-                  <div className="flex gap-1.5">
-                    <Select value={assignedStaffId || undefined} onValueChange={setAssignedStaffId}>
-                      <SelectTrigger className="h-8 text-xs flex-1">
-                        <SelectValue placeholder="Select staff" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {staff.map((s) => (
-                          <SelectItem key={s.id} value={s.id}>
-                            {s.full_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {assignedStaffId && (
+          {/* Staff/Trainer Actions */}
+          {(profile?.role === 'staff' || isExclusiveHandler) && (
+            <>
+              {(complaint.status === 'logged' || complaint.status === 'noted') && (
+                <Card className="border shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-base font-semibold flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      Quick Actions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {isExclusiveHandler && complaint.student_type === 'exclusive' && !complaint.assigned_trainer_id && (
                       <Button
-                        onClick={() => assignStaffMutation.mutate(assignedStaffId)}
-                        disabled={assignStaffMutation.isPending}
-                        className="h-8 font-medium text-xs px-3"
-                        size="sm"
+                        onClick={() => assignTrainerMutation.mutate()}
+                        disabled={assignTrainerMutation.isPending}
+                        className="w-full"
                       >
-                        Assign
+                        <Clock className="w-4 h-4 mr-2" />
+                        {assignTrainerMutation.isPending ? "Assigning..." : "Work on Concern"}
                       </Button>
                     )}
-                  </div>
-                </div>
+                    {profile?.role === 'staff' && (
+                      <Button
+                        onClick={() => updateStatusMutation.mutate('in_process')}
+                        disabled={updateStatusMutation.isPending}
+                        className="w-full"
+                      >
+                        <Clock className="w-4 h-4 mr-2" />
+                        {updateStatusMutation.isPending ? "Processing..." : "Process Concern"}
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
               )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
-      {/* Reviews Section - Always visible to students and trainers after resolution */}
-      {(profile?.role === 'student' || (profile?.role === 'trainer' && profile?.handles_exclusive)) && 
-       complaint.status === 'fixed' && (
-        <Card className="border-border/50">
-          <CardHeader className="pb-2 pt-2.5 px-3">
-            <CardTitle className="text-sm font-semibold">Leave Your Review</CardTitle>
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <ReviewForm complaintId={complaintId} />
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Show reviews if any exist */}
-      {reviews && reviews.length > 0 && (
-        <Card className="border-border/50">
-          <CardHeader className="pb-2 pt-2.5 px-3">
-            <CardTitle className="text-sm font-semibold">Reviews</CardTitle>
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <ReviewsList complaintId={complaintId} />
-          </CardContent>
-        </Card>
-      )}
+              {complaint.status === 'in_process' && (
+                <Card className="border shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-base font-semibold flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4" />
+                      Complete Concern
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <ReviewForm complaintId={complaintId} allowStatusChange={true} currentStatus={complaint.status} />
+                    <div className="grid grid-cols-2 gap-2 pt-2">
+                      <Button
+                        onClick={() => updateStatusMutation.mutate('fixed')}
+                        disabled={updateStatusMutation.isPending}
+                        variant="default"
+                      >
+                        Mark Fixed
+                      </Button>
+                      <Button
+                        onClick={() => updateStatusMutation.mutate('cancelled')}
+                        disabled={updateStatusMutation.isPending}
+                        variant="outline"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
