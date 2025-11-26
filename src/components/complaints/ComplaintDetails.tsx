@@ -352,47 +352,54 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
   return (
     <div className="space-y-6">
       {onBack && (
-        <Button variant="ghost" onClick={onBack}>
+        <Button variant="outline" onClick={onBack} className="mb-2">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
       )}
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <CardTitle className="text-2xl">{complaint.title}</CardTitle>
-              <div className="flex items-center gap-2">
+      {/* Main Header Card */}
+      <Card className="border-border/50 shadow-lg">
+        <CardHeader className="pb-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <CardTitle className="text-3xl font-bold mb-3">{complaint.title}</CardTitle>
+              <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={complaint.status} />
-                <span className="text-sm text-muted-foreground">
-                  {complaint.anonymous ? 'Anonymous' : 'Public'}
-                </span>
+                {complaint.anonymous && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border/50">
+                    Anonymous
+                  </span>
+                )}
               </div>
             </div>
           </div>
         </CardHeader>
+
         <CardContent className="space-y-6">
-          <div>
-            <h3 className="font-semibold mb-2">Description</h3>
-            <p className="text-muted-foreground whitespace-pre-wrap">{complaint.description}</p>
+          {/* Description Section */}
+          <div className="bg-muted/30 rounded-lg p-5 border border-border/30">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Description</h3>
+            <p className="text-foreground leading-relaxed whitespace-pre-wrap">{complaint.description}</p>
           </div>
 
+          {/* Attachment Section */}
           {complaint.attachment_url && (
             <div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleViewAttachment}
+                className="hover:bg-accent"
               >
                 <Paperclip className="w-4 h-4 mr-2" />
                 View Attachment
               </Button>
               
               {showAttachment && attachmentUrl && (
-                <div className="mt-4 border border-border rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">Attachment</span>
+                <div className="mt-4 border border-border/50 rounded-lg p-4 bg-card">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-sm font-semibold">Attachment Preview</span>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -404,266 +411,306 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                   <img 
                     src={attachmentUrl} 
                     alt="Complaint attachment" 
-                    className="max-w-full rounded"
+                    className="max-w-full rounded-lg border border-border/30"
                   />
                 </div>
               )}
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex items-center gap-2 text-sm">
-              <Tag className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Category:</span>
-              <span className="font-medium">{complaint.category.replace(/_/g, ' ')}</span>
+          {/* Metadata Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-start gap-3 p-4 bg-muted/20 rounded-lg border border-border/30">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Tag className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground font-medium mb-1">Category</p>
+                <p className="font-semibold text-sm capitalize">{complaint.category.replace(/_/g, ' ')}</p>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-sm">
-              <MapPin className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Branch:</span>
-              <span className="font-medium">{complaint.branch}</span>
+
+            <div className="flex items-start gap-3 p-4 bg-muted/20 rounded-lg border border-border/30">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <MapPin className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground font-medium mb-1">Branch</p>
+                <p className="font-semibold text-sm">{complaint.branch}</p>
+              </div>
             </div>
+
             {complaint.program && (
-              <div className="flex items-center gap-2 text-sm">
-                <User className="w-4 h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">Program:</span>
-                <span className="font-medium">{complaint.program}</span>
+              <div className="flex items-start gap-3 p-4 bg-muted/20 rounded-lg border border-border/30">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <User className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground font-medium mb-1">Program</p>
+                  <p className="font-semibold text-sm">{complaint.program}</p>
+                </div>
               </div>
             )}
-            <div className="flex items-center gap-2 text-sm">
-              <Calendar className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Created:</span>
-              <span className="font-medium">{format(new Date(complaint.created_at), 'PPP')}</span>
-            </div>
-          </div>
 
-          {/* Student Info for Admins */}
-          {(profile?.role === 'main_admin' || profile?.role === 'branch_admin') && studentProfile && (
-            <div className="pt-4 border-t">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold mb-1">Student Information</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {studentProfile.full_name} • {studentProfile.email}
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/admin/student-profile/${studentProfile.id}`);
-                  }}
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  View Profile
-                </Button>
+            <div className="flex items-start gap-3 p-4 bg-muted/20 rounded-lg border border-border/30">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground font-medium mb-1">Created</p>
+                <p className="font-semibold text-sm">{format(new Date(complaint.created_at), 'MMMM d, yyyy')}</p>
               </div>
             </div>
-          )}
-
-          {/* Exclusive Handler Actions - Working on Concern Button when Logged or Noted */}
-          {isExclusiveHandler && complaint.student_type === 'exclusive' && (complaint.status === 'logged' || complaint.status === 'noted') && !complaint.assigned_trainer_id && (
-            <div className="space-y-4 pt-4 border-t">
-              <h3 className="font-semibold">Take Action</h3>
-              <Button 
-                onClick={() => assignTrainerMutation.mutate()}
-                disabled={assignTrainerMutation.isPending}
-                className="w-full"
-              >
-                Working on Concern
-              </Button>
-            </div>
-          )}
-
-          {/* Staff Actions - Process Button when Logged or Noted */}
-          {(profile?.role === 'staff' || profile?.role === 'branch_admin') && (complaint.status === 'logged' || complaint.status === 'noted') && (
-            <div className="space-y-4 pt-4 border-t">
-              <h3 className="font-semibold">Take Action</h3>
-              <Button 
-                onClick={() => updateStatusMutation.mutate('in_process')}
-                disabled={updateStatusMutation.isPending}
-                className="w-full"
-              >
-                Process Concern
-              </Button>
-            </div>
-          )}
-
-          {/* Exclusive Handler Actions - Review & Complete when In Process */}
-          {isExclusiveHandler && 
-           complaint.student_type === 'exclusive' && 
-           complaint.status === 'in_process' && 
-           complaint.assigned_trainer_id === profile.id && (
-            <div className="space-y-4 pt-4 border-t">
-              <h3 className="font-semibold">Review & Complete</h3>
-              <p className="text-sm text-muted-foreground">Please provide your rating and review before marking as fixed or cancelled</p>
-              <ReviewForm 
-                complaintId={complaintId} 
-                onReviewSubmitted={() => {
-                  queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
-                  queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
-                }}
-                allowStatusChange={true}
-                currentStatus={complaint.status}
-              />
-            </div>
-          )}
-
-          {/* Staff Actions - Review & Complete when In Process */}
-          {(profile?.role === 'staff' || profile?.role === 'branch_admin') && 
-           complaint.status === 'in_process' && 
-           (complaint.assigned_staff_id === profile.id || profile.role === 'branch_admin') && (
-            <div className="space-y-4 pt-4 border-t">
-              <h3 className="font-semibold">Review & Complete</h3>
-              <p className="text-sm text-muted-foreground">Please provide your rating and review before marking as fixed or cancelled</p>
-              <ReviewForm 
-                complaintId={complaintId} 
-                onReviewSubmitted={() => {
-                  queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
-                  queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
-                }}
-                allowStatusChange={true}
-                currentStatus={complaint.status}
-              />
-            </div>
-          )}
-
-          {/* Admin Actions */}
-          {(profile?.role === 'branch_admin' || profile?.role === 'main_admin') && (
-            <div className="space-y-4 pt-4 border-t">
-              <h3 className="font-semibold">Admin Actions</h3>
-              
-              {staff && (complaint.status === 'logged' || complaint.status === 'noted') && (
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Assign to Staff</label>
-                  <div className="flex gap-2">
-                    <Select value={assignedStaffId || complaint.assigned_staff_id || ''} onValueChange={setAssignedStaffId}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select staff member" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {staff.map((s) => (
-                          <SelectItem key={s.id} value={s.id}>{s.full_name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {assignedStaffId && assignedStaffId !== complaint.assigned_staff_id && (
-                      <Button 
-                        onClick={() => assignStaffMutation.mutate(assignedStaffId)}
-                        disabled={assignStaffMutation.isPending}
-                      >
-                        Assign
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {profile?.role === 'main_admin' && complaint.anonymous && !complaint.identity_revealed && (
-                <div>
-                  <Button 
-                    variant="destructive"
-                    onClick={() => revealIdentityMutation.mutate()}
-                    disabled={revealIdentityMutation.isPending}
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    Reveal Student Identity
-                  </Button>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    This action will make the student's identity visible to all staff handling this concern
-                  </p>
-                </div>
-              )}
-
-              {/* Conversation Buttons */}
-              {profile?.role === 'main_admin' && (
-                <div>
-                  <Button 
-                    className="w-full"
-                    onClick={() => startMainToBranchConversation.mutate()}
-                    disabled={startMainToBranchConversation.isPending}
-                  >
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Start Conversation with Branch Admin
-                  </Button>
-                </div>
-              )}
-
-              {profile?.role === 'branch_admin' && (
-                <div className="space-y-2">
-                  <Button 
-                    className="w-full"
-                    onClick={() => startBranchToStaffConversation.mutate('group')}
-                    disabled={startBranchToStaffConversation.isPending}
-                  >
-                    <Users className="w-4 h-4 mr-2" />
-                    Start Group Conversation with Staff
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
+          </div>
         </CardContent>
       </Card>
 
-      {/* Reviews Section - Only show if there are reviews OR concern is not trainer-related in logged status */}
-      {(!profile?.role || 
-        profile.role !== 'trainer' || 
-        complaint.category !== 'trainer_related' || 
-        complaint.status !== 'logged' ||
-        (reviews && reviews.length > 0)) && (
-        <ReviewsList complaintId={complaintId} />
-      )}
-
-      {/* Student Review - Only for Non-Trainer Concerns (After Resolution) */}
-      {profile?.role === 'student' && 
-       complaint.student_id === profile.id && 
-       complaint.category !== 'trainer_related' &&
-       (complaint.status === 'fixed' || complaint.status === 'cancelled') &&
-       !reviews?.some(r => r.reviewer_role === 'student') && (
-        <Card className="bg-card border-border">
-          <CardHeader>
-            <CardTitle>Provide Your Review (Optional)</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              You can share your feedback about how this concern was handled
-            </p>
+      {/* Student Information Card for Admins */}
+      {(profile?.role === 'main_admin' || profile?.role === 'branch_admin') && studentProfile && (
+        <Card className="border-border/50 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-semibold">Student Information</CardTitle>
           </CardHeader>
           <CardContent>
-            <ReviewForm 
-              complaintId={complaintId}
-              onReviewSubmitted={() => {
-                queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
-                queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
-              }}
-              allowStatusChange={false}
-              currentStatus={complaint.status}
-            />
+            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border/30">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-base">{studentProfile.full_name}</p>
+                  <p className="text-sm text-muted-foreground">{studentProfile.email}</p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/admin/student-profile/${studentProfile.id}`);
+                }}
+                className="hover:bg-accent"
+              >
+                <User className="w-4 h-4 mr-2" />
+                View Profile
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Trainer Can Review Trainer-Related Concerns */}
-      {profile?.role === 'trainer' && 
-       complaint.category === 'trainer_related' &&
-       !reviews?.some(r => r.reviewer_role === 'trainer' && r.reviewer_id === profile.id) && (
-        <Card className="bg-card border-border">
-          <CardHeader>
-            <CardTitle>Respond to Student Feedback</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Share your thoughts on this feedback (student identity is protected)
-            </p>
+      {/* Action Cards */}
+      {/* Exclusive Handler Actions - Working on Concern Button when Logged or Noted */}
+      {isExclusiveHandler && complaint.student_type === 'exclusive' && (complaint.status === 'logged' || complaint.status === 'noted') && !complaint.assigned_trainer_id && (
+        <Card className="border-border/50 shadow-lg bg-primary/5">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-semibold">Take Action</CardTitle>
           </CardHeader>
           <CardContent>
+            <Button 
+              onClick={() => assignTrainerMutation.mutate()}
+              disabled={assignTrainerMutation.isPending}
+              className="w-full h-12 text-base font-semibold"
+              size="lg"
+            >
+              Working on Concern
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Staff Actions - Process Button when Logged or Noted */}
+      {(profile?.role === 'staff' || profile?.role === 'branch_admin') && (complaint.status === 'logged' || complaint.status === 'noted') && (
+        <Card className="border-border/50 shadow-lg bg-primary/5">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-semibold">Take Action</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={() => updateStatusMutation.mutate('in_process')}
+              disabled={updateStatusMutation.isPending}
+              className="w-full h-12 text-base font-semibold"
+              size="lg"
+            >
+              Process Concern
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Exclusive Handler Actions - Review & Complete when In Process */}
+      {isExclusiveHandler && 
+       complaint.student_type === 'exclusive' && 
+       complaint.status === 'in_process' && 
+       complaint.assigned_trainer_id === profile.id && (
+        <Card className="border-border/50 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-semibold">Review & Complete</CardTitle>
+            <p className="text-sm text-muted-foreground mt-2">Please provide your rating and review before marking as fixed or cancelled</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <ReviewForm 
-              complaintId={complaintId}
-              onReviewSubmitted={() => {
-                queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
-                queryClient.invalidateQueries({ queryKey: ['reviews', complaintId] });
-              }}
-              allowStatusChange={false}
+              complaintId={complaintId} 
+              allowStatusChange={true}
               currentStatus={complaint.status}
-              isTrainerReply={true}
             />
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <Button 
+                onClick={() => updateStatusMutation.mutate('fixed')}
+                disabled={updateStatusMutation.isPending}
+                className="h-12 font-semibold"
+                variant="default"
+              >
+                Mark as Fixed
+              </Button>
+              <Button 
+                onClick={() => updateStatusMutation.mutate('cancelled')}
+                disabled={updateStatusMutation.isPending}
+                className="h-12 font-semibold"
+                variant="outline"
+              >
+                Cancel Concern
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Staff Actions - Review & Complete when In Process */}
+      {(profile?.role === 'staff' || profile?.role === 'branch_admin') && 
+       complaint.status === 'in_process' && (
+        <Card className="border-border/50 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-semibold">Review & Complete</CardTitle>
+            <p className="text-sm text-muted-foreground mt-2">Please provide your rating and review before marking as fixed or cancelled</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ReviewForm 
+              complaintId={complaintId} 
+              allowStatusChange={true}
+              currentStatus={complaint.status}
+            />
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <Button 
+                onClick={() => updateStatusMutation.mutate('fixed')}
+                disabled={updateStatusMutation.isPending}
+                className="h-12 font-semibold"
+                variant="default"
+              >
+                Mark as Fixed
+              </Button>
+              <Button 
+                onClick={() => updateStatusMutation.mutate('cancelled')}
+                disabled={updateStatusMutation.isPending}
+                className="h-12 font-semibold"
+                variant="outline"
+              >
+                Cancel Concern
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Admin Actions Card */}
+      {(profile?.role === 'main_admin' || profile?.role === 'branch_admin') && (
+        <Card className="border-border/50 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-semibold">Admin Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {complaint.anonymous && !complaint.identity_revealed && (
+              <div className="p-4 bg-destructive/10 rounded-lg border border-destructive/30">
+                <Button
+                  variant="destructive"
+                  onClick={() => revealIdentityMutation.mutate()}
+                  disabled={revealIdentityMutation.isPending}
+                  className="w-full h-11 font-semibold"
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  Reveal Student Identity
+                </Button>
+                <p className="text-xs text-muted-foreground mt-3 text-center">
+                  This action will make the student's identity visible to all staff handling this concern
+                </p>
+              </div>
+            )}
+
+            {profile?.role === 'main_admin' && (
+              <Button
+                variant="outline"
+                onClick={() => startMainToBranchConversation.mutate()}
+                disabled={startMainToBranchConversation.isPending}
+                className="w-full h-12 font-semibold bg-primary/5 hover:bg-primary/10"
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Start Conversation with Branch Admin
+              </Button>
+            )}
+
+            {profile?.role === 'branch_admin' && (
+              <div className="space-y-3">
+                <Button
+                  variant="outline"
+                  onClick={() => startBranchToStaffConversation.mutate('group')}
+                  disabled={startBranchToStaffConversation.isPending}
+                  className="w-full h-12 font-semibold bg-primary/5 hover:bg-primary/10"
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  Start Group Conversation with Staff
+                </Button>
+                {staff && staff.length > 0 && (
+                  <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/30">
+                    <label className="text-sm font-semibold text-foreground">Assign to Staff Member</label>
+                    <Select value={assignedStaffId || undefined} onValueChange={setAssignedStaffId}>
+                      <SelectTrigger className="h-11">
+                        <SelectValue placeholder="Select a staff member" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {staff.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            {s.full_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {assignedStaffId && (
+                      <Button
+                        onClick={() => assignStaffMutation.mutate(assignedStaffId)}
+                        disabled={assignStaffMutation.isPending}
+                        className="w-full h-11 font-semibold"
+                      >
+                        Assign Selected Staff
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Reviews Section - Always visible to students and trainers after resolution */}
+      {(profile?.role === 'student' || (profile?.role === 'trainer' && profile?.handles_exclusive)) && 
+       complaint.status === 'fixed' && (
+        <Card className="border-border/50 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-semibold">Leave Your Review</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ReviewForm complaintId={complaintId} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Show reviews if any exist */}
+      {reviews && reviews.length > 0 && (
+        <Card className="border-border/50 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-semibold">Reviews</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ReviewsList complaintId={complaintId} />
           </CardContent>
         </Card>
       )}
