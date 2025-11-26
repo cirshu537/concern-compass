@@ -636,22 +636,6 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <ReviewForm complaintId={complaintId} allowStatusChange={true} currentStatus={complaint.status} />
-                    <div className="grid grid-cols-2 gap-2 pt-2">
-                      <Button
-                        onClick={() => updateStatusMutation.mutate('fixed')}
-                        disabled={updateStatusMutation.isPending}
-                        variant="default"
-                      >
-                        Mark Fixed
-                      </Button>
-                      <Button
-                        onClick={() => updateStatusMutation.mutate('cancelled')}
-                        disabled={updateStatusMutation.isPending}
-                        variant="outline"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
                   </CardContent>
                 </Card>
               )}
