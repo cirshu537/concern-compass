@@ -536,10 +536,10 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                 {profile?.role === 'branch_admin' && (
                   <>
                     <Button
-                      variant="outline"
+                      variant="default"
                       onClick={() => startBranchToStaffConversation.mutate()}
                       disabled={startBranchToStaffConversation.isPending}
-                      className="w-full"
+                      className="w-full bg-foreground text-background hover:bg-foreground/90"
                     >
                       <Users className="w-4 h-4 mr-2" />
                       {startBranchToStaffConversation.isPending ? "Starting..." : "Group Chat with Staff"}
