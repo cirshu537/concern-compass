@@ -43,7 +43,7 @@ const App = () => (
             <Route path="/trainer/dashboard" element={<TrainerDashboard />} />
             <Route path="/trainer/docs" element={<TrainerDocs />} />
             <Route path="/staff/dashboard" element={<StaffDashboard />} />
-            {/* Staff can view their own profile - uses same component */}
+            <Route path="/staff/profile" element={<StudentProfile />} />
             <Route path="/staff/docs" element={<StaffDocs />} />
           <Route path="/branch-admin/dashboard" element={<BranchAdminDashboard />} />
           <Route path="/branch-admin/all-complaints" element={<BranchAdminAllComplaints />} />
