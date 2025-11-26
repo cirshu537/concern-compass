@@ -11,7 +11,8 @@ export const useUnreadMessages = () => {
 
     fetchUnreadCount();
 
-    // Subscribe to new messages
+    // Reduced frequency - only subscribe to general message events
+    // Actual unread count will be recalculated when ChatPage opens
     const channel = supabase
       .channel('unread_messages')
       .on(
@@ -24,7 +25,8 @@ export const useUnreadMessages = () => {
         (payload) => {
           // Only increment if message is not from current user
           if (payload.new.sender_id !== profile.id) {
-            setUnreadCount(prev => prev + 1);
+            // Debounce the refetch
+            setTimeout(() => fetchUnreadCount(), 1000);
           }
         }
       )

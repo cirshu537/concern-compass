@@ -69,6 +69,8 @@ export function ComplaintsList({
 
   const { data: complaints, isLoading } = useQuery({
     queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, filterByCategory, filterByHighAlertStaff, filterByStatus, filterByToday, filterByTimeRange, statusFilter, categoryFilter, timeRangeFilter],
+    staleTime: 30000, // 30 seconds
+    gcTime: 5 * 60 * 1000, // 5 minutes
     queryFn: async () => {
       let query = supabase
         .from('complaints')
@@ -209,6 +211,8 @@ export function ComplaintsList({
   const { data: studentProfiles } = useQuery({
     queryKey: ['student-profiles', studentIds],
     enabled: isAdmin && studentIds.length > 0,
+    staleTime: 60000, // 1 minute - profiles don't change often
+    gcTime: 10 * 60 * 1000, // 10 minutes
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')

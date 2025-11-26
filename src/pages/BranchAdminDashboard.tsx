@@ -79,7 +79,9 @@ export default function BranchAdminDashboard() {
 
   const { data: stats } = useQuery({
     queryKey: ['branch-stats', profile?.branch, timeRange],
-    enabled: !!profile?.branch,
+    enabled: !!profile?.branch && selectedView === 'dashboard',
+    staleTime: 30000, // 30 seconds
+    gcTime: 5 * 60 * 1000, // 5 minutes
     queryFn: async () => {
       const rangeStart = getTimeRangeDate();
       
@@ -147,6 +149,8 @@ export default function BranchAdminDashboard() {
   // Filtered complaints for stat cards
   const { data: filteredComplaints } = useQuery({
     queryKey: ['branch-filtered-complaints', profile?.branch, selectedFilter, timeRange],
+    staleTime: 20000, // 20 seconds
+    gcTime: 3 * 60 * 1000, // 3 minutes
     queryFn: async () => {
       if (!selectedFilter || !profile?.branch) return null;
       
