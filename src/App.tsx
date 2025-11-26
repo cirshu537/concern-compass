@@ -22,6 +22,7 @@ import AdminDocs from "./pages/AdminDocs";
 import AdminStudentProfile from "./pages/AdminStudentProfile";
 import ChatPage from "./pages/ChatPage";
 import RegisterExclusiveHandler from "./pages/RegisterExclusiveHandler";
+import ComplaintDetailsPage from "./pages/ComplaintDetailsPage";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/main-admin/dashboard" element={<MainAdminDashboard />} />
             <Route path="/admin/docs" element={<AdminDocs />} />
             <Route path="/admin/student-profile/:studentId" element={<AdminStudentProfile />} />
+            <Route path="/complaint/:complaintId" element={<ComplaintDetailsPage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/register-exclusive-handler" element={<RegisterExclusiveHandler />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
