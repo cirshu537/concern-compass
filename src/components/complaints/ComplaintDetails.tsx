@@ -316,10 +316,12 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
   }
 
   const isExclusiveHandler = profile?.role === 'trainer' && profile?.handles_exclusive;
+  const isRegularTrainer = profile?.role === 'trainer' && !profile?.handles_exclusive && complaint.category === 'trainer_related';
   const canReview = (
     (profile?.role === 'student' && complaint.status === 'fixed') ||
     (profile?.role === 'trainer' && profile?.handles_exclusive && complaint.status === 'fixed')
   );
+  const canTrainerReply = isRegularTrainer && (complaint.status === 'logged' || complaint.status === 'noted');
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-6">
@@ -502,6 +504,38 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
             </Card>
           )}
 
+          {/* Trainer Profile Card */}
+          {isRegularTrainer && profile && (
+            <Card className="border shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Your Profile
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Name</p>
+                    <p className="text-sm font-medium">{profile.full_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Email</p>
+                    <p className="text-sm">{profile.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Credits</p>
+                    <p className="text-sm font-medium">{profile.credits}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Branch</p>
+                    <p className="text-sm font-medium">{profile.branch}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Admin Actions Card */}
           {(profile?.role === 'main_admin' || profile?.role === 'branch_admin') && (
             <Card className="border shadow-lg">
@@ -586,6 +620,25 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                     Go to Conversation
                   </Button>
                 )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Trainer Respond Section */}
+          {canTrainerReply && (
+            <Card className="border shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  Respond to Student
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <ReviewForm 
+                  complaintId={complaintId} 
+                  isTrainerReply={true}
+                  currentStatus={complaint.status}
+                />
               </CardContent>
             </Card>
           )}
