@@ -420,6 +420,57 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
 
         {/* Right Column - Metadata & Actions (33%) */}
         <div className="lg:col-span-1 space-y-6">
+          {/* Trainer Profile Card - Show FIRST for Trainers */}
+          {isRegularTrainer && profile && (
+            <Card className="border shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Your Profile
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Name</p>
+                    <p className="text-sm font-medium">{profile.full_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Email</p>
+                    <p className="text-sm">{profile.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Credits</p>
+                    <p className="text-sm font-medium">{profile.credits}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Branch</p>
+                    <p className="text-sm font-medium">{profile.branch}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Trainer Respond Section - Show SECOND for Trainers */}
+          {canTrainerReply && (
+            <Card className="border shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  Respond to Student
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <ReviewForm 
+                  complaintId={complaintId} 
+                  isTrainerReply={true}
+                  currentStatus={complaint.status}
+                />
+              </CardContent>
+            </Card>
+          )}
+
           {/* Metadata Card */}
           <Card className="border shadow-lg">
             <CardHeader>
@@ -467,57 +518,6 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
               </div>
             </CardContent>
           </Card>
-
-          {/* Trainer Profile Card - Show First for Trainers */}
-          {isRegularTrainer && profile && (
-            <Card className="border shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Your Profile
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Name</p>
-                    <p className="text-sm font-medium">{profile.full_name}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Email</p>
-                    <p className="text-sm">{profile.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Credits</p>
-                    <p className="text-sm font-medium">{profile.credits}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Branch</p>
-                    <p className="text-sm font-medium">{profile.branch}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Trainer Respond Section - Show Second for Trainers */}
-          {canTrainerReply && (
-            <Card className="border shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4" />
-                  Respond to Student
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <ReviewForm 
-                  complaintId={complaintId} 
-                  isTrainerReply={true}
-                  currentStatus={complaint.status}
-                />
-              </CardContent>
-            </Card>
-          )}
 
           {/* Reporter Card */}
           {(profile?.role === 'main_admin' || profile?.role === 'branch_admin') && studentProfile && (
