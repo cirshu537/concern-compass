@@ -70,17 +70,16 @@ export function ReviewsList({ complaintId }: ReviewsListProps) {
   });
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Reviews</h3>
+    <div className="space-y-3">
       {sortedReviews.map((review) => (
         <Card key={review.id} className="bg-card border-border">
-          <CardHeader>
-            <p className="text-sm text-muted-foreground capitalize">
+          <CardHeader className="pb-2 pt-3 px-3">
+            <p className="text-xs text-muted-foreground capitalize">
               {review.reviewer_role.replace('_', ' ')} • {format(new Date(review.created_at), 'MMM d, yyyy h:mm a')}
             </p>
           </CardHeader>
           {review.comment && (
-            <CardContent>
+            <CardContent className="px-3 pb-3">
               <p className="text-sm">{review.comment}</p>
             </CardContent>
           )}
