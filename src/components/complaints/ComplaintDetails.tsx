@@ -418,39 +418,39 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
             </div>
           )}
 
-          {/* Metadata Grid - Compact */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="flex items-center gap-2 p-2 bg-muted/10 rounded border border-border/20">
+          {/* Metadata Single Line */}
+          <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-2 px-3 py-2 bg-muted/10 rounded border border-border/20">
               <Tag className="w-4 h-4 text-primary flex-shrink-0" />
-              <div className="flex-1 min-w-0">
+              <div>
                 <p className="text-xs text-muted-foreground">Category</p>
-                <p className="font-medium text-xs capitalize truncate">{complaint.category.replace(/_/g, ' ')}</p>
+                <p className="font-medium text-xs capitalize whitespace-nowrap">{complaint.category.replace(/_/g, ' ')}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 p-2 bg-muted/10 rounded border border-border/20">
+            <div className="flex items-center gap-2 px-3 py-2 bg-muted/10 rounded border border-border/20">
               <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
-              <div className="flex-1 min-w-0">
+              <div>
                 <p className="text-xs text-muted-foreground">Branch</p>
-                <p className="font-medium text-xs truncate">{complaint.branch}</p>
+                <p className="font-medium text-xs whitespace-nowrap">{complaint.branch}</p>
               </div>
             </div>
 
             {complaint.program && (
-              <div className="flex items-center gap-2 p-2 bg-muted/10 rounded border border-border/20">
+              <div className="flex items-center gap-2 px-3 py-2 bg-muted/10 rounded border border-border/20">
                 <User className="w-4 h-4 text-primary flex-shrink-0" />
-                <div className="flex-1 min-w-0">
+                <div>
                   <p className="text-xs text-muted-foreground">Program</p>
-                  <p className="font-medium text-xs truncate">{complaint.program}</p>
+                  <p className="font-medium text-xs whitespace-nowrap">{complaint.program}</p>
                 </div>
               </div>
             )}
 
-            <div className="flex items-center gap-2 p-2 bg-muted/10 rounded border border-border/20">
+            <div className="flex items-center gap-2 px-3 py-2 bg-muted/10 rounded border border-border/20">
               <Calendar className="w-4 h-4 text-primary flex-shrink-0" />
-              <div className="flex-1 min-w-0">
+              <div>
                 <p className="text-xs text-muted-foreground">Created</p>
-                <p className="font-medium text-xs">{format(new Date(complaint.created_at), 'MMM d, yyyy')}</p>
+                <p className="font-medium text-xs whitespace-nowrap">{format(new Date(complaint.created_at), 'MMM d, yyyy')}</p>
               </div>
             </div>
           </div>
