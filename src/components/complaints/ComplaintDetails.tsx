@@ -399,28 +399,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
             )}
           </Card>
 
-          {/* Reviews Timeline */}
-          <Card className="border shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <MessageSquare className="w-5 h-5" />
-                Reviews & Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {canReview && (
-                <div className="mb-6 p-4 bg-muted/30 rounded-lg border">
-                  <ReviewForm complaintId={complaint.id} />
-                </div>
-              )}
-              <ReviewsList complaintId={complaintId} />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right Column - Metadata & Actions (33%) */}
-        <div className="lg:col-span-1 space-y-6">
-          {/* Trainer Profile Card - Show FIRST for Trainers */}
+          {/* Trainer Profile Card - For Regular Trainers */}
           {isRegularTrainer && profile && (
             <Card className="border shadow-lg">
               <CardHeader>
@@ -430,7 +409,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Name</p>
                     <p className="text-sm font-medium">{profile.full_name}</p>
@@ -452,7 +431,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
             </Card>
           )}
 
-          {/* Trainer Respond Section - Show SECOND for Trainers */}
+          {/* Trainer Respond Section - For Regular Trainers */}
           {canTrainerReply && (
             <Card className="border shadow-lg">
               <CardHeader>
@@ -471,6 +450,27 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
             </Card>
           )}
 
+          {/* Reviews Timeline */}
+          <Card className="border shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <MessageSquare className="w-5 h-5" />
+                Reviews & Activity
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {canReview && (
+                <div className="mb-6 p-4 bg-muted/30 rounded-lg border">
+                  <ReviewForm complaintId={complaint.id} />
+                </div>
+              )}
+              <ReviewsList complaintId={complaintId} />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column - Metadata & Actions (33%) */}
+        <div className="lg:col-span-1 space-y-6">
           {/* Metadata Card */}
           <Card className="border shadow-lg">
             <CardHeader>
