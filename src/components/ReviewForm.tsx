@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ThumbsUp, ThumbsDown, X } from 'lucide-react';
+import { ThumbsUp, ThumbsDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -45,11 +45,17 @@ export function ReviewForm({
   const [rating, setRating] = useState<-1 | 0 | 1 | null>(null);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<'fixed' | 'cancelled' | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
-  const handleSubmit = async (action: 'fixed' | 'cancelled' | 'submit') => {
+  const handleSubmit = async () => {
     if (!isTrainerReply && rating === null) {
       toast.error('Please select a rating');
+      return;
+    }
+
+    if (allowStatusChange && !selectedAction) {
+      toast.error('Please select an action (Fixed or Cancel)');
       return;
     }
 
@@ -81,12 +87,12 @@ export function ReviewForm({
       }
 
       // Update complaint status if needed
-      if (allowStatusChange && (action === 'fixed' || action === 'cancelled')) {
+      if (allowStatusChange && selectedAction) {
         const { error: statusError } = await supabase
           .from('complaints')
           .update({ 
-            status: action,
-            resolved_at: action === 'fixed' ? new Date().toISOString() : null
+            status: selectedAction,
+            resolved_at: selectedAction === 'fixed' ? new Date().toISOString() : null
           })
           .eq('id', complaintId);
 
@@ -107,16 +113,17 @@ export function ReviewForm({
       }
 
       toast.success(
-        action === 'cancelled' 
+        selectedAction === 'cancelled' 
           ? 'Concern cancelled successfully' 
           : isTrainerReply 
             ? 'Reply submitted successfully' 
-            : action === 'fixed'
+            : selectedAction === 'fixed'
               ? 'Concern marked as fixed'
               : 'Review submitted successfully'
       );
       setRating(null);
       setComment('');
+      setSelectedAction(null);
       onReviewSubmitted?.();
     } catch (error: any) {
       toast.error(error.message || 'Failed to submit review');
@@ -129,32 +136,16 @@ export function ReviewForm({
     setShowCancelConfirm(true);
   };
 
-  const handleCancelConfirm = async () => {
+  const handleCancelConfirm = () => {
+    setSelectedAction('cancelled');
     setShowCancelConfirm(false);
-    await handleSubmit('cancelled');
   };
 
   return (
     <Card className="bg-card border-border">
       <CardHeader className="pb-2 pt-3 px-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1">
-            <CardTitle className="text-sm font-semibold">{isTrainerReply ? 'Reply to Student' : 'Complete Concern'}</CardTitle>
-            <CardDescription className="text-xs">{getCardDescription()}</CardDescription>
-          </div>
-          {allowStatusChange && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCancelClick}
-              disabled={submitting}
-              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 -mt-1"
-              title="Cancel concern"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
+        <CardTitle className="text-sm font-semibold">{isTrainerReply ? 'Reply to Student' : 'Complete Concern'}</CardTitle>
+        <CardDescription className="text-xs">{getCardDescription()}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3 px-3 pb-3">
         {!isTrainerReply && (
@@ -201,20 +192,43 @@ export function ReviewForm({
           />
         </div>
 
+        {allowStatusChange && (
+          <div className="space-y-2">
+            <label className="text-xs font-medium">Action</label>
+            <div className="flex gap-2">
+              <Button
+                variant={selectedAction === 'cancelled' ? 'destructive' : 'outline'}
+                onClick={handleCancelClick}
+                size="sm"
+                disabled={submitting}
+                className={`flex-1 h-9 text-sm ${selectedAction !== 'cancelled' ? 'border-destructive/50 text-destructive hover:bg-destructive/10' : ''}`}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant={selectedAction === 'fixed' ? 'success' : 'outline'}
+                onClick={() => setSelectedAction('fixed')}
+                size="sm"
+                disabled={submitting}
+                className={`flex-1 h-9 text-sm ${selectedAction !== 'fixed' ? 'border-success/50 text-success hover:bg-success/10' : ''}`}
+              >
+                Fixed
+              </Button>
+            </div>
+          </div>
+        )}
+
         <Button 
-          onClick={() => handleSubmit(allowStatusChange ? 'fixed' : 'submit')} 
-          disabled={(!isTrainerReply && rating === null) || submitting}
+          onClick={handleSubmit} 
+          disabled={(!isTrainerReply && rating === null) || (allowStatusChange && !selectedAction) || submitting}
           size="sm"
-          variant={allowStatusChange ? 'success' : 'default'}
-          className="w-full h-9 text-sm font-medium"
+          className="w-full h-9 text-sm font-medium bg-primary/80 hover:bg-primary"
         >
           {submitting 
             ? 'Processing...' 
-            : allowStatusChange 
-              ? 'Mark as Fixed' 
-              : isTrainerReply 
-                ? 'Send Reply' 
-                : 'Submit Review'}
+            : isTrainerReply 
+              ? 'Send Reply' 
+              : 'Submit Review'}
         </Button>
       </CardContent>
 
