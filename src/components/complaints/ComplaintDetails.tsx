@@ -350,7 +350,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {onBack && (
         <Button variant="outline" onClick={onBack} size="sm">
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -360,10 +360,10 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
 
       {/* Main Header Card */}
       <Card className="border-border/50">
-        <CardHeader className="pb-3 pt-4 px-4">
+        <CardHeader className="pb-2 pt-3 px-3">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <CardTitle className="text-xl font-bold mb-2">{complaint.title}</CardTitle>
+              <CardTitle className="text-lg font-bold mb-2">{complaint.title}</CardTitle>
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={complaint.status} />
                 {complaint.anonymous && (
@@ -376,9 +376,9 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-3 px-4 pb-4">
+        <CardContent className="space-y-2 px-3 pb-3">
           {/* Description Section */}
-          <div className="bg-muted/20 rounded-lg p-3 border border-border/30">
+          <div className="bg-muted/20 rounded-lg p-2.5 border border-border/30">
             <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{complaint.description}</p>
           </div>
 
@@ -389,7 +389,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                 variant="outline"
                 size="sm"
                 onClick={handleViewAttachment}
-                className="h-8 text-xs"
+                className="h-7 text-xs"
               >
                 <Paperclip className="w-3 h-3 mr-1" />
                 View Attachment
@@ -419,37 +419,37 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
           )}
 
           {/* Metadata Single Line */}
-          <div className="flex flex-wrap gap-2">
-            <div className="flex items-center gap-2 px-3 py-2 bg-muted/10 rounded border border-border/20">
-              <Tag className="w-4 h-4 text-primary flex-shrink-0" />
+          <div className="flex flex-wrap gap-1.5">
+            <div className="flex items-center gap-1.5 px-2 py-1.5 bg-muted/10 rounded border border-border/20">
+              <Tag className="w-3.5 h-3.5 text-primary flex-shrink-0" />
               <div>
-                <p className="text-xs text-muted-foreground">Category</p>
+                <p className="text-[10px] text-muted-foreground">Category</p>
                 <p className="font-medium text-xs capitalize whitespace-nowrap">{complaint.category.replace(/_/g, ' ')}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 px-3 py-2 bg-muted/10 rounded border border-border/20">
-              <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
+            <div className="flex items-center gap-1.5 px-2 py-1.5 bg-muted/10 rounded border border-border/20">
+              <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
               <div>
-                <p className="text-xs text-muted-foreground">Branch</p>
+                <p className="text-[10px] text-muted-foreground">Branch</p>
                 <p className="font-medium text-xs whitespace-nowrap">{complaint.branch}</p>
               </div>
             </div>
 
             {complaint.program && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-muted/10 rounded border border-border/20">
-                <User className="w-4 h-4 text-primary flex-shrink-0" />
+              <div className="flex items-center gap-1.5 px-2 py-1.5 bg-muted/10 rounded border border-border/20">
+                <User className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Program</p>
+                  <p className="text-[10px] text-muted-foreground">Program</p>
                   <p className="font-medium text-xs whitespace-nowrap">{complaint.program}</p>
                 </div>
               </div>
             )}
 
-            <div className="flex items-center gap-2 px-3 py-2 bg-muted/10 rounded border border-border/20">
-              <Calendar className="w-4 h-4 text-primary flex-shrink-0" />
+            <div className="flex items-center gap-1.5 px-2 py-1.5 bg-muted/10 rounded border border-border/20">
+              <Calendar className="w-3.5 h-3.5 text-primary flex-shrink-0" />
               <div>
-                <p className="text-xs text-muted-foreground">Created</p>
+                <p className="text-[10px] text-muted-foreground">Created</p>
                 <p className="font-medium text-xs whitespace-nowrap">{format(new Date(complaint.created_at), 'MMM d, yyyy')}</p>
               </div>
             </div>
@@ -457,14 +457,14 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
 
           {/* Student Info Inline for Admins */}
           {(profile?.role === 'main_admin' || profile?.role === 'branch_admin') && studentProfile && (
-            <div className="flex items-center justify-between p-2 bg-primary/5 rounded border border-primary/20 mt-2">
+            <div className="flex items-center justify-between p-2 bg-primary/5 rounded border border-primary/20">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <User className="w-4 h-4 text-primary" />
+                <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <User className="w-3.5 h-3.5 text-primary" />
                 </div>
                 <div>
                   <p className="font-semibold text-xs">{studentProfile.full_name}</p>
-                  <p className="text-xs text-muted-foreground">{studentProfile.email}</p>
+                  <p className="text-[10px] text-muted-foreground">{studentProfile.email}</p>
                 </div>
               </div>
               <Button
@@ -474,7 +474,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                   e.stopPropagation();
                   navigate(`/admin/student-profile/${studentProfile.id}`);
                 }}
-                className="h-7 text-xs"
+                className="h-7 text-xs px-3"
               >
                 Profile
               </Button>
@@ -487,11 +487,11 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
       {/* Exclusive Handler Actions - Working on Concern Button when Logged or Noted */}
       {isExclusiveHandler && complaint.student_type === 'exclusive' && (complaint.status === 'logged' || complaint.status === 'noted') && !complaint.assigned_trainer_id && (
         <Card className="border-border/50 bg-primary/5">
-          <CardContent className="p-3">
+          <CardContent className="p-2.5">
             <Button 
               onClick={() => assignTrainerMutation.mutate()}
               disabled={assignTrainerMutation.isPending}
-              className="w-full h-10 font-semibold"
+              className="w-full h-9 font-semibold text-sm"
             >
               Working on Concern
             </Button>
@@ -502,11 +502,11 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
       {/* Staff Actions - Process Button when Logged or Noted */}
       {(profile?.role === 'staff' || profile?.role === 'branch_admin') && (complaint.status === 'logged' || complaint.status === 'noted') && (
         <Card className="border-border/50 bg-primary/5">
-          <CardContent className="p-3">
+          <CardContent className="p-2.5">
             <Button 
               onClick={() => updateStatusMutation.mutate('in_process')}
               disabled={updateStatusMutation.isPending}
-              className="w-full h-10 font-semibold"
+              className="w-full h-9 font-semibold text-sm"
             >
               Process Concern
             </Button>
@@ -520,11 +520,11 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
        complaint.status === 'in_process' && 
        complaint.assigned_trainer_id === profile.id && (
         <Card className="border-border/50">
-          <CardHeader className="pb-2 pt-3 px-4">
-            <CardTitle className="text-base font-semibold">Review & Complete</CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">Provide rating and review</p>
+          <CardHeader className="pb-2 pt-2.5 px-3">
+            <CardTitle className="text-sm font-semibold">Review & Complete</CardTitle>
+            <p className="text-[10px] text-muted-foreground mt-0.5">Provide rating and review</p>
           </CardHeader>
-          <CardContent className="space-y-3 px-4 pb-4">
+          <CardContent className="space-y-2 px-3 pb-3">
             <ReviewForm 
               complaintId={complaintId} 
               allowStatusChange={true}
@@ -534,7 +534,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
               <Button 
                 onClick={() => updateStatusMutation.mutate('fixed')}
                 disabled={updateStatusMutation.isPending}
-                className="h-9 font-semibold text-sm"
+                className="h-8 font-medium text-xs"
                 variant="default"
               >
                 Mark Fixed
@@ -542,7 +542,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
               <Button 
                 onClick={() => updateStatusMutation.mutate('cancelled')}
                 disabled={updateStatusMutation.isPending}
-                className="h-9 font-semibold text-sm"
+                className="h-8 font-medium text-xs"
                 variant="outline"
               >
                 Cancel
@@ -556,11 +556,11 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
       {(profile?.role === 'staff' || profile?.role === 'branch_admin') && 
        complaint.status === 'in_process' && (
         <Card className="border-border/50">
-          <CardHeader className="pb-2 pt-3 px-4">
-            <CardTitle className="text-base font-semibold">Review & Complete</CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">Provide rating and review</p>
+          <CardHeader className="pb-2 pt-2.5 px-3">
+            <CardTitle className="text-sm font-semibold">Review & Complete</CardTitle>
+            <p className="text-[10px] text-muted-foreground mt-0.5">Provide rating and review</p>
           </CardHeader>
-          <CardContent className="space-y-3 px-4 pb-4">
+          <CardContent className="space-y-2 px-3 pb-3">
             <ReviewForm 
               complaintId={complaintId} 
               allowStatusChange={true}
@@ -570,7 +570,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
               <Button 
                 onClick={() => updateStatusMutation.mutate('fixed')}
                 disabled={updateStatusMutation.isPending}
-                className="h-9 font-semibold text-sm"
+                className="h-8 font-medium text-xs"
                 variant="default"
               >
                 Mark Fixed
@@ -578,7 +578,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
               <Button 
                 onClick={() => updateStatusMutation.mutate('cancelled')}
                 disabled={updateStatusMutation.isPending}
-                className="h-9 font-semibold text-sm"
+                className="h-8 font-medium text-xs"
                 variant="outline"
               >
                 Cancel
@@ -588,61 +588,63 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
         </Card>
       )}
 
-      {/* Admin Actions Card - Compact */}
+      {/* Admin Actions Card - Horizontal Layout */}
       {(profile?.role === 'main_admin' || profile?.role === 'branch_admin') && (
         <Card className="border-border/50">
-          <CardHeader className="pb-2 pt-3 px-4">
-            <CardTitle className="text-base font-semibold">Admin Actions</CardTitle>
+          <CardHeader className="pb-2 pt-2.5 px-3">
+            <CardTitle className="text-sm font-semibold">Admin Actions</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 px-4 pb-4">
-            {complaint.anonymous && !complaint.identity_revealed && (
-              <div className="p-2 bg-destructive/10 rounded border border-destructive/30">
-                <Button
-                  variant="destructive"
-                  onClick={() => revealIdentityMutation.mutate()}
-                  disabled={revealIdentityMutation.isPending}
-                  className="w-full h-9 font-semibold text-sm"
-                  size="sm"
-                >
-                  <Eye className="w-3 h-3 mr-2" />
-                  Reveal Identity
-                </Button>
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  Makes student visible to all staff
-                </p>
+          <CardContent className="px-3 pb-3">
+            <div className="space-y-2">
+              {/* Action Buttons in Grid */}
+              <div className="grid grid-cols-2 gap-2">
+                {complaint.anonymous && !complaint.identity_revealed && (
+                  <Button
+                    variant="destructive"
+                    onClick={() => revealIdentityMutation.mutate()}
+                    disabled={revealIdentityMutation.isPending}
+                    className="h-8 font-medium text-xs col-span-2"
+                    size="sm"
+                  >
+                    <Eye className="w-3 h-3 mr-1.5" />
+                    Reveal Identity
+                  </Button>
+                )}
+
+                {profile?.role === 'main_admin' && (
+                  <Button
+                    variant="outline"
+                    onClick={() => startMainToBranchConversation.mutate()}
+                    disabled={startMainToBranchConversation.isPending}
+                    className="h-8 font-medium text-xs col-span-2"
+                    size="sm"
+                  >
+                    <MessageSquare className="w-3 h-3 mr-1.5" />
+                    Contact Branch Admin
+                  </Button>
+                )}
+
+                {profile?.role === 'branch_admin' && (
+                  <Button
+                    variant="outline"
+                    onClick={() => startBranchToStaffConversation.mutate('group')}
+                    disabled={startBranchToStaffConversation.isPending}
+                    className="h-8 font-medium text-xs col-span-2"
+                    size="sm"
+                  >
+                    <Users className="w-3 h-3 mr-1.5" />
+                    Group Chat with Staff
+                  </Button>
+                )}
               </div>
-            )}
 
-            {profile?.role === 'main_admin' && (
-              <Button
-                variant="outline"
-                onClick={() => startMainToBranchConversation.mutate()}
-                disabled={startMainToBranchConversation.isPending}
-                className="w-full h-9 font-semibold text-sm"
-                size="sm"
-              >
-                <MessageSquare className="w-3 h-3 mr-2" />
-                Contact Branch Admin
-              </Button>
-            )}
-
-            {profile?.role === 'branch_admin' && (
-              <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  onClick={() => startBranchToStaffConversation.mutate('group')}
-                  disabled={startBranchToStaffConversation.isPending}
-                  className="w-full h-9 font-semibold text-sm"
-                  size="sm"
-                >
-                  <Users className="w-3 h-3 mr-2" />
-                  Group Chat with Staff
-                </Button>
-                {staff && staff.length > 0 && (
-                  <div className="space-y-2 p-2 bg-muted/20 rounded border border-border/30">
-                    <label className="text-xs font-semibold text-foreground">Assign Staff</label>
+              {/* Staff Assignment - Compact */}
+              {profile?.role === 'branch_admin' && staff && staff.length > 0 && (
+                <div className="space-y-1.5 p-2 bg-muted/20 rounded border border-border/30">
+                  <label className="text-[10px] font-semibold text-foreground">Assign Staff</label>
+                  <div className="flex gap-1.5">
                     <Select value={assignedStaffId || undefined} onValueChange={setAssignedStaffId}>
-                      <SelectTrigger className="h-9 text-sm">
+                      <SelectTrigger className="h-8 text-xs flex-1">
                         <SelectValue placeholder="Select staff" />
                       </SelectTrigger>
                       <SelectContent>
@@ -657,16 +659,16 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                       <Button
                         onClick={() => assignStaffMutation.mutate(assignedStaffId)}
                         disabled={assignStaffMutation.isPending}
-                        className="w-full h-9 font-semibold text-sm"
+                        className="h-8 font-medium text-xs px-3"
                         size="sm"
                       >
                         Assign
                       </Button>
                     )}
                   </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}
@@ -675,10 +677,10 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
       {(profile?.role === 'student' || (profile?.role === 'trainer' && profile?.handles_exclusive)) && 
        complaint.status === 'fixed' && (
         <Card className="border-border/50">
-          <CardHeader className="pb-2 pt-3 px-4">
-            <CardTitle className="text-base font-semibold">Leave Your Review</CardTitle>
+          <CardHeader className="pb-2 pt-2.5 px-3">
+            <CardTitle className="text-sm font-semibold">Leave Your Review</CardTitle>
           </CardHeader>
-          <CardContent className="px-4 pb-4">
+          <CardContent className="px-3 pb-3">
             <ReviewForm complaintId={complaintId} />
           </CardContent>
         </Card>
@@ -687,10 +689,10 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
       {/* Show reviews if any exist */}
       {reviews && reviews.length > 0 && (
         <Card className="border-border/50">
-          <CardHeader className="pb-2 pt-3 px-4">
-            <CardTitle className="text-base font-semibold">Reviews</CardTitle>
+          <CardHeader className="pb-2 pt-2.5 px-3">
+            <CardTitle className="text-sm font-semibold">Reviews</CardTitle>
           </CardHeader>
-          <CardContent className="px-4 pb-4">
+          <CardContent className="px-3 pb-3">
             <ReviewsList complaintId={complaintId} />
           </CardContent>
         </Card>
