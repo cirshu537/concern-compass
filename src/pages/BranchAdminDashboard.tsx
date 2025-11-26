@@ -17,14 +17,11 @@ export default function BranchAdminDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { profile, signOut } = useAuth();
-  const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail' | 'staff-list' | 'student-list' | 'staff-profile' | 'student-profile'>('dashboard');
+  const [selectedView, setSelectedView] = useState<'dashboard' | 'complaints' | 'detail' | 'filtered' | 'staff-list' | 'student-list' | 'staff-profile' | 'student-profile'>('dashboard');
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
-  const [filterCategory, setFilterCategory] = useState<string | undefined>(undefined);
-  const [filterHighAlertStaff, setFilterHighAlertStaff] = useState<boolean>(false);
-  const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
-  const [filterToday, setFilterToday] = useState<boolean>(false);
+  const [selectedFilter, setSelectedFilter] = useState<'total' | 'open' | 'fixed' | 'cancelled' | 'high_alert' | null>(null);
   const [timeRange, setTimeRange] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime'>('today');
 
   // Redirect if not branch admin
@@ -145,6 +142,53 @@ export default function BranchAdminDashboard() {
         trainerComplaintCounts,
       };
     },
+  });
+
+  // Filtered complaints for stat cards
+  const { data: filteredComplaints } = useQuery({
+    queryKey: ['branch-filtered-complaints', profile?.branch, selectedFilter, timeRange],
+    queryFn: async () => {
+      if (!selectedFilter || !profile?.branch) return null;
+      
+      const rangeStart = getTimeRangeDate();
+      
+      let query = supabase
+        .from('complaints')
+        .select('id, title, category, status, student_type, branch, created_at, assigned_staff_id')
+        .eq('branch', profile.branch)
+        .order('created_at', { ascending: false });
+
+      // Apply time range filter (unless lifetime)
+      if (timeRange !== 'lifetime') {
+        query = query.gte('created_at', rangeStart);
+      }
+
+      if (selectedFilter === 'open') {
+        query = query.in('status', ['logged', 'noted', 'in_process']);
+      } else if (selectedFilter === 'fixed') {
+        query = query.eq('status', 'fixed');
+      } else if (selectedFilter === 'cancelled') {
+        query = query.eq('status', 'cancelled');
+      } else if (selectedFilter === 'high_alert') {
+        // Get high alert staff IDs
+        const { data: highAlertStaff } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('branch', profile.branch)
+          .eq('high_alert', true);
+        
+        const highAlertIds = highAlertStaff?.map(s => s.id) || [];
+        if (highAlertIds.length > 0) {
+          query = query.in('assigned_staff_id', highAlertIds);
+        } else {
+          return []; // No high alert staff, return empty
+        }
+      }
+
+      const { data } = await query;
+      return data || [];
+    },
+    enabled: !!selectedFilter && !!profile?.branch,
   });
 
   const handleSignOut = async () => {
@@ -373,6 +417,10 @@ export default function BranchAdminDashboard() {
             
             if (from === 'chat') {
               navigate('/chat');
+            } else if (from === 'branch-all-complaints') {
+              navigate('/branch-admin/all-complaints');
+            } else if (returnView === 'filtered' || selectedFilter) {
+              setSelectedView('filtered');
             } else if (returnView) {
               setSelectedView(returnView as any);
             } else {
@@ -388,13 +436,7 @@ export default function BranchAdminDashboard() {
         <div>
           <Button 
             variant="default" 
-            onClick={() => {
-              setSelectedView('dashboard');
-              setFilterCategory(undefined);
-              setFilterHighAlertStaff(false);
-              setFilterStatus(undefined);
-              setFilterToday(false);
-            }}
+            onClick={() => setSelectedView('dashboard')}
             className="mb-4"
           >
             <ChevronLeft className="w-4 h-4 mr-2" />
@@ -402,16 +444,83 @@ export default function BranchAdminDashboard() {
           </Button>
           <ComplaintsList
             filterByBranch={profile?.branch || ''}
-            filterByCategory={filterCategory}
-            filterByHighAlertStaff={filterHighAlertStaff}
-            filterByStatus={filterStatus}
-            filterByTimeRange={timeRange}
-            hideInternalFilters={filterCategory !== undefined || filterHighAlertStaff || filterStatus !== undefined}
             onComplaintClick={(complaint) => {
               setSelectedComplaintId(complaint.id);
               setSelectedView('detail');
             }}
           />
+        </div>
+      );
+    }
+
+    if (selectedView === 'filtered' && selectedFilter) {
+      const filterTitles = {
+        total: 'All Concerns',
+        open: 'Open Concerns',
+        fixed: 'Fixed Concerns',
+        cancelled: 'Cancelled Concerns',
+        high_alert: 'High Alert Staff Concerns',
+      };
+
+      return (
+        <div>
+          <Button 
+            variant="default" 
+            onClick={() => {
+              setSelectedView('dashboard');
+              setSelectedFilter(null);
+            }}
+            className="mb-4"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold mb-2">{filterTitles[selectedFilter]}</h2>
+            <p className="text-muted-foreground">{getTimeRangeLabel()} - {profile?.branch}</p>
+          </div>
+
+          <div className="space-y-2">
+            {filteredComplaints && filteredComplaints.length > 0 ? (
+              filteredComplaints.map((complaint) => (
+                <Card 
+                  key={complaint.id} 
+                  className="p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                  onClick={() => {
+                    setSelectedComplaintId(complaint.id);
+                    setSelectedView('detail');
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg mb-1">{complaint.title}</h3>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs bg-muted px-2 py-1 rounded capitalize">
+                          {complaint.category.replace(/_/g, ' ')}
+                        </span>
+                        <span className={`text-xs px-2 py-1 rounded capitalize ${
+                          complaint.status === 'fixed' ? 'bg-status-fixed/10 text-status-fixed' :
+                          complaint.status === 'in_process' ? 'bg-status-in_process/10 text-status-in_process' :
+                          complaint.status === 'cancelled' ? 'bg-status-cancelled/10 text-status-cancelled' :
+                          'bg-muted'
+                        }`}>
+                          {complaint.status.replace(/_/g, ' ')}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {new Date(complaint.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                </Card>
+              ))
+            ) : (
+              <Card className="p-8">
+                <p className="text-center text-muted-foreground">No concerns found for this filter.</p>
+              </Card>
+            )}
+          </div>
         </div>
       );
     }
@@ -443,11 +552,8 @@ export default function BranchAdminDashboard() {
           <Card 
             className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 cursor-pointer hover:border-primary/50 transition-all"
             onClick={() => {
-              setFilterCategory(undefined);
-              setFilterHighAlertStaff(false);
-              setFilterStatus(undefined);
-              setFilterToday(false);
-              setSelectedView('complaints');
+              setSelectedFilter('total');
+              setSelectedView('filtered');
             }}
           >
             <CardHeader>
@@ -462,11 +568,8 @@ export default function BranchAdminDashboard() {
           <Card 
             className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/30 cursor-pointer hover:border-secondary/50 transition-all"
             onClick={() => {
-              setFilterCategory(undefined);
-              setFilterHighAlertStaff(false);
-              setFilterStatus('open');
-              setFilterToday(false);
-              setSelectedView('complaints');
+              setSelectedFilter('open');
+              setSelectedView('filtered');
             }}
           >
             <CardHeader>
@@ -481,11 +584,8 @@ export default function BranchAdminDashboard() {
           <Card 
             className="bg-gradient-to-br from-status-fixed/10 to-status-fixed/5 border-status-fixed/30 cursor-pointer hover:border-status-fixed/50 transition-all"
             onClick={() => {
-              setFilterCategory(undefined);
-              setFilterHighAlertStaff(false);
-              setFilterStatus('fixed');
-              setFilterToday(false);
-              setSelectedView('complaints');
+              setSelectedFilter('fixed');
+              setSelectedView('filtered');
             }}
           >
             <CardHeader>
@@ -500,11 +600,8 @@ export default function BranchAdminDashboard() {
           <Card 
             className="bg-gradient-to-br from-status-cancelled/10 to-status-cancelled/5 border-status-cancelled/30 cursor-pointer hover:border-status-cancelled/50 transition-all"
             onClick={() => {
-              setFilterCategory(undefined);
-              setFilterHighAlertStaff(false);
-              setFilterStatus('cancelled');
-              setFilterToday(false);
-              setSelectedView('complaints');
+              setSelectedFilter('cancelled');
+              setSelectedView('filtered');
             }}
           >
             <CardHeader>
@@ -519,11 +616,8 @@ export default function BranchAdminDashboard() {
           <Card 
             className="bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/30 cursor-pointer hover:border-destructive/50 transition-all"
             onClick={() => {
-              setFilterCategory(undefined);
-              setFilterHighAlertStaff(true);
-              setFilterStatus(undefined);
-              setFilterToday(false);
-              setSelectedView('complaints');
+              setSelectedFilter('high_alert');
+              setSelectedView('filtered');
             }}
           >
             <CardHeader>
