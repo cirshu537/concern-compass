@@ -399,38 +399,6 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
             )}
           </Card>
 
-          {/* Trainer Profile Card - For Regular Trainers */}
-          {isRegularTrainer && profile && (
-            <Card className="border shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Your Profile
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Name</p>
-                    <p className="text-sm font-medium">{profile.full_name}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Email</p>
-                    <p className="text-sm">{profile.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Credits</p>
-                    <p className="text-sm font-medium">{profile.credits}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Branch</p>
-                    <p className="text-sm font-medium">{profile.branch}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           {/* Trainer Respond Section - For Regular Trainers */}
           {canTrainerReply && (
             <Card className="border shadow-lg">
