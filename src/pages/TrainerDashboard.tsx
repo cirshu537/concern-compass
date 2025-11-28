@@ -148,6 +148,7 @@ export default function TrainerDashboard() {
             </Button>
             <ComplaintsList
               filterByStudentType="exclusive"
+              filterByTimeRange="lifetime"
               onComplaintClick={(complaint) => {
                 setPreviousView('all');
                 setSelectedComplaintId(complaint.id);
@@ -171,6 +172,7 @@ export default function TrainerDashboard() {
             </Button>
             <ComplaintsList
               filterByAssigned={profile?.id || ''}
+              filterByTimeRange="lifetime"
               onComplaintClick={(complaint) => {
                 setPreviousView('assigned');
                 setSelectedComplaintId(complaint.id);
