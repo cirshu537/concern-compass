@@ -23,6 +23,7 @@ interface ComplaintsListProps {
   excludeTrainerRelated?: boolean;
   onComplaintClick?: (complaint: Complaint) => void;
   hideInternalFilters?: boolean;
+  hideCategoryFilter?: boolean;
 }
 
 export function ComplaintsList({
@@ -37,7 +38,8 @@ export function ComplaintsList({
   filterByTimeRange,
   excludeTrainerRelated,
   onComplaintClick,
-  hideInternalFilters 
+  hideInternalFilters,
+  hideCategoryFilter
 }: ComplaintsListProps) {
   const navigate = useNavigate();
   const { profile } = useAuth();
@@ -312,30 +314,34 @@ export function ComplaintsList({
                 <SelectItem value="rejected">Rejected</SelectItem>
               </SelectContent>
             </Select>
-            <Button
-              variant={categoryFilter === 'all' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setCategoryFilter('all')}
-              className="h-9"
-            >
-              All
-            </Button>
-            <Button
-              variant={categoryFilter === 'trainer_related' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setCategoryFilter('trainer_related')}
-              className="h-9"
-            >
-              Trainer
-            </Button>
-            <Button
-              variant={categoryFilter === 'staff_handled' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setCategoryFilter('staff_handled')}
-              className="h-9"
-            >
-              Staff
-            </Button>
+            {!hideCategoryFilter && (
+              <>
+                <Button
+                  variant={categoryFilter === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setCategoryFilter('all')}
+                  className="h-9"
+                >
+                  All
+                </Button>
+                <Button
+                  variant={categoryFilter === 'trainer_related' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setCategoryFilter('trainer_related')}
+                  className="h-9"
+                >
+                  Trainer
+                </Button>
+                <Button
+                  variant={categoryFilter === 'staff_handled' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setCategoryFilter('staff_handled')}
+                  className="h-9"
+                >
+                  Staff
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
