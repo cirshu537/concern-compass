@@ -79,7 +79,7 @@ export default function BranchAdminDashboard() {
 
   const { data: stats } = useQuery({
     queryKey: ['branch-stats', profile?.branch, timeRange],
-    enabled: !!profile?.branch && selectedView === 'dashboard',
+    enabled: !!profile?.branch,
     staleTime: 30000, // 30 seconds
     gcTime: 5 * 60 * 1000, // 5 minutes
     queryFn: async () => {
