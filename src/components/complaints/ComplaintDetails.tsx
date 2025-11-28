@@ -321,7 +321,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
     (profile?.role === 'student' && complaint.status === 'fixed') ||
     (profile?.role === 'trainer' && profile?.handles_exclusive && complaint.status === 'fixed')
   );
-  const canTrainerReply = isRegularTrainer && (complaint.status === 'logged' || complaint.status === 'noted');
+  const canTrainerReply = isRegularTrainer && complaint.status === 'logged';
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-6">
