@@ -20,6 +20,7 @@ interface ComplaintsListProps {
   filterByStatus?: string;
   filterByToday?: boolean;
   filterByTimeRange?: 'today' | 'weekly' | 'monthly' | 'yearly' | 'lifetime';
+  excludeTrainerRelated?: boolean;
   onComplaintClick?: (complaint: Complaint) => void;
   hideInternalFilters?: boolean;
 }
@@ -34,6 +35,7 @@ export function ComplaintsList({
   filterByStatus,
   filterByToday,
   filterByTimeRange,
+  excludeTrainerRelated,
   onComplaintClick,
   hideInternalFilters 
 }: ComplaintsListProps) {
@@ -68,7 +70,7 @@ export function ComplaintsList({
   }, [queryClient]);
 
   const { data: complaints, isLoading } = useQuery({
-    queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, filterByCategory, filterByHighAlertStaff, filterByStatus, filterByToday, filterByTimeRange, statusFilter, categoryFilter, timeRangeFilter],
+    queryKey: ['complaints', filterByBranch, filterByTrainer, filterByAssigned, filterByStudentType, filterByCategory, filterByHighAlertStaff, filterByStatus, filterByToday, filterByTimeRange, excludeTrainerRelated, statusFilter, categoryFilter, timeRangeFilter],
     staleTime: 30000, // 30 seconds
     gcTime: 5 * 60 * 1000, // 5 minutes
     queryFn: async () => {
@@ -79,6 +81,11 @@ export function ComplaintsList({
 
       if (filterByBranch) {
         query = query.eq('branch', filterByBranch);
+      }
+
+      // Exclude trainer-related complaints for staff
+      if (excludeTrainerRelated) {
+        query = query.neq('category', 'trainer_related');
       }
 
       // Apply time range filter - use prop if provided, otherwise use local state
