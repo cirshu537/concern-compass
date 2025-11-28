@@ -125,6 +125,7 @@ export default function StaffDashboard() {
           <ComplaintsList
             filterByBranch={profile?.branch || ''}
             excludeTrainerRelated={true}
+            hideCategoryFilter={true}
             onComplaintClick={(complaint) => {
               setPreviousView('all');
               setSelectedComplaintId(complaint.id);
@@ -149,6 +150,7 @@ export default function StaffDashboard() {
           <ComplaintsList
             filterByAssigned={profile?.id || ''}
             excludeTrainerRelated={true}
+            hideCategoryFilter={true}
             onComplaintClick={(complaint) => {
               setPreviousView('assigned');
               setSelectedComplaintId(complaint.id);
