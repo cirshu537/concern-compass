@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ComplaintsList } from '@/components/complaints/ComplaintsList';
 import { ComplaintDetails } from '@/components/complaints/ComplaintDetails';
+import { StatusBadge } from '@/components/StatusBadge';
 import { FileText, BookOpen, LogOut, Users, ChevronLeft } from 'lucide-react';
 import { DashboardNav } from '@/components/DashboardNav';
 
@@ -227,9 +228,12 @@ export default function TrainerDashboard() {
                   }}
                 >
                   <CardHeader>
-                    <CardTitle>{complaint.title}</CardTitle>
+                    <div className="flex items-start justify-between gap-4 mb-2">
+                      <CardTitle className="flex-1">{complaint.title}</CardTitle>
+                      <StatusBadge status={complaint.status} />
+                    </div>
                     <CardDescription>
-                      {new Date(complaint.created_at).toLocaleDateString()} • Status: {complaint.status}
+                      {new Date(complaint.created_at).toLocaleDateString()}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -282,9 +286,12 @@ export default function TrainerDashboard() {
                   }}
                 >
                   <CardHeader>
-                    <CardTitle>{complaint.title}</CardTitle>
+                    <div className="flex items-start justify-between gap-4 mb-2">
+                      <CardTitle className="flex-1">{complaint.title}</CardTitle>
+                      <StatusBadge status={complaint.status} />
+                    </div>
                     <CardDescription>
-                      {new Date(complaint.created_at).toLocaleDateString()} • Status: {complaint.status}
+                      {new Date(complaint.created_at).toLocaleDateString()}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
