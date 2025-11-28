@@ -21,9 +21,10 @@ import { ReviewsList } from '@/components/complaints/ReviewsList';
 interface ComplaintDetailsProps {
   complaintId: string;
   onBack?: () => void;
+  hideAssignStaff?: boolean;
 }
 
-export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps) {
+export function ComplaintDetails({ complaintId, onBack, hideAssignStaff }: ComplaintDetailsProps) {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const queryClient = useQueryClient();
@@ -569,7 +570,7 @@ export function ComplaintDetails({ complaintId, onBack }: ComplaintDetailsProps)
                       {startBranchToStaffConversation.isPending ? "Starting..." : "Group Chat with Staff"}
                     </Button>
 
-                    {staff && staff.length > 0 && (
+                    {!hideAssignStaff && staff && staff.length > 0 && (
                       <div className="space-y-2 pt-3 border-t">
                         <p className="text-xs font-semibold text-muted-foreground">Assign Staff Member</p>
                         <Select value={assignedStaffId || undefined} onValueChange={setAssignedStaffId}>

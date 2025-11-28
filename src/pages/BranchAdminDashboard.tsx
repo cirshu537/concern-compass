@@ -415,6 +415,7 @@ export default function BranchAdminDashboard() {
       return (
         <ComplaintDetails 
           complaintId={selectedComplaintId}
+          hideAssignStaff={true}
           onBack={() => {
             const from = searchParams.get('from');
             const returnView = searchParams.get('returnView');
