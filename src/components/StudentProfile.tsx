@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, AlertTriangle, Award, FileText, Ban, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/hooks/useAuth';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +33,7 @@ interface StudentProfileProps {
 }
 
 export function StudentProfile({ studentId, onBack }: StudentProfileProps) {
+  const { profile: currentUserProfile } = useAuth();
   const [selectedComplaintId, setSelectedComplaintId] = useState<string | null>(null);
   
   const { data: profile } = useQuery({
@@ -304,6 +306,7 @@ export function StudentProfile({ studentId, onBack }: StudentProfileProps) {
             <ComplaintDetails 
               complaintId={selectedComplaintId}
               onBack={() => setSelectedComplaintId(null)}
+              hideAssignStaff={currentUserProfile?.role === 'branch_admin'}
             />
           )}
         </DialogContent>
