@@ -89,7 +89,7 @@ const Index = () => {
           {/* Elegant Subheadline */}
           <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <p className="text-base sm:text-lg md:text-xl text-gray-300/70 max-w-2xl mx-auto font-normal leading-relaxed">
-              We value your comfort more than anything
+              Simple, safe, and respectful concern reporting
             </p>
           </div>
 
