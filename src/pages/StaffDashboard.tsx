@@ -67,7 +67,8 @@ export default function StaffDashboard() {
       const { data: allComplaints } = await supabase
         .from('complaints')
         .select('id, status')
-        .eq('branch', profile!.branch);
+        .eq('branch', profile!.branch)
+        .neq('category', 'trainer_related');
 
       const { data: assignedComplaints } = await supabase
         .from('complaints')
@@ -123,6 +124,7 @@ export default function StaffDashboard() {
           </Button>
           <ComplaintsList
             filterByBranch={profile?.branch || ''}
+            excludeTrainerRelated={true}
             onComplaintClick={(complaint) => {
               setPreviousView('all');
               setSelectedComplaintId(complaint.id);
@@ -146,6 +148,7 @@ export default function StaffDashboard() {
           </Button>
           <ComplaintsList
             filterByAssigned={profile?.id || ''}
+            excludeTrainerRelated={true}
             onComplaintClick={(complaint) => {
               setPreviousView('assigned');
               setSelectedComplaintId(complaint.id);
