@@ -54,6 +54,8 @@ export default function ComplaintDetailsPage() {
     );
   }
 
+  const hideAssignStaff = profile?.role === 'branch_admin';
+
   return (
     <div className="min-h-screen bg-background">
       <DashboardNav />
@@ -61,6 +63,7 @@ export default function ComplaintDetailsPage() {
         <ComplaintDetails 
           complaintId={complaintId}
           onBack={handleBack}
+          hideAssignStaff={hideAssignStaff}
         />
       </div>
     </div>
